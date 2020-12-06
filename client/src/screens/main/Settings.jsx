@@ -7,14 +7,15 @@ import CardActions from "@material-ui/core/CardActions";
 import { useContext, useState } from "react";
 import { indigo } from "@material-ui/core/colors";
 import { CurrentUserContext } from "../../components/Context/CurrentUserContext";
-import { DarkModeContext } from "../../components/Context/DarkModeContext";
+import { LightModeContext } from "../../components/Context/LightModeContext";
 import Moment from "react-moment";
 import "moment-timezone";
 import ScrollToTopOnMount from "../../components/Helpers/ScrollToTopOnMount";
+import WbSunnyIcon from "@material-ui/icons/WbSunny";
 
 export default function Settings() {
   const [currentUser] = useContext(CurrentUserContext);
-  const [darkMode, setDarkMode] = useContext(DarkModeContext);
+  const [lightMode, setLightMode] = useContext(LightModeContext);
   const useStyles = makeStyles((theme) => ({
     root: {
       margin: "0 auto",
@@ -61,7 +62,7 @@ export default function Settings() {
     card: {
       display: "flex",
       boxShadow:
-        darkMode === "light" ? "default" : `0px 0px 4px 1.2px ${indigo[50]}`,
+        lightMode === "light" ? "default" : `0px 0px 4px 1.2px ${indigo[50]}`,
       marginTop: "20px",
       marginBottom: "30px",
     },
@@ -93,13 +94,13 @@ export default function Settings() {
 
   const handleThemeChange = () => {
     setSwitchState(switchState === true ? false : true);
-    if (darkMode === "light") {
-      setDarkMode("dark");
-      localStorage.setItem("darkMode", "dark");
+    if (lightMode === "light") {
+      setLightMode("dark");
+      localStorage.setItem("lightMode", "dark");
       localStorage.setItem("switchState", true);
     } else {
-      setDarkMode("light");
-      localStorage.setItem("darkMode", "light");
+      setLightMode("light");
+      localStorage.setItem("lightMode", "light");
       localStorage.setItem("switchState", false);
     }
   };
@@ -138,9 +139,12 @@ export default function Settings() {
         <div className="card-actions">
           <Card className={classes.card}>
             <CardActions className={classes.actionsContainer}>
-              <Typography className={classes.typography}>Dark mode</Typography>
+              <Typography className={classes.typography}>
+                <WbSunnyIcon />
+                &nbsp; Light mode
+              </Typography>
               <Switch
-                className={classes.darkModeSwitch}
+                className={classes.lightModeSwitch}
                 checked={switchState}
                 onChange={handleThemeChange}
               />

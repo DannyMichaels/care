@@ -9,9 +9,9 @@ export default function HandleMaintenance({ currentUser }) {
       setTimeout(function () {
         alert("We're under a maintenance!");
         history.push("/maintenance");
-      }, 5000);
+      }, 12000);
     } else if (currentUser) {
-      return null;
+      return;
     }
   }, [history, currentUser]);
   return null;

@@ -4,7 +4,7 @@ import Card from "@material-ui/core/Card";
 import { Switch, Route, Link } from "react-router-dom";
 import Moment from "react-moment";
 import "moment-timezone";
-import { DarkModeContext } from "../Context/DarkModeContext";
+import { LightModeContext } from "../Context/LightModeContext";
 import { indigo } from "@material-ui/core/colors/";
 import MedEdit from "../Dialogs/MedDialogs/MedEdit";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -18,7 +18,7 @@ export default function MedCard({
   handleDelete,
   RXGuideMeds,
 }) {
-  const [darkMode] = useContext(DarkModeContext);
+  const [lightMode] = useContext(LightModeContext);
   const [edited, setEdited] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
 
@@ -45,7 +45,7 @@ export default function MedCard({
       {!edited ? (
         <Card
           style={
-            darkMode === "light"
+            lightMode === "light"
               ? { boxShadow: "default" }
               : { boxShadow: `0px 0px 4px 1.2px ${indigo[50]}` }
           }

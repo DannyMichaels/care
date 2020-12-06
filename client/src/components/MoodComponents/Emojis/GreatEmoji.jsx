@@ -1,12 +1,12 @@
 import React from "react";
 import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
 
-function GreatEmoji({ darkMode }) {
+function GreatEmoji({ lightMode }) {
   return (
     <>
       <InsertEmoticonIcon
         style={
-          !darkMode
+          !lightMode
             ? {
                 border: "1px solid black",
                 background: "#00FF00",

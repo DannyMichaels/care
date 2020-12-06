@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { CurrentUserContext } from "../../components/Context/CurrentUserContext";
-import { DarkModeContext } from "../../components/Context/DarkModeContext";
+import { LightModeContext } from "../../components/Context/LightModeContext";
 import { loginUser } from "../../services/auth";
 import { makeStyles } from "@material-ui/styles";
 import Typography from "@material-ui/core/Typography";
@@ -174,7 +174,7 @@ export default function Login() {
   const classes = useStyles();
 
   const [currentUser, setCurrentUser] = useContext(CurrentUserContext);
-  const [darkMode] = useContext(DarkModeContext);
+  const [lightMode] = useContext(LightModeContext);
 
   // if (currentUser) {
   //   history.push("/");
@@ -211,10 +211,12 @@ export default function Login() {
 
   return (
     <>
-      <div className={darkMode === "dark" ? classes.rootDark : classes.root}>
+      <div className={lightMode === "dark" ? classes.rootDark : classes.root}>
         <div className={classes.logoContainer}>
           <Typography
-            className={darkMode === "light" ? classes.title : classes.titleDark}
+            className={
+              lightMode === "light" ? classes.title : classes.titleDark
+            }
           >
             Care
           </Typography>
@@ -226,7 +228,7 @@ export default function Login() {
         </div>
         {currentUser ? (
           <Typography
-            className={darkMode === "light" ? classes.user : classes.userDark}
+            className={lightMode === "light" ? classes.user : classes.userDark}
           >
             You're already logged in, is this you?
             <br /> Name: {currentUser?.name} <br />
@@ -244,7 +246,7 @@ export default function Login() {
         >
           <div
             className={
-              darkMode === "light"
+              lightMode === "light"
                 ? classes.inputContainer
                 : classes.inputContainerDark
             }
@@ -253,7 +255,7 @@ export default function Login() {
             <FormControl>
               <InputLabel
                 className={
-                  darkMode === "light" ? classes.label : classes.darkLabel
+                  lightMode === "light" ? classes.label : classes.darkLabel
                 }
                 htmlFor="email"
               >
@@ -263,7 +265,7 @@ export default function Login() {
                 id="email"
                 type="text"
                 className={
-                  darkMode === "light"
+                  lightMode === "light"
                     ? classes.inputField
                     : classes.inputFieldDark
                 }
@@ -276,7 +278,7 @@ export default function Login() {
           <br />
           <div
             className={
-              darkMode === "light"
+              lightMode === "light"
                 ? classes.inputContainer
                 : classes.inputContainerDark
             }
@@ -285,7 +287,7 @@ export default function Login() {
             <FormControl>
               <InputLabel
                 className={
-                  darkMode === "light"
+                  lightMode === "light"
                     ? classes.passwordLabel
                     : classes.darkPasswordLabel
                 }
@@ -295,7 +297,7 @@ export default function Login() {
               </InputLabel>
               <Input
                 className={
-                  darkMode === "light"
+                  lightMode === "light"
                     ? classes.passwordField
                     : classes.passwordFieldDark
                 }
@@ -314,7 +316,7 @@ export default function Login() {
                       {showPassword ? (
                         <Visibility
                           style={
-                            darkMode === "dark"
+                            lightMode === "dark"
                               ? { color: "#fff" }
                               : { color: "#000" }
                           }
@@ -322,7 +324,7 @@ export default function Login() {
                       ) : (
                         <VisibilityOff
                           style={
-                            darkMode === "dark"
+                            lightMode === "dark"
                               ? { color: "#fff" }
                               : { color: "#000" }
                           }
@@ -338,7 +340,7 @@ export default function Login() {
           <Button
             type="submit"
             className={
-              darkMode === "light"
+              lightMode === "light"
                 ? classes.loginButton
                 : classes.loginButtonDark
             }
@@ -348,13 +350,13 @@ export default function Login() {
         </form>
         <Typography
           className={
-            darkMode === "light" ? classes.register : classes.registerDark
+            lightMode === "light" ? classes.register : classes.registerDark
           }
         >
           Don't have an account? &nbsp;
           <Link
             className={
-              darkMode === "light"
+              lightMode === "light"
                 ? classes.registerLink
                 : classes.registerLinkDark
             }

@@ -1,13 +1,12 @@
 import React from "react";
 import SentimentSatisfiedSharpIcon from "@material-ui/icons/SentimentSatisfiedSharp";
 
-function GoodEmoji({ darkMode }) {
+function GoodEmoji({ lightMode }) {
   return (
     <>
-      {" "}
       <SentimentSatisfiedSharpIcon
         style={
-          !darkMode
+          !lightMode
             ? {
                 border: "1px solid black",
                 background: "#228B22",

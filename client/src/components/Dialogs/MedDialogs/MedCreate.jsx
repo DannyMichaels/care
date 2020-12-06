@@ -116,11 +116,7 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
         </DialogTitle>
         <DialogContent dividers>
           <div className="input-container">
-            {!formData.name ? (
-              <FormHelperText>Please select a medication</FormHelperText>
-            ) : (
-              <></>
-            )}
+            <FormHelperText>Please select a medication</FormHelperText>
             <select
               className="select-css"
               name="name"

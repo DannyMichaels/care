@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "../../layouts/Layout/Layout";
 import InsightCard from "../../components/InsightComponents/InsightCard";
-import { DarkModeContext } from "../../components/Context/DarkModeContext";
+import { LightModeContext } from "../../components/Context/LightModeContext";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import styled from "styled-components";
 import Typography from "@material-ui/core/Typography";
@@ -33,8 +33,8 @@ const Wrapper = styled.div`
     text-decoration: none;
   }
   .span {
-    color: ${({ darkMode }) =>
-      darkMode === "light" ? blue[500] : yellow[700]};
+    color: ${({ lightMode }) =>
+      lightMode === "light" ? blue[500] : yellow[700]};
   }
 
   @media screen and (min-width: 600px) {
@@ -54,7 +54,7 @@ const Wrapper = styled.div`
   }
 `;
 export default function Insights(props) {
-  const [darkMode] = useContext(DarkModeContext);
+  const [lightMode] = useContext(LightModeContext);
   const [openDelete, setOpenDelete] = useState(false);
 
   const onDelete = (id) => {
@@ -82,7 +82,7 @@ export default function Insights(props) {
   const queriedInsights = React.Children.toArray(
     getInsights().map((insight) => (
       <InsightCard
-        darkMode={darkMode}
+        lightMode={lightMode}
         updated={props.updated}
         insights={props.insights}
         insight={insight}
@@ -97,7 +97,7 @@ export default function Insights(props) {
 
   return (
     <Layout title="Insights">
-      <Wrapper darkMode={darkMode}>
+      <Wrapper lightMode={lightMode}>
         <ScrollToTopOnMount />
         <div className="sentence-container">
           <Typography className="sentence">

@@ -8,7 +8,7 @@ import Home from "./screens/main/Home";
 import Settings from "./screens/main/Settings";
 import InsightsContainer from "./containers/InsightsContainer";
 import UsersContainer from "./containers/UsersContainer";
-import { DarkModeProvider } from "./components/Context/DarkModeContext";
+import { LightModeProvider } from "./components/Context/LightModeContext";
 import NotFound from "./screens/Error/NotFound";
 import Maintenance from "./screens/Maintenance/Maintenance";
 
@@ -16,7 +16,7 @@ function App() {
   return (
     <CurrentUserProvider>
       <Paper>
-        <DarkModeProvider>
+        <LightModeProvider>
           <Switch>
             <Route path="/login" component={Login} />
             <Route path="/register" component={Register} />
@@ -27,7 +27,7 @@ function App() {
             <Route path="/" component={Home} />
             <Route path="*" component={NotFound} />
           </Switch>
-        </DarkModeProvider>
+        </LightModeProvider>
       </Paper>
     </CurrentUserProvider>
   );

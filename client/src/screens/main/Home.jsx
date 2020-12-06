@@ -12,7 +12,7 @@ import SymptomsContainer from "../../containers/SymptomsContainer";
 import MedsContainer from "../../containers/MedsContainer";
 import FoodsContainer from "../../containers/FoodsContainer";
 import Layout from "../../layouts/Layout/Layout";
-import { DarkModeContext } from "../../components/Context/DarkModeContext";
+import { LightModeContext } from "../../components/Context/LightModeContext";
 import { CurrentUserContext } from "../../components/Context/CurrentUserContext";
 import { indigo } from "@material-ui/core/colors";
 import { getAllAffirmations } from "../../services/affirmations";
@@ -24,7 +24,7 @@ import RXGuideLogo from "../../components/MedComponents/RXGuideLogo";
 import HandleMaintenance from "../../components/Helpers/HandleMaintenance";
 
 export default function Home() {
-  const [darkMode] = useContext(DarkModeContext);
+  const [lightMode] = useContext(LightModeContext);
   const [currentUser] = useContext(CurrentUserContext);
   const [affirmations, setAffirmations] = useState([]);
   const [loadedAffirmation, setLoadedAffirmation] = useState(false);
@@ -64,7 +64,7 @@ export default function Home() {
     },
     accordion: {
       boxShadow:
-        darkMode === "light" ? "default" : `0px 0px 4px 1.2px ${indigo[50]}`,
+        lightMode === "light" ? "default" : `0px 0px 4px 1.2px ${indigo[50]}`,
       marginTop: "20px",
       marginBottom: "30px",
     },

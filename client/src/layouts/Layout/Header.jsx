@@ -5,7 +5,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import HomeIcon from "@material-ui/icons/Home";
 import { CurrentUserContext } from "../../components/Context/CurrentUserContext";
-import { DarkModeContext } from "../../components/Context/DarkModeContext";
+import { LightModeContext } from "../../components/Context/LightModeContext";
 import { removeToken } from "../../services/auth";
 import { useHistory, Link, useLocation } from "react-router-dom";
 import ForumIcon from "@material-ui/icons/Forum";
@@ -54,7 +54,7 @@ export default function Header({ title }) {
     },
   }));
   const [currentUser, setCurrentUser] = useContext(CurrentUserContext);
-  const [darkMode] = useContext(DarkModeContext);
+  const [lightMode] = useContext(LightModeContext);
 
   const history = useHistory();
   const handleLogout = () => {
@@ -104,7 +104,7 @@ export default function Header({ title }) {
             <Link style={{ textDecoration: "none" }} to="/login">
               <Typography
                 style={
-                  darkMode === "dark" ? { color: "#000" } : { color: "#fff" }
+                  lightMode === "dark" ? { color: "#000" } : { color: "#fff" }
                 }
               >
                 Login/Register

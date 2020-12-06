@@ -4,7 +4,7 @@ import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
-import { DarkModeContext } from "../../components/Context/DarkModeContext";
+import { LightModeContext } from "../../components/Context/LightModeContext";
 import { grey } from "@material-ui/core/colors";
 import HelpIcon from "@material-ui/icons/Help";
 
@@ -12,7 +12,7 @@ const Div = styled.div`
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: ${({ darkMode }) => (darkMode === "dark" ? grey[800] : "#fff")};
+  background: ${({ lightMode }) => (lightMode === "dark" ? grey[800] : "#fff")};
   .title-container {
     display: flex;
     flex-direction: column;
@@ -23,7 +23,7 @@ const Div = styled.div`
   }
   .title {
     font-size: 1.2rem;
-    color: ${({ darkMode }) => (darkMode === "dark" ? grey[100] : "#000")};
+    color: ${({ lightMode }) => (lightMode === "dark" ? grey[100] : "#000")};
     display: flex;
     align-items: center;
   }
@@ -36,7 +36,7 @@ const Div = styled.div`
   .about-container {
     font-size: 1.2rem;
     padding: 10px;
-    color: ${({ darkMode }) => (darkMode === "dark" ? grey[100] : "#000")};
+    color: ${({ lightMode }) => (lightMode === "dark" ? grey[100] : "#000")};
   }
   .about-icon {
     font-size: 40px;
@@ -101,7 +101,7 @@ const Form = styled.form`
 `;
 
 export default function InsightCreate(props) {
-  const [darkMode] = useContext(DarkModeContext);
+  const [lightMode] = useContext(LightModeContext);
   const [openAbout, setOpenAbout] = useState(false);
 
   const handleOpen = () => {
@@ -131,7 +131,7 @@ export default function InsightCreate(props) {
   };
 
   return (
-    <Div darkMode={darkMode}>
+    <Div lightMode={lightMode}>
       <div className="title-container">
         <Typography className="title">
           Help the community by sharing an insight!

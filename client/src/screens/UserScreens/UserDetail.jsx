@@ -4,7 +4,7 @@ import Button from "@material-ui/core/Button";
 import styled from "styled-components";
 import Moment from "react-moment";
 import Typography from "@material-ui/core/Typography";
-import { DarkModeContext } from "../../components/Context/DarkModeContext";
+import { LightModeContext } from "../../components/Context/LightModeContext";
 import { grey, yellow, blue } from "@material-ui/core/colors";
 import { checkInsights } from "../../utils/checkInsights";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
@@ -14,7 +14,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 const Wrapper = styled.div`
   min-height: 100vh;
   max-height: 100%;
-  background: ${({ darkMode }) => (darkMode === "dark" ? grey[800] : "#fff")};
+  background: ${({ lightMode }) => (lightMode === "dark" ? grey[800] : "#fff")};
 
   .content-container {
     margin: 0 auto;
@@ -32,7 +32,7 @@ const Wrapper = styled.div`
     align-self: center;
     padding: 20px;
     margin-top: 20px;
-    color: ${({ darkMode }) => (darkMode === "dark" ? grey[100] : "#000")};
+    color: ${({ lightMode }) => (lightMode === "dark" ? grey[100] : "#000")};
   }
   .title {
     font-size: 1.3rem;
@@ -47,7 +47,7 @@ const Wrapper = styled.div`
     margin-top: 20px;
     min-width: 400px;
     min-height: 400px;
-    color: ${({ darkMode }) => (darkMode === "dark" ? grey[100] : "#000")};
+    color: ${({ lightMode }) => (lightMode === "dark" ? grey[100] : "#000")};
   }
   .insights-container {
     display: flex;
@@ -71,7 +71,8 @@ const Wrapper = styled.div`
   }
 
   a {
-    color: ${({ darkMode }) => (darkMode === "dark" ? yellow[700] : blue[600])};
+    color: ${({ lightMode }) =>
+      lightMode === "dark" ? yellow[700] : blue[600]};
     text-decoration: none;
     overflow-wrap: break-word;
     font-size: 1.5rem;
@@ -90,7 +91,7 @@ const Wrapper = styled.div`
 `;
 export default function UserDetail({ getOneUser }) {
   const [user, setUser] = useState(null);
-  const [darkMode] = useContext(DarkModeContext);
+  const [lightMode] = useContext(LightModeContext);
   const [loaded, setLoaded] = useState(false);
   const { id } = useParams();
 
@@ -111,7 +112,7 @@ export default function UserDetail({ getOneUser }) {
 
   if (!loaded) {
     return (
-      <Wrapper darkMode={darkMode}>
+      <Wrapper lightMode={lightMode}>
         <div className="content-container">
           <CircularProgress
             style={{ marginLeft: "50%", marginTop: "10%", width: "100px" }}
@@ -122,7 +123,7 @@ export default function UserDetail({ getOneUser }) {
   }
 
   return (
-    <Wrapper darkMode={darkMode}>
+    <Wrapper lightMode={lightMode}>
       <div className="content-container">
         <div className="title-container">
           <Typography className="title">

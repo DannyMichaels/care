@@ -4,7 +4,7 @@ import Card from "@material-ui/core/Card";
 import { Link, Route, Switch } from "react-router-dom";
 import Moment from "react-moment";
 import "moment-timezone";
-import { DarkModeContext } from "../Context/DarkModeContext";
+import { LightModeContext } from "../Context/LightModeContext";
 import { indigo } from "@material-ui/core/colors/";
 import GreatEmoji from "./Emojis/GreatEmoji";
 import PoorEmoji from "./Emojis/PoorEmoji";
@@ -23,7 +23,7 @@ export default function MoodCard({
   moods,
   setMoods,
 }) {
-  const [darkMode] = useContext(DarkModeContext);
+  const [lightMode] = useContext(LightModeContext);
   const [openEdit, setOpenEdit] = useState(false);
   const [edited, setEdited] = useState(false);
 
@@ -49,7 +49,7 @@ export default function MoodCard({
     <>
       <Card
         style={
-          darkMode === "light"
+          lightMode === "light"
             ? { boxShadow: "default" }
             : { boxShadow: `0px 0px 4px 1.2px ${indigo[50]}` }
         }
@@ -60,10 +60,10 @@ export default function MoodCard({
             {!edited ? (
               emojiLogic(
                 mood.status,
-                <PoorEmoji darkMode={darkMode} />,
-                <OkayEmoji darkMode={darkMode} />,
-                <GoodEmoji darkMode={darkMode} />,
-                <GreatEmoji darkMode={darkMode} />
+                <PoorEmoji lightMode={lightMode} />,
+                <OkayEmoji lightMode={lightMode} />,
+                <GoodEmoji lightMode={lightMode} />,
+                <GreatEmoji lightMode={lightMode} />
               )
             ) : (
               <CircularProgress />

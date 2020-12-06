@@ -2,15 +2,15 @@ import { useContext, useEffect, useState } from "react";
 import Typography from "@material-ui/core/Typography";
 import styled from "styled-components";
 import Button from "@material-ui/core/Button";
-import { DarkModeContext } from "../../components/Context/DarkModeContext";
+import { LightModeContext } from "../../components/Context/LightModeContext";
 import { yellow, grey, blue } from "@material-ui/core/colors";
 import { NavLink, Redirect } from "react-router-dom";
 import { CurrentUserContext } from "../../components/Context/CurrentUserContext";
 
-const ErrorWrapper = styled.div`
+const MaintenanceWrapper = styled.div`
   min-height: 100vh;
-  background: ${({ darkMode }) =>
-    darkMode === "light" ? grey[250] : grey[800]};
+  background: ${({ lightMode }) =>
+    lightMode === "light" ? grey[250] : grey[800]};
 
   .button {
     padding: 10px;
@@ -26,7 +26,7 @@ const ErrorWrapper = styled.div`
     display: flex;
     align-items: center;
     flex-direction: column;
-    color: ${({ darkMode }) => (darkMode === "light" ? "#000" : "#fff")};
+    color: ${({ lightMode }) => (lightMode === "light" ? "#000" : "#fff")};
     padding: 20px;
     overflow-wrap: break-word;
   }
@@ -35,7 +35,7 @@ const ErrorWrapper = styled.div`
     margin-top: 10%;
     font-size: 2rem;
     font-family: "montserrat", sans-serif;
-    color: ${({ darkMode }) => (darkMode === "light" ? "red" : yellow[700])};
+    color: ${({ lightMode }) => (lightMode === "light" ? "red" : yellow[700])};
   }
 
   .paragraph {
@@ -43,7 +43,7 @@ const ErrorWrapper = styled.div`
     padding: "10px";
     margin-bottom: "20px";
     text-align: center;
-    color: ${({ darkMode }) => (darkMode === "light" ? blue[600] : "#fff")};
+    color: ${({ lightMode }) => (lightMode === "light" ? blue[600] : "#fff")};
   }
 
   @media screen and (min-width: 1000px) {
@@ -72,7 +72,7 @@ const ErrorWrapper = styled.div`
 `;
 
 function Maintenance() {
-  const [darkMode] = useContext(DarkModeContext);
+  const [lightMode] = useContext(LightModeContext);
   const [currentUser] = useContext(CurrentUserContext);
   const [render, setRender] = useState(false);
 
@@ -84,13 +84,10 @@ function Maintenance() {
     return <Redirect to="/" />;
   }, [currentUser]);
 
-  // if (currentUser) {
-  // }
-
   return (
     <>
       {render && (
-        <ErrorWrapper darkMode={darkMode}>
+        <MaintenanceWrapper lightMode={lightMode}>
           <div className="text-container">
             <Typography className="title">
               Sorry, We're under a maintenance,
@@ -108,7 +105,7 @@ function Maintenance() {
               Try again
             </Button>
           </div>
-        </ErrorWrapper>
+        </MaintenanceWrapper>
       )}
     </>
   );

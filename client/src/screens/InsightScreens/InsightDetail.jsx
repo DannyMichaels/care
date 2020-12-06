@@ -5,7 +5,7 @@ import { CurrentUserContext } from "../../components/Context/CurrentUserContext"
 import styled from "styled-components";
 import Moment from "react-moment";
 import Typography from "@material-ui/core/Typography";
-import { DarkModeContext } from "../../components/Context/DarkModeContext";
+import { LightModeContext } from "../../components/Context/LightModeContext";
 import { grey } from "@material-ui/core/colors";
 import { goBack } from "../../utils/goBack";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -13,7 +13,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 const Wrapper = styled.div`
   min-height: 100vh;
   max-height: 100%;
-  background: ${({ darkMode }) => (darkMode === "dark" ? grey[800] : "#fff")};
+  background: ${({ lightMode }) => (lightMode === "dark" ? grey[800] : "#fff")};
   .content-container {
     margin: 0 auto;
     display: flex;
@@ -34,7 +34,7 @@ const Wrapper = styled.div`
     align-self: center;
     padding: 20px;
     margin-top: 40px;
-    color: ${({ darkMode }) => (darkMode === "dark" ? grey[100] : "#000")};
+    color: ${({ lightMode }) => (lightMode === "dark" ? grey[100] : "#000")};
     text-align: center;
   }
   .title {
@@ -44,7 +44,7 @@ const Wrapper = styled.div`
     margin: 0 auto;
     margin-top: 20px;
     min-width: 400px;
-    color: ${({ darkMode }) => (darkMode === "dark" ? grey[100] : "#000")};
+    color: ${({ lightMode }) => (lightMode === "dark" ? grey[100] : "#000")};
     min-height: 400px;
     padding: 20px 50px;
     text-align: left;
@@ -77,7 +77,7 @@ const Wrapper = styled.div`
 export default function InsightDetail({ getOneInsight, handleDelete }) {
   const [insight, setInsight] = useState(null);
   const [currentUser] = useContext(CurrentUserContext);
-  const [darkMode] = useContext(DarkModeContext);
+  const [lightMode] = useContext(LightModeContext);
   const [loaded, setLoaded] = useState(false);
   const { id } = useParams();
 
@@ -92,7 +92,7 @@ export default function InsightDetail({ getOneInsight, handleDelete }) {
 
   if (!loaded) {
     return (
-      <Wrapper darkMode={darkMode}>
+      <Wrapper lightMode={lightMode}>
         <div className="content-container">
           <CircularProgress
             style={{ marginLeft: "50%", marginTop: "10%", width: "100px" }}
@@ -103,7 +103,7 @@ export default function InsightDetail({ getOneInsight, handleDelete }) {
   }
 
   return (
-    <Wrapper darkMode={darkMode}>
+    <Wrapper lightMode={lightMode}>
       <div className="content-container">
         <div className="title-container">
           <Typography className="title">{insight?.title}</Typography>

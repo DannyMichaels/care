@@ -1,11 +1,11 @@
 import React from "react";
 import SentimentVeryDissatisfiedIcon from "@material-ui/icons/SentimentVeryDissatisfied";
 
-function PoorEmoji({ darkMode }) {
+function PoorEmoji({ lightMode }) {
   return (
     <SentimentVeryDissatisfiedIcon
       style={
-        !darkMode
+        !lightMode
           ? {
               border: "1px solid black",
               background: "red",

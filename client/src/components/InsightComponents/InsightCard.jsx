@@ -18,7 +18,7 @@ function InsightCard({
   handleClose,
   openDelete,
   onDelete,
-  darkMode,
+  lightMode,
 }) {
   const useStyles = makeStyles((theme) => ({
     root: {
@@ -29,7 +29,7 @@ function InsightCard({
       padding: "20px",
       borderRadius: 0,
       boxShadow:
-        darkMode === "light" ? "default" : `-1px .5px 4px 2.5px ${indigo[50]}`,
+        lightMode === "light" ? "default" : `-1px .5px 4px 2.5px ${indigo[50]}`,
       [theme.breakpoints.up("md")]: {
         minWidth: "350px",
         width: "350px",
@@ -55,7 +55,7 @@ function InsightCard({
       alignItems: "center",
     },
     title: {
-      color: darkMode === "dark" ? yellow[700] : "#000",
+      color: lightMode === "dark" ? yellow[700] : "#000",
       fontWeight: "bold",
       fontSize: "24px",
     },
@@ -65,12 +65,12 @@ function InsightCard({
       alignItems: "center",
     },
     userName: {
-      color: darkMode === "dark" ? yellow[700] : "#424242",
+      color: lightMode === "dark" ? yellow[700] : "#424242",
       fontWeight: "bold",
       fontSize: "19px",
     },
     userIcon: {
-      color: darkMode === "dark" ? yellow[700] : "#424242",
+      color: lightMode === "dark" ? yellow[700] : "#424242",
       marginRight: "8px",
     },
     buttons: {

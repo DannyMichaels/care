@@ -6,7 +6,7 @@ import Layout from "../../layouts/Layout/Layout";
 import styled from "styled-components";
 import { checkUserLength } from "../../utils/checkUserLength";
 import { yellow, blue } from "@material-ui/core/colors";
-import { DarkModeContext } from "../../components/Context/DarkModeContext";
+import { LightModeContext } from "../../components/Context/LightModeContext";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import ScrollToTopOnMount from "../../components/Helpers/ScrollToTopOnMount";
 
@@ -20,7 +20,8 @@ const Div = styled.div`
     margin-bottom: 5px;
   }
   .link {
-    color: ${({ darkMode }) => (darkMode !== "dark" ? yellow[700] : blue[600])};
+    color: ${({ lightMode }) =>
+      lightMode !== "dark" ? yellow[700] : blue[600]};
     text-decoration: none;
     overflow-wrap: break-word;
     display: flex;
@@ -55,7 +56,7 @@ const Div = styled.div`
 `;
 
 const Users = ({ allUsers, loaded }) => {
-  const [darkMode] = useContext(DarkModeContext);
+  const [lightMode] = useContext(LightModeContext);
   const [search, setSearch] = useState("");
   const getUsers = () =>
     allUsers.filter((user) =>
@@ -64,7 +65,7 @@ const Users = ({ allUsers, loaded }) => {
 
   const queriedUsers = React.Children.toArray(
     getUsers().map((user) => (
-      <Link darkMode={darkMode} to={`/users/${user.id}`} className="link">
+      <Link lightMode={lightMode} to={`/users/${user.id}`} className="link">
         <AccountCircleIcon className="user-icon" /> <h1>{user.name}</h1>
       </Link>
     ))
@@ -72,7 +73,7 @@ const Users = ({ allUsers, loaded }) => {
 
   return (
     <Layout title="Community">
-      <Div darkMode={{ darkMode }}>
+      <Div lightMode={{ lightMode }}>
         <ScrollToTopOnMount />
         <div className="title-container">
           <p> Search for a user!</p>

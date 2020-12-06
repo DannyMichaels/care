@@ -121,11 +121,7 @@ export default function MedEdit({
       >
         <DialogContent dividers>
           <div className="input-container">
-            {name ? (
-              <FormHelperText>Please select a medication</FormHelperText>
-            ) : (
-              <></>
-            )}
+            <FormHelperText>Please select a medication</FormHelperText>
             <select
               className="select-css"
               name="name"

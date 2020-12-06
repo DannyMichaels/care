@@ -7,11 +7,11 @@ import ForumIcon from "@material-ui/icons/Forum";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 import { indigo, blue } from "@material-ui/core/colors";
-import { DarkModeContext } from "../../components/Context/DarkModeContext";
+import { LightModeContext } from "../../components/Context/LightModeContext";
 import SupervisedUserCircleIcon from "@material-ui/icons/SupervisedUserCircle";
 
 function Footer() {
-  const [darkMode] = useContext(DarkModeContext);
+  const [lightMode] = useContext(LightModeContext);
   const useStyles = makeStyles({
     root: {
       width: "100vw",
@@ -19,7 +19,7 @@ function Footer() {
       bottom: 0,
       marginTop: "20px",
       boxShadow:
-        darkMode === "dark"
+        lightMode === "dark"
           ? `2px 2px 3px 2px ${indigo[50]}`
           : `2px 2px 3px 2px ${blue[600]}`,
     },

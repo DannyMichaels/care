@@ -5,14 +5,15 @@ import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import { grey } from "@material-ui/core/colors";
-import { DarkModeContext } from "../../components/Context/DarkModeContext";
+import { LightModeContext } from "../../components/Context/LightModeContext";
 import { goBack } from "../../utils/goBack";
 
 const Div = styled.div`
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: ${({ darkMode }) => (darkMode === "light" ? "#fff" : grey[800])};
+  background: ${({ lightMode }) =>
+    lightMode === "light" ? "#fff" : grey[800]};
 
   .title-container {
     display: flex;
@@ -23,7 +24,7 @@ const Div = styled.div`
   }
   .title {
     font-size: 1.2rem;
-    color: ${({ darkMode }) => (darkMode === "dark" ? grey[100] : "#000")};
+    color: ${({ lightMode }) => (lightMode === "dark" ? grey[100] : "#000")};
   }
   @media screen and (min-width: 1000px) {
     .title {
@@ -79,7 +80,7 @@ const Form = styled.form`
 `;
 
 export default function InsightEdit({ handleUpdate, insights }) {
-  const [darkMode] = useContext(DarkModeContext);
+  const [lightMode] = useContext(LightModeContext);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -110,7 +111,7 @@ export default function InsightEdit({ handleUpdate, insights }) {
   };
 
   return (
-    <Div darkMode={darkMode}>
+    <Div lightMode={lightMode}>
       <div className="title-container">
         <Typography className="title">Edit Insight</Typography>
       </div>

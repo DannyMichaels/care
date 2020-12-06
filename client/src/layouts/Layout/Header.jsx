@@ -12,6 +12,7 @@ import ForumIcon from "@material-ui/icons/Forum";
 import SettingsIcon from "@material-ui/icons/Settings";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import SupervisedUserCircleIcon from "@material-ui/icons/SupervisedUserCircle";
+import { yellow } from "@material-ui/core/colors";
 
 export default function Header({ title }) {
   let location = useLocation();
@@ -95,7 +96,16 @@ export default function Header({ title }) {
           </Typography>
           {currentUser ? (
             <>
-              <Typography className={classes.userName}>
+              <Typography
+                component={Link}
+                style={
+                  lightMode === "light"
+                    ? { textDecoration: "none", color: "white" }
+                    : { textDecoration: "none", color: yellow[700] }
+                }
+                to={`/users/${currentUser?.id}`}
+                className={classes.userName}
+              >
                 <AccountCircleIcon className={classes.userIcon} />
                 {currentUser?.name}
               </Typography>

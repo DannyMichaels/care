@@ -81,6 +81,10 @@ export default function Settings() {
       textAlign: "center",
       padding: "20px",
     },
+    lightModeContainer: {
+      display: "flex",
+      alignitems: "center",
+    },
   }));
   const classes = useStyles();
 
@@ -88,17 +92,8 @@ export default function Settings() {
     let state = localStorage.getItem("switchState");
 
     if (state !== null) {
-      // dark mode is on by default
-
-      // if you want light mode to be on by default change it to :
-
-      // return state === "true" ? true : false;
-
       return state === "false" ? false : true;
     }
-
-    // change this to return false if you want it to be light mode on default
-
     return true;
   });
 
@@ -154,7 +149,7 @@ export default function Settings() {
         <div className="card-actions">
           <Card className={classes.card}>
             <CardActions className={classes.actionsContainer}>
-              <Typography className={classes.typography}>
+              <Typography className={classes.lightModeContainer}>
                 <WbSunnyIcon />
                 &nbsp; Light mode
               </Typography>

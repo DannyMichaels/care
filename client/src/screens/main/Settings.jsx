@@ -109,17 +109,27 @@ export default function Settings() {
     <Layout title="Settings">
       <ScrollToTopOnMount />
       <div className={classes.userContainer}>
-        <Typography className={classes.accountTitle}>Your Account</Typography>
-        <Typography className={classes.userText}>
-          <strong>Name:</strong>&nbsp;{currentUser?.name}
-        </Typography>
-        <Typography className={classes.userText}>
-          <strong>Email:</strong>&nbsp;{currentUser?.email}
-        </Typography>
-        <Typography>
-          <strong>Joined:</strong>&nbsp;
-          <Moment format="MM/DD/yyyy">{userDate}</Moment>
-        </Typography>
+        {currentUser ? (
+          <>
+            <Typography className={classes.accountTitle}>
+              Your Account
+            </Typography>
+            <Typography className={classes.userText}>
+              <strong>Name:</strong>&nbsp;{currentUser?.name}
+            </Typography>
+            <Typography className={classes.userText}>
+              <strong>Email:</strong>&nbsp;{currentUser?.email}
+            </Typography>
+            <Typography>
+              <strong>Joined:</strong>&nbsp;
+              <Moment format="MM/DD/yyyy">{userDate}</Moment>
+            </Typography>
+          </>
+        ) : (
+          <Typography className={classes.accountTitle}>
+            You're not logged in!
+          </Typography>
+        )}
       </div>
       <hr />
       <br />

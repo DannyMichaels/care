@@ -282,3 +282,40 @@ export default function ratingLogic(ratingParam, iconParam) {
 ## Code Issues & Resolutions
 
 > Use this section to list of all major issues encountered and their resolution.
+
+## Maintenance Mode
+
+- If backend somehow doesn't work when deployed (maintenance mode, shut off, etc) we need a way to handle that because:
+  this whole app is personalized around the user, if you can't sign in to a backend, you can't log your mood, medications, food, you can't create insights, edit, etc.
+
+> how did I handle it?
+
+- I created a handle maintenance mode function:
+
+```
+import { useHistory } from "react-router-dom";
+import { useEffect } from "react";
+
+export default function HandleMaintenance({ currentUser }) {
+  const history = useHistory();
+
+  useEffect(() => {
+    setTimeout(function () {
+      if (!currentUser) {
+        alert("We're under a maintenance!");
+        history.push("/maintenance");
+      }
+    }, 1000);
+  }, [history, currentUser]);
+  return null;
+}
+```
+
+> the app forces the person to /login if he's not signed in (on purpose, it's a account only app), however, if the backend doesn't work:
+
+1. he won't be able to sign in.
+2. the front-end won't push him to '/login' and will keep him at '/' (homepage)
+3. and the loading bar will keep going on forever.
+4. the front-end won't be able to get his data which means: <bold>we can use if user is logged in as the condition</bold>
+
+> if (!currentUser) means if we don't have a logged in user, if we don't, wait 1000 milliseconds, and if the 1000 milliseconds pass and we still don't have a logged in user we can confirm the back-end is on "maintenance mode", which means the user will be alerted that we're on maintenance mode, and pushed into a maintenance screen, where he'll me welcomed with a nice "Sorry, we're on maintenance mode, try again later!"

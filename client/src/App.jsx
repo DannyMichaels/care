@@ -10,6 +10,7 @@ import InsightsContainer from "./containers/InsightsContainer";
 import UsersContainer from "./containers/UsersContainer";
 import { DarkModeProvider } from "./components/Context/DarkModeContext";
 import NotFound from "./screens/Error/NotFound";
+import Maintenance from "./screens/Maintenance/Maintenance";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/insights" component={InsightsContainer} />
             <Route path="/settings" component={Settings} />
             <Route path="/users" component={UsersContainer} />
+            <Route path="/maintenance" component={Maintenance} />
             <Route path="/" component={Home} />
             <Route path="*" component={NotFound} />
           </Switch>

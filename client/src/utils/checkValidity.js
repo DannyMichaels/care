@@ -9,6 +9,7 @@ const whiteList = [
   /^\/foods/,
   /^\/medications/,
   /^\/users/,
+  /^\/maintenance/,
   /^\/$/,
 ];
 

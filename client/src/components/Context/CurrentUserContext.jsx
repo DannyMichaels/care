@@ -12,12 +12,12 @@ function CurrentUserProvider({ children }) {
     const handleVerify = async () => {
       const userData = await verifyUser();
       setCurrentUser(userData);
-      if (!userData) {
-        history.push("/login");
-      }
+      // if (!userData) {
+      //   history.push("/login");
+      // }
     };
     handleVerify();
-  }, [history]);
+  }, []);
 
   return (
     <CurrentUserContext.Provider value={[currentUser, setCurrentUser]}>

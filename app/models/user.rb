@@ -7,6 +7,8 @@ class User < ApplicationRecord
   validates :password, length: { minimum: 8 }
   validates :gender, presence: true, uniqueness: false
 
+  mount_base64_uploader :image, ImageUploader
+
   has_many :moods, dependent: :destroy
   has_many :insights, dependent: :destroy
   has_many :affirmations, dependent: :destroy

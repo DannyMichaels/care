@@ -12,6 +12,7 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import SupervisedUserCircleIcon from "@material-ui/icons/SupervisedUserCircle";
 import { useStyles } from "./headerStyles";
+import { baseUrl } from "../../../services/apiConfig";
 
 export default function Header({ title }) {
   let time = new Date();
@@ -76,12 +77,12 @@ export default function Header({ title }) {
                 to={`/users/${currentUser?.id}`}
                 className={classes.userName}
               >
-                {!currentUser?.image.url ? (
+                {!currentUser?.image ? (
                   <AccountCircleIcon className={classes.userIcon} />
                 ) : (
                   <img
                     className={classes.userImage}
-                    src={currentUser?.image.url}
+                    src={`${baseUrl}uploads/user/image/${currentUser.id}/${currentUser?.image}`}
                     alt={currentUser?.name}
                   />
                 )}

@@ -34,7 +34,7 @@ export default function Moods({
     setOpenDialog(false);
   };
 
-  const MOODS = React.Children.toArray(
+  const moodsJSX =
     moods.length === 0 ? (
       <div className="log-your-mood">
         <Typography> Click the </Typography>&nbsp;
@@ -45,6 +45,7 @@ export default function Moods({
     ) : (
       moods.map((mood) => (
         <MoodCard
+          key={mood.id}
           setMoods={setMoods}
           handleUpdate={handleUpdate}
           updated={updated}
@@ -54,13 +55,12 @@ export default function Moods({
           handleDelete={handleDelete}
         />
       ))
-    )
-  );
+    );
 
   return (
     <>
       <div className="moods">
-        {loaded ? MOODS : <>Loading...</>}
+        {loaded ? moodsJSX : <>Loading...</>}
         <div className="mood-buttons-container">
           <Button
             className="edit-moods"

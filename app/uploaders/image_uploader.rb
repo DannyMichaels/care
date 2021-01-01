@@ -1,7 +1,10 @@
 class ImageUploader < CarrierWave::Uploader::Base
+  # require 'carrierwave/processing/mini_magick'
   # Include RMagick or MiniMagick support:
   # include CarrierWave::RMagick
   # include CarrierWave::MiniMagick
+
+  # process :resize_to_fit => [300, 300]
 
   # Choose what kind of storage to use for this uploader:
   storage :file
@@ -23,9 +26,15 @@ class ImageUploader < CarrierWave::Uploader::Base
 
   # Process files as they are uploaded:
   # process scale: [200, 300]
-  #
+  
   # def scale(width, height)
+  #   @users = User.all
+  #   @user = User.find(params[:id])
+
+  #   if @user.image.present? then
   #   # do something
+  #   @user.image.scale(200, 200)
+  #   end
   # end
 
   # Create different versions of your uploaded files:

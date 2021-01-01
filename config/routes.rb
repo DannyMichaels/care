@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   resources :affirmations
   resources :insights
   resources :moods
+  delete "uploads/users/:id/remove-image", to: 'users#remove_image'
   post '/auth/login', to: 'authentication#login'
   get '/auth/verify', to: 'authentication#verify'
   resources :users, :only => [:create, :index, :show, :update]

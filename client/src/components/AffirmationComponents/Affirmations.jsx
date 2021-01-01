@@ -34,7 +34,7 @@ export default function Affirmations({
     setOpenOptions(!openOptions);
   };
 
-  const AFFIRMATIONS = React.Children.toArray(
+  const affirmationsJSX =
     affirmations?.length === 0 ? (
       <div className="log-your-affirmation">
         <Typography> Click the </Typography>&nbsp;
@@ -45,6 +45,7 @@ export default function Affirmations({
     ) : (
       affirmations.map((affirmation) => (
         <AffirmationLetter
+          key={affirmation.id}
           updated={updated}
           setAffirmations={setAffirmations}
           handleUpdate={handleUpdate}
@@ -54,13 +55,12 @@ export default function Affirmations({
           affirmations={affirmations}
         />
       ))
-    )
-  );
+    );
 
   return (
     <>
       <div className="affirmations">
-        {loaded ? AFFIRMATIONS : <>Loading...</>}
+        {loaded ? affirmationsJSX : <>Loading...</>}
         <div className="mood-buttons-container">
           <Button
             className="edit-affirmations"

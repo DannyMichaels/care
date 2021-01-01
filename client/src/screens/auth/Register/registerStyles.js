@@ -6,13 +6,7 @@ const useStyles = makeStyles(() => ({
     flexDirection: "column",
     flexFlow: "nowrap",
     alignItems: "center",
-  },
-  rootDark: {
-    display: "flex",
-    flexDirection: "column",
-    flexFlow: "nowrap",
-    alignItems: "center",
-    background: grey[800],
+    background: (props) => props.darkMode === "dark" && grey[800],
   },
   logoContainer: {
     display: "flex",
@@ -26,14 +20,7 @@ const useStyles = makeStyles(() => ({
     padding: "15px",
     marginTop: "10px",
     textShadow: "0.5px 4px 10px #999",
-  },
-  titleDark: {
-    fontFamily: ["Montserrat", "sans-serif"].join(","),
-    fontSize: "36px",
-    padding: "15px",
-    marginTop: "10px",
-    textShadow: "0.5px 4px 10px #999",
-    color: yellow[700],
+    color: (props) => props.darkMode === "dark" && yellow[700],
   },
   logo: {
     maxWidth: "100px",
@@ -62,7 +49,6 @@ const useStyles = makeStyles(() => ({
     fontFamily: ["Montserrat", "sans-serif"].join(","),
     fontSize: "15px",
     textDecoration: "none",
-    marginLeft: "40px",
     marginBottom: (props) => (props.currentUser ? "5px" : "20px"),
     display: "flex",
     flexDirection: "column",
@@ -75,7 +61,6 @@ const useStyles = makeStyles(() => ({
     textDecoration: "none",
     color: "#fff",
     marginBottom: (props) => (props.currentUser ? "5px" : "20px"),
-    marginLeft: "40px",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -124,13 +109,7 @@ const useStyles = makeStyles(() => ({
     marginLeft: "10px",
   },
   birthdayField: {
-    color: "black",
-    marginBottom: "20px",
-    width: "300px",
-    marginLeft: "0",
-  },
-  birthdayFieldDark: {
-    color: "#fff",
+    color: (props) => (props.darkMode === "light" ? "black" : "white"),
     marginBottom: "20px",
     width: "300px",
     marginLeft: "0",
@@ -151,12 +130,7 @@ const useStyles = makeStyles(() => ({
   inputContainer: {
     display: "flex",
     alignItems: "center",
-    color: "black",
-  },
-  inputContainerDark: {
-    display: "flex",
-    alignItems: "center",
-    color: "#fff",
+    color: (props) => (props.darkMode === "light" ? "black" : "white"),
   },
   darkPasswordLabel: {
     color: "#fff",
@@ -179,13 +153,18 @@ const useStyles = makeStyles(() => ({
     width: "40px",
     borderRadius: "40px",
     objectFit: "cover",
+    border: ({ darkMode }) =>
+      darkMode === "dark" ? "1px solid #fff" : "1px solid #000",
   },
   bigIcon: {
     height: "100px",
     width: "100px",
     alignSelf: "center",
     marginBottom: "5px",
-    border: (props) => props.imagePreview && "1px solid white",
+    border: (props) =>
+      props.imagePreview + props.darkMode === "light"
+        ? "1px solid black"
+        : props.imagePreview + props.darkMode === "dark" && "1px solid white",
     borderRadius: (props) => props.imagePreview && "50%",
   },
   bigUserImage: {
@@ -193,15 +172,12 @@ const useStyles = makeStyles(() => ({
     width: "100px",
     alignSelf: "center",
     marginBottom: "5px",
-    border: "1px solid white",
+    border: ({ darkMode }) =>
+      darkMode === "dark" ? "1px solid #fff" : "1px solid #000",
     borderRadius: "50%",
     objectFit: "cover",
   },
   cameraIcon: {
-    cursor: "pointer",
-    color: (props) => props.darkMode === "light" && "#000",
-  },
-  crossIcon: {
     cursor: "pointer",
     color: (props) => props.darkMode === "light" && "#000",
   },
@@ -217,8 +193,19 @@ const useStyles = makeStyles(() => ({
     flexDirection: "column",
     alignItems: "center",
   },
-  iconButton: {
-    margin: "-25px",
+  pictureButtons: {
+    display: "flex",
+    justifyContent: "center",
+  },
+  link: {
+    textDecoration: "none",
+    color: "inherit",
+    transition: "transform 250ms ease-in-out",
+    "&:hover": {
+      transition: "transform 250ms ease-in-out",
+      cursor: "pointer",
+      transform: "scale(1.005)",
+    },
   },
 }));
 export { useStyles };

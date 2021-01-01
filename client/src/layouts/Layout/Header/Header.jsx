@@ -2,38 +2,37 @@ import React, { useContext, useEffect, useState } from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import HomeIcon from "@material-ui/icons/Home";
 import { useStateValue } from "../../../components/Context/CurrentUserContext";
 import { DarkModeContext } from "../../../components/Context/DarkModeContext";
 import { removeToken } from "../../../services/auth";
 import { useHistory, Link, useLocation } from "react-router-dom";
-import ForumIcon from "@material-ui/icons/Forum";
-import SettingsIcon from "@material-ui/icons/Settings";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import SupervisedUserCircleIcon from "@material-ui/icons/SupervisedUserCircle";
 import { useStyles } from "./headerStyles";
+import HeaderSearch from "./HeaderSearch";
+import LocationIcons from "./LocationIcons";
+import QueriedUsers from "./QueriedUsers";
+import Moment from "react-moment";
+import "moment-timezone";
+import SearchBarLocation from "./SearchBarLocation";
 import { baseUrl } from "../../../services/apiConfig";
 
-export default function Header({ title }) {
-  let time = new Date();
-  let timeWithoutSeconds = time.toLocaleString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  const [value, setValue] = useState(timeWithoutSeconds);
+export default function Header({ title, allUsers }) {
+  const [leftSearch, setLeftSearch] = useState(false);
+  const [middleSearch, setMiddleSearch] = useState(false);
+  const [currentTime, setCurrentTime] = useState(Date.now());
+  const [search, setSearch] = useState("");
+  const [darkMode] = useContext(DarkModeContext);
+  const [{ currentUser }, dispatch] = useStateValue();
+
+  const classes = useStyles({ darkMode });
+  let location = useLocation();
 
   useEffect(() => {
-    const interval = setInterval(() => setValue(timeWithoutSeconds), 1000);
-
+    const interval = setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => {
       clearInterval(interval);
     };
-  }, [timeWithoutSeconds]);
-
-  let location = useLocation();
-
-  const [darkMode] = useContext(DarkModeContext);
-  const [{ currentUser }, dispatch] = useStateValue();
+  });
 
   const history = useHistory();
   const handleLogout = () => {
@@ -43,70 +42,98 @@ export default function Header({ title }) {
     history.push("/login");
   };
 
-  const classes = useStyles({ location });
+  const getUsers = () =>
+    allUsers.filter((user) =>
+      user.name.toLowerCase().includes(`${search}`.toLowerCase())
+    );
+
+  const usersJSX = getUsers().map((user) => (
+    <QueriedUsers darkMode={darkMode} user={user} />
+  ));
 
   return (
-    <div className={classes.root}>
-      <AppBar className={classes.appBar} position="fixed">
-        <Toolbar>
-          {location.pathname === "/" ? (
-            <HomeIcon className={classes.menuButton} />
-          ) : location.pathname === "/insights" ? (
-            <ForumIcon className={classes.menuButton} />
-          ) : location.pathname === "/users" ? (
-            <SupervisedUserCircleIcon className={classes.menuButton} />
-          ) : location.pathname === "/settings" ? (
-            <SettingsIcon className={classes.menuButton} />
-          ) : (
-            <HomeIcon className={classes.menuButton} />
-          )}
+    <>
+      <div className={classes.root}>
+        <AppBar className={classes.appBar} position="fixed">
+          <Toolbar>
+            <div className={classes.headerLeft}>
+              <LocationIcons classes={classes} location={location} />
 
-          <Typography variant="h6" className={classes.title}>
-            {title}
-          </Typography>
-          <Typography className={classes.timeClass}>{value}</Typography>
-          {currentUser ? (
-            <>
-              <Typography
-                component={Link}
-                style={
-                  darkMode === "light"
-                    ? { textDecoration: "none", color: "#fff" }
-                    : { textDecoration: "none", color: "#000" }
-                }
-                to={`/users/${currentUser?.id}`}
-                className={classes.userName}
-              >
-                {!currentUser?.image ? (
-                  <AccountCircleIcon className={classes.userIcon} />
-                ) : (
-                  <img
-                    className={classes.userImage}
-                    src={`${baseUrl}uploads/user/image/${currentUser.id}/${currentUser?.image}`}
-                    alt={currentUser?.name}
-                  />
-                )}
-                {currentUser?.name}
+              <Typography variant="h6" className={classes.title}>
+                {title}
               </Typography>
-            </>
-          ) : (
-            <Link style={{ textDecoration: "none" }} to="/login">
-              <Typography
-                style={
-                  darkMode === "dark" ? { color: "#000" } : { color: "#fff" }
-                }
-              >
-                Login/Register
+
+              <SearchBarLocation
+                setLeftSearch={setLeftSearch}
+                setMiddleSearch={setMiddleSearch}
+              />
+
+              {leftSearch && (
+                <HeaderSearch
+                  usersJSX={usersJSX}
+                  darkMode={darkMode}
+                  search={search}
+                  setSearch={setSearch}
+                />
+              )}
+            </div>
+
+            <div className={classes.headerCenter}>
+              <Typography className={classes.timeClass}>
+                <Moment format="hh:mm A">{currentTime}</Moment>
               </Typography>
-            </Link>
-          )}
-          {location.pathname === "/settings" && (
-            <Typography className={classes.logOut} onClick={handleLogout}>
-              Log out
-            </Typography>
-          )}
-        </Toolbar>
-      </AppBar>
-    </div>
+
+              {middleSearch && (
+                <HeaderSearch
+                  usersJSX={usersJSX}
+                  darkMode={darkMode}
+                  search={search}
+                  setSearch={setSearch}
+                />
+              )}
+            </div>
+
+            <div className={classes.headerRight}>
+              {currentUser ? (
+                <>
+                  <Typography
+                    component={Link}
+                    style={
+                      darkMode === "light"
+                        ? { textDecoration: "none", color: "#fff" }
+                        : { textDecoration: "none", color: "#000" }
+                    }
+                    to={`/users/${currentUser?.id}`}
+                    className={classes.userName}>
+                    {!currentUser?.image ? (
+                      <AccountCircleIcon className={classes.userIcon} />
+                    ) : (
+                      <img
+                        className={classes.userImage}
+                        // path for storing image declared at image_uploader.rb
+                        src={`${baseUrl}uploads/user/image/${currentUser.id}/${currentUser?.image}`}
+                        alt={currentUser?.name}
+                      />
+                    )}
+                    {currentUser?.name}
+                  </Typography>
+                </>
+              ) : (
+                <Link style={{ textDecoration: "none" }} to="/login">
+                  <Typography className={classes.text}>
+                    Login/Register
+                  </Typography>
+                </Link>
+              )}
+              {location.pathname === "/settings" && (
+                <Typography className={classes.logOut} onClick={handleLogout}>
+                  Log out
+                </Typography>
+              )}
+            </div>
+          </Toolbar>
+        </AppBar>
+      </div>
+    </>
   );
 }

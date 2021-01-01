@@ -11,6 +11,8 @@ import { toTitleCase } from "../../../utils/toTitleCase";
 import { getAge } from "../../../utils/getAge";
 import Wrapper from "./styledUserDetail";
 import LinearProgressLoading from "../../../components/Loading/LinearProgressLoading";
+import ArrowBackIcon from "@material-ui/icons/ArrowBack";
+import IconButton from "@material-ui/core/IconButton";
 
 export default function UserDetail({ getOneUser }) {
   const [user, setUser] = useState(null);
@@ -27,22 +29,31 @@ export default function UserDetail({ getOneUser }) {
     getData();
   }, [getOneUser, id]);
 
-  const INSIGHTS = React.Children.toArray(
-    user?.insights?.map((insight) => (
-      <Link className="insights-link" to={`./../insights/${insight.id}`}>
-        {insight?.title}
-      </Link>
-    ))
-  );
+  const INSIGHTS = user?.insights?.map((insight) => (
+    <Link
+      key={insight.id}
+      className="insights-link"
+      to={`./../insights/${insight.id}`}
+    >
+      {insight?.title}
+    </Link>
+  ));
 
   if (!loaded) {
     return <LinearProgressLoading darkMode={darkMode} />;
   }
+  
+  const userDate = user?.created_at?.toLocaleString();
 
   return (
     <Wrapper darkMode={darkMode}>
       <div className="content-container">
         <div className="title-container">
+          <div className="arrow-container">
+            <IconButton className="arrow-icon" onClick={goBack}>
+              <ArrowBackIcon className="arrow-icon" />
+            </IconButton>
+          </div>
           <Typography className="title">
             {!user?.image && <AccountCircleIcon className="user-icon" />}
             {user?.name}
@@ -56,13 +67,15 @@ export default function UserDetail({ getOneUser }) {
           <Typography className="gender">
             Gender: {toTitleCase(user.gender)}
           </Typography>
-          Joined:&nbsp;
-          <Moment format="dddd, MMMM Do yyyy">
-            <small>{user?.created_at}</small>
-          </Moment>
+          <Typography className="date">
+            Joined:&nbsp;
+            <Moment format="dddd, MMMM Do yyyy">
+              {userDate}
+            </Moment>
+          </Typography>
         </div>
         <hr className="top-hr" />
-        <div className="body">
+        <div className="inner-column">
           <div className="check-insights">{checkInsights(user)}</div>
           <div className="insights-container">{INSIGHTS}</div>
         </div>

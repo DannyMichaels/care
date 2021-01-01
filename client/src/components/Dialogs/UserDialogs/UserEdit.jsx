@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
@@ -18,19 +18,28 @@ import NativeSelect from "@material-ui/core/NativeSelect";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import { getOneUser } from "../../../services/users";
 import { toTitleCase } from "../../../utils/toTitleCase";
-import AddPhotoAlternateIcon from "@material-ui/icons/AddPhotoAlternate";
+import CameraIcon from "@material-ui/icons/CameraAlt";
+import ClearIcon from "@material-ui/icons/Clear";
 import {
   DialogTitle,
   DialogContent,
   DialogActions,
 } from "../../Form/DialogComponents";
 import Form from "./StyledUserEdit";
+import { baseUrl } from "../../../services/apiConfig";
+import { DarkModeContext } from "../../Context/DarkModeContext";
+import {
+  checkEmailUniqueuess,
+  checkEmailValidity,
+  checkPasswordLength,
+} from "../../../utils/authUtils";
 
 export default function UserEdit({
   handleOpen,
   handleClose,
   onSave,
   currentUser,
+  allUsers,
 }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -38,20 +47,35 @@ export default function UserEdit({
     email: "",
     gender: "",
     password: "",
-    passwordConfirm: "",
     image: "",
   });
-  const {
-    name,
-    birthday,
-    gender,
-    email,
-    password,
-    passwordConfirm,
-    image,
-  } = formData;
+  const { name, birthday, gender, email, password, image } = formData;
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const [passwordConfirmAlert, setPasswordConfirmAlert] = useState(false);
+  const [emailUniquenessAlert, setEmailUniquenessAlert] = useState(false);
+  const [emailValidityAlert, setEmailValidityAlert] = useState(false);
+  const [passwordAlert, setPasswordAlert] = useState(false);
+  const [allConditionsAreNotMet, setAllConditionsAreNotMet] = useState(true);
+  const [userHasPreviousImage, setUserHasPreviousImage] = useState(
+    currentUser?.image
+  );
+  const [darkMode] = useContext(DarkModeContext);
+  const [isImageEdited, setIsImageEdited] = useState(false);
+
+  const handleImageClear = () => {
+    setFormData({
+      ...formData,
+      image: "",
+    });
+    // this just disables the image preview for the current image if you click on the cross icon
+    // anyways the image data on the formData would be set to an empty string.
+    if (userHasPreviousImage) {
+      setUserHasPreviousImage(false);
+    }
+    document.getElementById("image-upload").value = "";
+  };
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -61,6 +85,32 @@ export default function UserEdit({
     event.preventDefault();
   };
 
+  const onImageSelected = (e) => {
+    const img = e.target.files[0];
+    const fileReader = new FileReader();
+    fileReader.addEventListener("load", () => {
+      setFormData({
+        name: name,
+        email: email,
+        password: password,
+        birthday: birthday,
+        gender: gender,
+        image: fileReader.result,
+      });
+      // need to add these edge cases because now image is stored in the back-end folder as a file
+      // instead of only exclusively base-64 string
+      setIsImageEdited(fileReader.result);
+      setUserHasPreviousImage(false);
+    });
+    if (img) {
+      fileReader.readAsDataURL(img);
+    }
+  };
+
+  const selectImage = () => {
+    document.getElementById("image-upload").click();
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -68,6 +118,44 @@ export default function UserEdit({
       [name]: value,
     }));
   };
+  const handleValidity = () => {
+    password && checkPasswordLength(password, setPasswordAlert);
+    checkEmailValidity(email, setEmailValidityAlert);
+    checkEmailUniqueuess(allUsers, email, setEmailUniquenessAlert, currentUser);
+    if (password !== passwordConfirm) {
+      setPasswordConfirmAlert(true);
+    } else {
+      setPasswordConfirmAlert(false);
+    }
+    if (
+      !passwordAlert &&
+      !emailValidityAlert &&
+      !emailUniquenessAlert &&
+      password === passwordConfirm &&
+      password &&
+      name
+    ) {
+      setAllConditionsAreNotMet(false);
+    } else {
+      setAllConditionsAreNotMet(true);
+    }
+  };
+
+  useEffect(() => {
+    handleValidity();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    allUsers,
+    currentUser,
+    email,
+    password,
+    passwordConfirm,
+    emailValidityAlert,
+    emailUniquenessAlert,
+    passwordAlert,
+    name,
+  ]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -84,9 +172,8 @@ export default function UserEdit({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (password !== passwordConfirm) {
-      return alert("Password and password confirmation do not match");
-    }
+    handleValidity();
+    checkPasswordLength(password, setPasswordAlert);
     onSave(currentUser.id, formData);
   };
 
@@ -94,20 +181,65 @@ export default function UserEdit({
     <Dialog
       onClose={handleClose}
       aria-labelledby="customized-dialog-title"
-      open={handleOpen}
-    >
+      open={handleOpen}>
       <DialogTitle id="customized-dialog-title" onClose={handleClose}>
         <Typography className="title">Edit Account</Typography>
       </DialogTitle>
 
-      <Form onSubmit={handleSubmit}>
+      <Form
+        darkMode={darkMode}
+        userHasPreviousImage={userHasPreviousImage}
+        image={image}
+        onSubmit={handleSubmit}>
         <DialogContent dividers>
-          <div className="input-container">
-            {!image ? (
-              <AccountCircleIcon className="icon" />
+          <div className="user-image-container">
+            {/* if the image has been edited */}
+            {isImageEdited ? (
+              <img
+                className="big-user-image"
+                src={image}
+                alt={currentUser?.name}
+              />
+            ) : // if the user already has an image and the image hasn't been edited yet.
+            userHasPreviousImage ? (
+              <img
+                className="big-user-image"
+                src={`${baseUrl}uploads/user/image/${currentUser.id}/${currentUser?.image}`}
+                alt={currentUser?.name}
+              />
             ) : (
-              <img className="user-image" src={image} alt="invalid url" />
+              // if no image at all, just show the placeholder icon.
+              <AccountCircleIcon className="big-icon" />
             )}
+            <footer className="picture-buttons">
+              <IconButton
+                onMouseDown={(e) => e.preventDefault()}
+                className="icon-button clear"
+                onClick={handleImageClear}>
+                <ClearIcon className="big-camera-icon" />
+              </IconButton>
+              <IconButton
+                onMouseDown={(e) => e.preventDefault()}
+                className="icon-button"
+                onClick={selectImage}>
+                <CameraIcon className="big-camera-icon" />
+              </IconButton>
+            </footer>
+          </div>
+
+          <div className="input-container">
+            {userHasPreviousImage ? (
+              <img
+                className="user-image"
+                src={`${baseUrl}uploads/user/image/${currentUser.id}/${currentUser?.image}`}
+                alt="avatar"
+              />
+            ) : isImageEdited ? (
+              <img className="user-image" src={image} alt={name} />
+            ) : (
+              <AccountCircleIcon className="icon" />
+            )}
+
             <FormControl className="name">
               <InputLabel htmlFor="name">Name</InputLabel>
               <Input
@@ -136,7 +268,22 @@ export default function UserEdit({
             </FormControl>
           </div>
           <br />
-
+          {emailValidityAlert && (
+            <>
+              <div className="alert">
+                <p>Please enter a valid email address</p>
+              </div>
+              <br />
+            </>
+          )}
+          {emailUniquenessAlert && (
+            <>
+              <div className="alert">
+                <p>This email address already exists!</p>
+              </div>
+              <br />
+            </>
+          )}
           <div className="input-container">
             <LockIcon className="icon" />
             <FormControl>
@@ -154,16 +301,28 @@ export default function UserEdit({
                     <IconButton
                       aria-label="toggle password visibility"
                       onClick={handleClickShowPassword}
-                      onMouseDown={handleMouseDownPassword}
-                    >
-                      {showPassword ? <Visibility /> : <VisibilityOff />}
+                      onMouseDown={handleMouseDownPassword}>
+                      {showPassword ? (
+                        <Visibility className="visibility" />
+                      ) : (
+                        <VisibilityOff className="visibility" />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 }
               />
             </FormControl>
+            <br />
           </div>
           <br />
+          {passwordAlert && (
+            <>
+              <div className="alert">
+                <p>Password has to be 8 characters at minimum</p>
+              </div>
+              <br />
+            </>
+          )}
           <div className="input-container">
             <LockIcon className="icon" />
             <FormControl className="password-confirm">
@@ -177,17 +336,20 @@ export default function UserEdit({
                 id="password-confirm"
                 type={showPasswordConfirm ? "text" : "password"}
                 value={passwordConfirm}
-                onChange={handleChange}
+                onChange={(e) => setPasswordConfirm(e.target.value)}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton
                       aria-label="toggle password visibility"
                       onClick={() =>
-                        setShowPasswordConfirm(!showPasswordConfirm)
+                        setShowPasswordConfirm((prevState) => !prevState)
                       }
-                      onMouseDown={handleMouseDownPassword}
-                    >
-                      {showPasswordConfirm ? <Visibility /> : <VisibilityOff />}
+                      onMouseDown={handleMouseDownPassword}>
+                      {showPasswordConfirm ? (
+                        <Visibility className="visibility" />
+                      ) : (
+                        <VisibilityOff className="visibility" />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 }
@@ -195,15 +357,21 @@ export default function UserEdit({
             </FormControl>
           </div>
           <br />
-
+          {passwordConfirmAlert && (
+            <>
+              <div className="alert">
+                <p>Password and password confirmation do not match!</p>
+              </div>
+              <br />
+            </>
+          )}
           <div
             style={{
               display: "flex",
               justifyContent: "center",
               flexDirection: "column",
               alignItems: "center",
-            }}
-          >
+            }}>
             <TextField
               id="date"
               required
@@ -216,23 +384,13 @@ export default function UserEdit({
               value={birthday}
               onChange={handleChange}
             />
+            <input
+              type="file"
+              id="image-upload"
+              style={{ visibility: "hidden" }}
+              onChange={onImageSelected}
+            />
           </div>
-          <br />
-          <div className="input-container">
-            <AddPhotoAlternateIcon />
-            <FormControl>
-              <InputLabel htmlFor="image">Image Link</InputLabel>
-              <Input
-                className="input-field"
-                type="text"
-                name="image"
-                value={image}
-                onChange={handleChange}
-              />
-            </FormControl>
-          </div>
-          <br />
-          <br />
           <div className="gender-container">
             <FormHelperText style={{ marginLeft: "-20px" }}>
               What's your gender?
@@ -247,8 +405,7 @@ export default function UserEdit({
                 inputProps={{
                   name: "gender",
                   id: "gender-native-simple",
-                }}
-              >
+                }}>
                 <option value="" selected disabled hidden>
                   Select a gender
                 </option>
@@ -260,9 +417,13 @@ export default function UserEdit({
               </NativeSelect>
             </FormControl>
           </div>
-
+          <br />
           <DialogActions>
-            <Button type="submit" variant="contained" color="primary">
+            <Button
+              disabled={allConditionsAreNotMet}
+              type="submit"
+              variant="contained"
+              color="primary">
               Save
             </Button>
             <Button
@@ -270,8 +431,7 @@ export default function UserEdit({
               component={Link}
               onClick={handleClose}
               variant="contained"
-              color="secondary"
-            >
+              color="secondary">
               Cancel
             </Button>
           </DialogActions>

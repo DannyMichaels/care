@@ -22,14 +22,13 @@ import TextField from "@material-ui/core/TextField";
 import { getAge } from "../../../utils/getAge";
 import { useStyles } from "./registerStyles";
 import EventIcon from "@material-ui/icons/Event";
-import AddPhotoAlternateIcon from "@material-ui/icons/AddPhotoAlternate";
 import CameraIcon from "@material-ui/icons/CameraAlt";
-import CrossIcon from "@material-ui/icons/Clear";
 import FetchUsers from "../../../components/Helpers/FetchUsers";
 import {
   checkEmailValidity,
   checkPasswordLength,
 } from "../../../utils/authUtils";
+import ClearIcon from "@material-ui/icons/Clear";
 
 export default function Register() {
   const [{ currentUser }, dispatch] = useStateValue();
@@ -38,21 +37,14 @@ export default function Register() {
   const [passwordAlert, setPasswordAlert] = useState(false);
   const [darkMode] = useContext(DarkModeContext);
   const [emailValidityAlert, setEmailValidityAlert] = useState(false);
-  const [addImage, setAddImage] = useState(false);
   const [imagePreview, setImagePreview] = useState(false);
   const [passwordConfirmAlert, setPasswordConfirmAlert] = useState(false);
   const [emailUniquenessAlert, setEmailUniquenessAlert] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
-
-  const classes = useStyles({ darkMode, currentUser });
   const history = useHistory();
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
-  };
-
-  const handleClickImagePreview = () => {
-    setImagePreview(!imagePreview);
   };
 
   const handleMouseDownPassword = (event) => {
@@ -74,22 +66,7 @@ export default function Register() {
     image: "",
   });
   const { name, email, password, birthday, gender, image } = formData;
-  const [passwordConfirm, setPasswordConfirm] = useState();
-
-  const handleCameraClick = (e) => {
-    e.preventDefault();
-    setAddImage((currentState) => !currentState);
-    addImage &&
-      setFormData({
-        name: name,
-        email: email,
-        password: password,
-        birthday: birthday,
-        gender: gender,
-        image: "",
-      });
-    imagePreview && setImagePreview(false);
-  };
+  const [passwordConfirm, setPasswordConfirm] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -128,7 +105,6 @@ export default function Register() {
         gender: gender,
         image: fileReader.result,
       });
-      console.log(fileReader.result);
       setImagePreview(true);
     });
     if (img) {
@@ -136,23 +112,29 @@ export default function Register() {
     }
   };
 
-  const selectImage = (e) => {
+  const selectImage = () => {
     document.getElementById("image-upload").click();
   };
+
+  const handleImageClear = () => {
+    setFormData({
+      ...formData,
+      image: "",
+    });
+    document.getElementById("image-upload").value = "";
+
+    setImagePreview(false);
+  };
+
+  const classes = useStyles({ darkMode, currentUser, imagePreview });
 
   return (
     <>
       <FetchUsers setAllUsers={setAllUsers} />
-      <div className={darkMode === "light" ? classes.root : classes.rootDark}>
+      <div className={classes.root}>
         <div className={classes.middleWrapper}>
           <div className={classes.logoContainer}>
-            <Typography
-              className={
-                darkMode === "light" ? classes.title : classes.titleDark
-              }
-            >
-              Care
-            </Typography>
+            <Typography className={classes.title}>Care</Typography>
             <img
               className={classes.logo}
               src="https://i.imgur.com/1QePclv.png"
@@ -164,8 +146,7 @@ export default function Register() {
               <Typography
                 className={
                   darkMode === "light" ? classes.user : classes.userDark
-                }
-              >
+                }>
                 You already have an account, is this you?
                 <br />
                 Name: {currentUser?.name}
@@ -180,55 +161,47 @@ export default function Register() {
               <br />
             </>
           )}
-
-          <div>
+          <div className={classes.imageContainer}>
             {imagePreview ? (
               <img
                 className={classes.bigUserImage}
                 src={image}
-                alt="Invalid URL"
+                alt={currentUser?.name}
               />
             ) : (
               <AccountCircleIcon className={classes.bigIcon} />
             )}
-            <IconButton
-              onMouseDown={(e) => e.preventDefault()}
-              className={classes.iconButton}
-              // onClick={handleCameraClick}
-              onClick={selectImage}
-            >
-              {!addImage ? (
-                <CameraIcon className={classes.cameraIcon} />
-              ) : (
-                <CrossIcon className={classes.crossIcon} />
+            <footer className={classes.pictureButtons}>
+              {imagePreview && (
+                <IconButton
+                  onMouseDown={(e) => e.preventDefault()}
+                  className={classes.clearIcon}
+                  onClick={handleImageClear}>
+                  <ClearIcon className={classes.clearIcon} />
+                </IconButton>
               )}
-            </IconButton>
+              <IconButton
+                onMouseDown={(e) => e.preventDefault()}
+                className={classes.iconButton}
+                onClick={selectImage}>
+                <CameraIcon className={classes.cameraIcon} />
+              </IconButton>
+            </footer>
           </div>
           <br />
           <form className={classes.form} onSubmit={handleSubmit}>
-            <div
-              className={
-                darkMode === "light"
-                  ? classes.inputContainer
-                  : classes.inputContainerDark
-              }
-            >
+            <div className={classes.inputContainer}>
               {!imagePreview ? (
                 <AccountCircleIcon />
               ) : (
-                <img
-                  className={classes.userImage}
-                  src={image}
-                  alt={"invalid url"}
-                />
+                <img className={classes.userImage} src={image} alt={name} />
               )}
               <FormControl>
                 <InputLabel
                   className={
                     darkMode === "light" ? classes.label : classes.darkLabel
                   }
-                  htmlFor="name"
-                >
+                  htmlFor="name">
                   Name
                 </InputLabel>
                 <Input
@@ -246,21 +219,14 @@ export default function Register() {
                 />
               </FormControl>
             </div>
-            <div
-              className={
-                darkMode === "light"
-                  ? classes.inputContainer
-                  : classes.inputContainerDark
-              }
-            >
+            <div className={classes.inputContainer}>
               <EmailIcon />
               <FormControl>
                 <InputLabel
                   className={
                     darkMode === "light" ? classes.label : classes.darkLabel
                   }
-                  htmlFor="email"
-                >
+                  htmlFor="email">
                   Email Address
                 </InputLabel>
                 <Input
@@ -294,13 +260,7 @@ export default function Register() {
                 <br />
               </>
             )}
-            <div
-              className={
-                darkMode === "light"
-                  ? classes.inputContainer
-                  : classes.inputContainerDark
-              }
-            >
+            <div className={classes.inputContainer}>
               <LockIcon className={classes.lockIcon} />
               <FormControl>
                 <InputLabel
@@ -309,8 +269,7 @@ export default function Register() {
                       ? classes.passwordLabel
                       : classes.darkPasswordLabel
                   }
-                  htmlFor="password"
-                >
+                  htmlFor="password">
                   Password
                 </InputLabel>
                 <Input
@@ -328,13 +287,11 @@ export default function Register() {
                   endAdornment={
                     <InputAdornment
                       className={classes.passwordIcon}
-                      position="end"
-                    >
+                      position="end">
                       <IconButton
                         aria-label="toggle password visibility"
                         onClick={handleClickShowPassword}
-                        onMouseDown={handleMouseDownPassword}
-                      >
+                        onMouseDown={handleMouseDownPassword}>
                         {showPassword ? (
                           <Visibility className={classes.visibility} />
                         ) : (
@@ -354,13 +311,7 @@ export default function Register() {
                 <br />
               </>
             )}
-            <div
-              className={
-                darkMode === "light"
-                  ? classes.inputContainer
-                  : classes.inputContainerDark
-              }
-            >
+            <div className={classes.inputContainer}>
               <LockIcon className={classes.lockIcon} />
               <FormControl>
                 <InputLabel
@@ -369,8 +320,7 @@ export default function Register() {
                       ? classes.passwordLabel
                       : classes.darkPasswordLabel
                   }
-                  htmlFor="passwordConfirm"
-                >
+                  htmlFor="passwordConfirm">
                   Confirm Password
                 </InputLabel>
                 <Input
@@ -388,15 +338,13 @@ export default function Register() {
                   endAdornment={
                     <InputAdornment
                       className={classes.passwordIcon}
-                      position="end"
-                    >
+                      position="end">
                       <IconButton
                         aria-label="toggle password visibility"
                         onClick={() =>
                           setShowPasswordConfirm(!showPasswordConfirm)
                         }
-                        onMouseDown={handleMouseDownPassword}
-                      >
+                        onMouseDown={handleMouseDownPassword}>
                         {showPasswordConfirm ? (
                           <Visibility className={classes.visibility} />
                         ) : (
@@ -416,24 +364,14 @@ export default function Register() {
                 <br />
               </>
             )}
-            <div
-              className={
-                darkMode === "light"
-                  ? classes.inputContainer
-                  : classes.inputContainerDark
-              }
-            >
+            <div className={classes.inputContainer}>
               <EventIcon className={classes.lockIcon} />
               <TextField
                 id="date"
                 required
                 label="Date of Birth"
                 type="date"
-                className={
-                  darkMode === "light"
-                    ? classes.birthdayField
-                    : classes.birthdayFieldDark
-                }
+                className={classes.birthdayField}
                 name="birthday"
                 InputLabelProps={{
                   shrink: true,
@@ -448,60 +386,6 @@ export default function Register() {
               style={{ visibility: "hidden" }}
               onChange={onImageSelected}
             />
-            {addImage && (
-              <div
-                className={
-                  darkMode === "light"
-                    ? classes.inputContainer
-                    : classes.inputContainerDark
-                }
-              >
-                <AddPhotoAlternateIcon />
-                <FormControl>
-                  {/* <button type="button" onClick={selectImage}>
-                    Select Image
-                  </button> */}
-                  <InputLabel
-                    className={
-                      darkMode === "light" ? classes.label : classes.darkLabel
-                    }
-                    htmlFor="image"
-                  >
-                    Image Link
-                  </InputLabel>
-                  <Input
-                    className={
-                      darkMode === "light"
-                        ? classes.inputField
-                        : classes.inputFieldDark
-                    }
-                    type="text"
-                    name="image"
-                    value={image}
-                    disabled={imagePreview}
-                    onChange={handleChange}
-                    endAdornment={
-                      <InputAdornment
-                        className={classes.passwordIcon}
-                        position="end"
-                      >
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleClickImagePreview}
-                          onMouseDown={handleMouseDownPassword}
-                        >
-                          {imagePreview ? (
-                            <Visibility className={classes.visibility} />
-                          ) : (
-                            <VisibilityOff className={classes.visibility} />
-                          )}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                  />
-                </FormControl>
-              </div>
-            )}
             <div className={classes.genderContainer}>
               <FormHelperText style={{ marginLeft: "-20px" }}>
                 What's your gender?
@@ -516,8 +400,7 @@ export default function Register() {
                   inputProps={{
                     name: "gender",
                     id: "gender-native-simple",
-                  }}
-                >
+                  }}>
                   <option value="" selected disabled hidden>
                     Select a gender
                   </option>
@@ -536,29 +419,33 @@ export default function Register() {
                 darkMode === "light"
                   ? classes.registerButton
                   : classes.registerButtonDark
-              }
-            >
+              }>
               Register
             </Button>
           </form>
           <Typography
-            className={darkMode === "light" ? classes.login : classes.loginDark}
-          >
+            className={
+              darkMode === "light" ? classes.login : classes.loginDark
+            }>
             Already have an account? &nbsp;
             <Link
               className={
                 darkMode === "light" ? classes.loginLink : classes.loginLinkDark
               }
-              to="/login"
-            >
+              to="/login">
               Login
             </Link>
           </Typography>
           <br />
           <Typography
-            className={darkMode === "light" ? classes.user : classes.userDark}
-          >
-            Daniel Michael &copy; 2020
+            className={darkMode === "light" ? classes.user : classes.userDark}>
+            <a
+              className={classes.link}
+              target="_blank"
+              rel="noreferrer"
+              href="http://www.github.com/dannymichaels/care">
+              Daniel Michael &copy; 2020
+            </a>
           </Typography>
         </div>
       </div>

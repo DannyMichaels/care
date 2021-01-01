@@ -11,7 +11,7 @@ import "moment-timezone";
 import ScrollToTopOnMount from "../../../components/Helpers/ScrollToTopOnMount";
 import Brightness4Icon from "@material-ui/icons/Brightness4";
 import { getAge } from "../../../utils/getAge";
-import { getAllUsers, putUser } from "../../../services/users";
+import { destroyImage, getAllUsers, putUser } from "../../../services/users";
 import UserEdit from "../../../components/Dialogs/UserDialogs/UserEdit";
 import Button from "@material-ui/core/Button";
 import { useStyles } from "./settingStyles";
@@ -42,7 +42,15 @@ export default function Settings() {
     }
   };
 
+  const deleteImage = async (currentUser) => {
+    await destroyImage(currentUser);
+    setAllUsers((prevState) => prevState.filter((user) => user.image !== user));
+  };
+
   const onSave = (formData, id) => {
+    if (!formData.image) {
+      deleteImage(currentUser.id);
+    }
     handleUpdate(formData, id);
     setOpenEdit(false);
   };
@@ -122,8 +130,7 @@ export default function Settings() {
         className={classes.manage}
         onClick={handleOpen}
         variant="contained"
-        color="primary"
-      >
+        color="primary">
         Edit Account
       </Button>
       <hr />
@@ -148,6 +155,7 @@ export default function Settings() {
       </div>
       {openEdit && (
         <UserEdit
+          allUsers={allUsers}
           onSave={onSave}
           currentUser={currentUser}
           handleOpen={handleOpen}

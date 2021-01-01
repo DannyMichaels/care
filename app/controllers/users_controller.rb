@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :authorize_request, only: [ :update, :destroy]
+  before_action :authorize_request, only: [ :update, :destroy, :remove_file]
   before_action :set_user, only: [:show, :update]
 
   def index
@@ -36,6 +36,10 @@ class UsersController < ApplicationController
     else
       render json: @user.errors, status: :unprocessable_entity
     end
+  end
+
+  def remove_image(image)
+    File.delete(user.image)
   end
 
   private

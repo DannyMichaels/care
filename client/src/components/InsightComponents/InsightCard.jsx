@@ -23,15 +23,17 @@ function InsightCard({
   darkMode,
 }) {
   const [{ currentUser }] = useStateValue();
-  const classes = useStyles({ darkMode });
   const [allLikes, setAllLikes] = useState([]);
   const [liked, setLiked] = useState(false);
-  const [likeDisabled, setLikeDisabled] = useState(true);
+  const [likeCount, setLikeCount] = useState([]); // for a live feel if using 2 tabs open, not necessary for 1 tab...
+  const [likeDisabled, setLikeDisabled] = useState(false);
+
+  const classes = useStyles({ darkMode, liked, likeDisabled });
 
   useEffect(() => {
     const fetchLikes = async () => {
       setAllLikes(insight.likes);
-      setLikeDisabled(false);
+      setLikeCount(insight.likes.length);
     };
     fetchLikes();
   }, [insight?.likes]);
@@ -49,30 +51,45 @@ function InsightCard({
   const handleLike = async () => {
     if (!likeDisabled) {
       setLiked(true);
-      setLikeDisabled(true);
+      setLikeCount((prevCount) => (prevCount += 1)); // for when a user tries to unlike/like with 2 tabs open
+
       const newLike = await postLike({
         user_id: currentUser.id,
         insight_id: insight.id,
       });
       setAllLikes((prevState) => [...prevState, newLike]);
-      setLikeDisabled(false);
+
+      setLikeDisabled(true);
+      setTimeout(async () => {
+        setLikeDisabled(false);
+      }, 500);
     }
   };
 
   const handleUnlike = async () => {
     if (!likeDisabled) {
       setLiked(false);
-      setLikeDisabled(true);
+      if (insight.likes.length > 0) {
+        setLikeCount((prevCount) => (prevCount -= 1));
+      } else {
+        setLikeCount((prevCount) => (prevCount += 0));
+        // if user is spamming likes on 2 tabs open,
+        // the backend will reject the likes, but it'll still give him the feel of liking something on 2 tabs open.
+      }
+
       const likeToDelete = allLikes?.find(
         (like) =>
           like?.insight_id === insight?.id && currentUser?.id === like?.user_id
       );
-      await destroyLike(likeToDelete.id);
+      await destroyLike(likeToDelete?.id);
       setAllLikes((prevState) =>
-        prevState.filter((like) => like.id !== likeToDelete?.id)
+        prevState.filter((like) => like?.id !== likeToDelete?.id)
       );
+      setLikeDisabled(true);
+      setTimeout(async () => {
+        setLikeDisabled(false);
+      }, 500);
     }
-    setLikeDisabled(false);
   };
 
   return (
@@ -111,27 +128,17 @@ function InsightCard({
         <div className={classes.likeContainer}>
           {!liked ? (
             <UnlikedIcon
-              style={
-                likeDisabled
-                  ? { pointerEvents: "none" }
-                  : { pointerEvents: "inherit" }
-              }
               className={classes.unLikedInsight}
               onClick={handleLike}
             />
           ) : (
             <LikedIcon
-              style={
-                likeDisabled
-                  ? { pointerEvents: "none" }
-                  : { pointerEvents: "inherit" }
-              }
               className={classes.likedInsight}
               onClick={handleUnlike}
             />
           )}
           &nbsp;
-          {allLikes?.length}
+          {likeCount}
         </div>
 
         {insight?.user.id === currentUser?.id && (

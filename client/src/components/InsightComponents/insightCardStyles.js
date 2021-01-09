@@ -90,10 +90,14 @@ const useStyles = makeStyles((theme) => ({
   likedInsight: {
     color: ({ darkMode }) => (darkMode === "dark" ? yellow[700] : red[500]),
     cursor: "pointer",
+    pointerEvents: ({ likeDisabled }) => (likeDisabled ? "none" : "inherit"), // to avoid spam/exploits
   },
+
   unLikedInsight: {
     cursor: "pointer",
+    pointerEvents: ({ likeDisabled }) => (likeDisabled ? "none" : "inherit"), // to avoid spam/exploits
   },
+
   userImage: {
     height: "40px",
     width: "40px",

@@ -20,6 +20,7 @@ import NotFound from "../../Error/NotFound";
 import ScrollToTopOnMount from "../../../components/Helpers/ScrollToTopOnMount";
 import RXGuideLogo from "../../../components/MedComponents/RXGuideLogo";
 import LinearProgressLoading from "../../../components/Loading/LinearProgressLoading.jsx";
+import DateCarousel from "../../../components/DateCarousel/DateCarousel.jsx";
 
 export default function Home() {
   const [darkMode] = useContext(DarkModeContext);
@@ -47,6 +48,8 @@ export default function Home() {
     <Layout title="Home">
       <div className={classes.root}>
         <ScrollToTopOnMount />
+        <DateCarousel />
+
         <Accordion className={classes.accordion}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}

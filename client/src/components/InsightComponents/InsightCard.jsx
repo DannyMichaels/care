@@ -45,7 +45,10 @@ function InsightCard({
     );
     likeFound ? setLiked(true) : setLiked(false);
 
-    localStorage.setItem("update", likeFound ? "true" : "false"); // when liking with 2 tabs open to avoid an exploit (syncing the data between multiple tabs)
+    localStorage.setItem(
+      "update_like" + likeFound?.insight_id,
+      Math.ceil(Math.random() * 12334).toString()
+    ); // when liking with 2 tabs open to avoid an exploit (syncing the data between multiple tabs)
   }, [allLikes, currentUser?.id, insight?.id]);
 
   const handleLike = async () => {
@@ -62,7 +65,7 @@ function InsightCard({
       setLikeDisabled(true);
       setTimeout(async () => {
         setLikeDisabled(false);
-      }, 500);
+      }, 300);
     }
   };
 
@@ -88,7 +91,7 @@ function InsightCard({
       setLikeDisabled(true);
       setTimeout(async () => {
         setLikeDisabled(false);
-      }, 500);
+      }, 300);
     }
   };
 

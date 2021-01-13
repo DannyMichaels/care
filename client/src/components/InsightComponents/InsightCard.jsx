@@ -32,8 +32,8 @@ function InsightCard({
 
   useEffect(() => {
     const fetchLikes = async () => {
-      setAllLikes(insight.likes);
-      setLikeCount(insight.likes.length);
+      setAllLikes(insight?.likes);
+      setLikeCount(insight?.likes?.length);
     };
     fetchLikes();
   }, [insight?.likes]);

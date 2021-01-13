@@ -23,15 +23,17 @@ function InsightCard({
   darkMode,
 }) {
   const [{ currentUser }] = useStateValue();
-  const classes = useStyles({ darkMode });
   const [allLikes, setAllLikes] = useState([]);
   const [liked, setLiked] = useState(false);
-  const [likeDisabled, setLikeDisabled] = useState(true);
+  const [likeCount, setLikeCount] = useState([]); // for a live feel if using 2 tabs open, not necessary for 1 tab...
+  const [likeDisabled, setLikeDisabled] = useState(false);
+
+  const classes = useStyles({ darkMode, liked, likeDisabled });
 
   useEffect(() => {
     const fetchLikes = async () => {
-      setAllLikes(insight.likes);
-      setLikeDisabled(false);
+      setAllLikes(insight?.likes);
+      setLikeCount(insight?.likes?.length);
     };
     fetchLikes();
   }, [insight?.likes]);
@@ -43,36 +45,54 @@ function InsightCard({
     );
     likeFound ? setLiked(true) : setLiked(false);
 
-    localStorage.setItem("update", likeFound ? "true" : "false"); // when liking with 2 tabs open to avoid an exploit (syncing the data between multiple tabs)
+    localStorage.setItem(
+      "update_like" + likeFound?.insight_id,
+      Math.ceil(Math.random() * 12334).toString()
+    ); // when liking with 2 tabs open to avoid an exploit (syncing the data between multiple tabs)
   }, [allLikes, currentUser?.id, insight?.id]);
 
   const handleLike = async () => {
     if (!likeDisabled) {
       setLiked(true);
-      setLikeDisabled(true);
+      setLikeCount((prevCount) => (prevCount += 1)); // for when a user tries to unlike/like with 2 tabs open
+
       const newLike = await postLike({
         user_id: currentUser.id,
         insight_id: insight.id,
       });
       setAllLikes((prevState) => [...prevState, newLike]);
-      setLikeDisabled(false);
+
+      setLikeDisabled(true);
+      setTimeout(async () => {
+        setLikeDisabled(false);
+      }, 300);
     }
   };
 
   const handleUnlike = async () => {
     if (!likeDisabled) {
       setLiked(false);
-      setLikeDisabled(true);
+      if (insight.likes.length > 0) {
+        setLikeCount((prevCount) => (prevCount -= 1));
+      } else {
+        setLikeCount((prevCount) => (prevCount += 0));
+        // if user is spamming likes on 2 tabs open,
+        // the backend will reject the likes, but it'll still give him the feel of liking something on 2 tabs open.
+      }
+
       const likeToDelete = allLikes?.find(
         (like) =>
           like?.insight_id === insight?.id && currentUser?.id === like?.user_id
       );
-      await destroyLike(likeToDelete.id);
+      await destroyLike(likeToDelete?.id);
       setAllLikes((prevState) =>
-        prevState.filter((like) => like.id !== likeToDelete?.id)
+        prevState.filter((like) => like?.id !== likeToDelete?.id)
       );
+      setLikeDisabled(true);
+      setTimeout(async () => {
+        setLikeDisabled(false);
+      }, 300);
     }
-    setLikeDisabled(false);
   };
 
   return (
@@ -131,7 +151,7 @@ function InsightCard({
             />
           )}
           &nbsp;
-          {allLikes?.length}
+          {likeCount}
         </div>
 
         {insight?.user.id === currentUser?.id && (

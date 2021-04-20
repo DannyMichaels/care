@@ -8,6 +8,9 @@ Rails.application.routes.draw do
   post '/auth/login', to: 'authentication#login'
   get '/auth/verify', to: 'authentication#verify'
   resources :users
+  # resources :tests
+  get "/api/tests", to: "tests#index"
+
   resources :insights do 
     resources :comments
   end

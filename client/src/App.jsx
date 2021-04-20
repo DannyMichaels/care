@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { Paper } from "@material-ui/core";
 import FirefoxBrowser from "./screens/Error/FirefoxBrowser";
@@ -6,6 +6,7 @@ import { verifyUser } from "./services/auth";
 import { useStateValue } from "./context/CurrentUserContext";
 import { firefoxAgent as isUsingFirefox } from "./utils/detectBrowsers";
 import AppRouter from "./Router/AppRouter";
+import api from "./services/apiConfig";
 
 function App() {
   const [, dispatch] = useStateValue();
@@ -26,6 +27,15 @@ function App() {
       push("/login");
     }
   }, [dispatch, push, pathname]);
+
+  useEffect(() => {
+    const getData = async () => {
+      await api.get("/api/tests").then(({ data }) => {
+        console.log(data);
+      });
+    };
+    getData();
+  }, []);
 
   if (isUsingFirefox) {
     return <FirefoxBrowser firefoxAgent={isUsingFirefox} />;

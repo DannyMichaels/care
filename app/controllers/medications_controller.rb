@@ -39,7 +39,7 @@ class MedicationsController < ApplicationController
     if @medication.update(medication_params)
       render json: @medication
     else
-      render json: @symptom.errors, status: :unprocessable_entity
+      render json: @medication.errors, status: :unprocessable_entity
     end
   end
 

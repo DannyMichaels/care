@@ -16,11 +16,12 @@ class AuthenticationController < ApplicationController
 
     @user = User.find_by(email: email)
     
-    if (!@user) 
+    if (!@user)
       render json: {
         errors: 'unauthorized',
         message: 'Invalid email or password',
       }, status: :unauthorized
+      return
     end
 
     if @user.authenticate(login_params[:password]) #authenticate method provided by Bcrypt and 'has_secure_password'

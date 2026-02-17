@@ -6,12 +6,7 @@ class InsightsController < ApplicationController
   # GET /insights
   
   def index
-    @likes = Like.all
-    @insights = Insight.newest_first
-    
-    for @insight in @insights do  
-      @insight.likes = @likes.filter {|like| like.insight_id == @insight.id }
-    end
+    @insights = Insight.includes(:likes, :user, comments: :user).newest_first
        # Don't need to show the user_id because the user's id is already shown underneath the insight's user part.              
     render json: @insights.map {|insight| insight.attributes.except('updated_at', 'user_id').merge({comments: insight.comments}, {user: insight.user.attributes.except('password_digest', 'created_at', 'email', 'updated_at', 'birthday'), likes: insight.likes.map {|like| like.attributes.except('updated_at')} })}
   end

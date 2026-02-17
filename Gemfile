@@ -12,6 +12,7 @@ gem 'bootsnap', '>= 1.4.2', require: false
 gem 'irb', '1.14.3'
 gem 'rdoc', '6.14.0'
 gem 'rack-cors'
+gem 'rack-attack'
 gem 'jwt'
 gem 'httparty'
 

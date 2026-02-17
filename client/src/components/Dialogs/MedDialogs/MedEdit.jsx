@@ -179,6 +179,7 @@ export default function MedEdit({
               }
               type="datetime-local"
               style={{ width: "300px", margin: "10px" }}
+              value={formData.time ? new Date(formData.time).toISOString().slice(0, 16) : ""}
               onChange={handleChange}
               InputLabelProps={{
                 shrink: true,

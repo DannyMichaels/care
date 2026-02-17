@@ -1,0 +1,174 @@
+/* ===== Mobile-first: stacked layout ===== */
+.date-carousel {
+  display: grid;
+  grid-template-areas:
+    "cal year toggle"
+    "strip strip strip";
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  margin-bottom: 8px;
+  row-gap: 2px;
+}
+
+.date-carousel__cal {
+  grid-area: cal;
+  padding-left: 8px;
+}
+
+.date-carousel__year {
+  grid-area: year;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  opacity: 0.7;
+}
+
+.date-carousel__all-label {
+  grid-area: toggle;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  white-space: nowrap;
+  padding-right: 8px;
+}
+
+/* Scroll strip — full-bleed on mobile */
+.date-carousel__strip {
+  grid-area: strip;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  padding: 4px 8px;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  padding-left: calc(50vw - 50% + 8px);
+  padding-right: calc(50vw - 50% + 8px);
+}
+
+.date-carousel__strip::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.date-carousel__strip--dimmed {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ===== Desktop: year on top, single row below ===== */
+@media (min-width: 600px) {
+  .date-carousel {
+    grid-template-areas:
+      ". year ."
+      "cal strip toggle";
+    grid-template-columns: auto 1fr auto;
+    column-gap: 6px;
+    row-gap: 2px;
+  }
+
+  .date-carousel__strip {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .date-carousel__cal {
+    padding-left: 0;
+  }
+
+  .date-carousel__all-label {
+    padding-right: 0;
+  }
+}
+
+/* ===== Chip base ===== */
+.date-carousel__chip {
+  all: unset;
+  scroll-snap-align: center;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  min-height: 56px;
+  padding: 4px 0;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1.3;
+  transition: background-color 0.15s, color 0.15s;
+  user-select: none;
+}
+
+/* Light theme */
+.date-carousel__chip--light {
+  color: #333;
+}
+
+.date-carousel__chip--light:hover {
+  background-color: rgba(25, 118, 210, 0.08);
+}
+
+.date-carousel__chip--light.date-carousel__chip--selected {
+  background-color: #1e88e5; /* blue[600] */
+  color: #fff;
+}
+
+/* Dark theme */
+.date-carousel__chip--dark {
+  color: #eee;
+}
+
+.date-carousel__chip--dark:hover {
+  background-color: rgba(255, 193, 7, 0.12);
+}
+
+.date-carousel__chip--dark.date-carousel__chip--selected {
+  background-color: #fdd835; /* yellow[600] */
+  color: #000;
+}
+
+/* Future (disabled) chips */
+.date-carousel__chip--future {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Chip text */
+.date-carousel__chip-today {
+  font-weight: 600;
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.date-carousel__chip-day {
+  font-weight: 500;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.date-carousel__chip-num {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.date-carousel__chip-month {
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+/* Hidden native date picker */
+.date-carousel__picker-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}

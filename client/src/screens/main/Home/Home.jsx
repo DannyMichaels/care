@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useMemo, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 
 // Styles and Assets
@@ -10,6 +10,7 @@ import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Typography from "@material-ui/core/Typography";
+import Badge from "@material-ui/core/Badge";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import LinearProgressLoading from "../../../components/Loading/LinearProgressLoading.jsx";
 
@@ -25,17 +26,25 @@ import NotFound from "../../Error/NotFound";
 // Context
 import { ThemeStateContext } from "../../../context/ThemeStateContext";
 import { CurrentUserContext } from "../../../context/CurrentUserContext";
+import { DateContext } from "../../../context/DateContext";
 
 // Services and Utilities
 import { getAllAffirmations } from "../../../services/affirmations";
 import { checkValidity } from "../../../utils/checkValidity";
+import { filterByDate } from "../../../utils/dateUtils";
 import ScrollToTopOnMount from "../../../components/Helpers/ScrollToTopOnMount";
+import DateCarousel from "../../../components/DateCarousel/DateCarousel";
 
 export default function Home() {
   const [themeState] = useContext(ThemeStateContext);
   const [currentUser] = useContext(CurrentUserContext);
+  const { selectedDate, showAllDates } = useContext(DateContext);
   const [affirmations, setAffirmations] = useState([]);
   const [loadedAffirmation, setLoadedAffirmation] = useState(false);
+  const [moodCount, setMoodCount] = useState(0);
+  const [symptomCount, setSymptomCount] = useState(0);
+  const [foodCount, setFoodCount] = useState(0);
+  const [medCount, setMedCount] = useState(0);
   let location = useLocation();
 
   useEffect(() => {
@@ -48,6 +57,15 @@ export default function Home() {
   }, [currentUser]);
 
   const classes = useStyles({ themeState });
+  const filteredAffirmations = useMemo(
+    () => filterByDate(affirmations, selectedDate, showAllDates, "created_at"),
+    [affirmations, selectedDate, showAllDates]
+  );
+
+  const handleMoodCount = useCallback((c) => setMoodCount(c), []);
+  const handleSymptomCount = useCallback((c) => setSymptomCount(c), []);
+  const handleFoodCount = useCallback((c) => setFoodCount(c), []);
+  const handleMedCount = useCallback((c) => setMedCount(c), []);
 
   if (!loadedAffirmation) {
     return <LinearProgressLoading themeState={themeState} />;
@@ -57,36 +75,38 @@ export default function Home() {
     <Layout title="Home">
       <div className={classes.root}>
         <ScrollToTopOnMount />
+        <DateCarousel />
         <Accordion className={classes.accordion}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography className={classes.heading}>Mood</Typography>
+            <Badge badgeContent={moodCount} color="primary" showZero={false}>
+              <Typography className={classes.heading}>Mood</Typography>
+            </Badge>
           </AccordionSummary>
           <AccordionDetails>
             <div className="content-container">
-              <MoodsContainer />
+              <MoodsContainer onFilteredCount={handleMoodCount} />
             </div>
           </AccordionDetails>
         </Accordion>
 
         <Accordion className={classes.accordion}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography className={classes.heading}>
-              {affirmations?.length === 0 ? (
-                <></>
-              ) : (
-                <> {affirmations?.length} </>
-              )}
-              {affirmations?.length === 1 ? (
-                <> Affirmation</>
-              ) : (
-                <> Affirmations</>
-              )}
-            </Typography>
+            <Badge
+              badgeContent={filteredAffirmations.length}
+              color="primary"
+              showZero={false}
+            >
+              <Typography className={classes.heading}>
+                {filteredAffirmations.length === 1
+                  ? "Affirmation"
+                  : "Affirmations"}
+              </Typography>
+            </Badge>
           </AccordionSummary>
           <AccordionDetails>
             <div className="content-container">
               <AffirmationsContainer
-                affirmations={affirmations}
+                affirmations={filteredAffirmations}
                 loadedAffirmation={loadedAffirmation}
                 setAffirmations={setAffirmations}
               />
@@ -95,34 +115,43 @@ export default function Home() {
         </Accordion>
 
         <Accordion className={classes.accordion}>
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}>
-            <Typography className={classes.heading}>Symptoms</Typography>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Badge
+              badgeContent={symptomCount}
+              color="primary"
+              showZero={false}
+            >
+              <Typography className={classes.heading}>Symptoms</Typography>
+            </Badge>
           </AccordionSummary>
           <AccordionDetails>
             <div className="content-container">
-              <SymptomsContainer />
+              <SymptomsContainer onFilteredCount={handleSymptomCount} />
             </div>
           </AccordionDetails>
         </Accordion>
         <Accordion className={classes.accordion}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography className={classes.heading}>Food diary</Typography>
+            <Badge badgeContent={foodCount} color="primary" showZero={false}>
+              <Typography className={classes.heading}>Food diary</Typography>
+            </Badge>
           </AccordionSummary>
           <AccordionDetails>
             <div className="content-container">
-              <FoodsContainer />
+              <FoodsContainer onFilteredCount={handleFoodCount} />
             </div>
           </AccordionDetails>
         </Accordion>
 
         <Accordion className={classes.accordion}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <RXGuideLogo />
+            <Badge badgeContent={medCount} color="primary" showZero={false}>
+              <RXGuideLogo />
+            </Badge>
           </AccordionSummary>
           <AccordionDetails>
             <div className="content-container">
-              <MedsContainer />
+              <MedsContainer onFilteredCount={handleMedCount} />
             </div>
           </AccordionDetails>
         </Accordion>

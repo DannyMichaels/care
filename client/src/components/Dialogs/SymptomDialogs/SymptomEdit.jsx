@@ -86,6 +86,7 @@ export default function SymptomEdit({
               required
               type="datetime-local"
               name="time"
+              value={formData.time ? new Date(formData.time).toISOString().slice(0, 16) : ""}
               onChange={handleChange}
             />
           </div>

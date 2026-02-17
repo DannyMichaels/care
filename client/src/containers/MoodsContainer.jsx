@@ -1,12 +1,15 @@
 import React from "react";
 import Moods from "../components/MoodComponents/Moods.jsx";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import { destroyMood, getAllMoods, postMood, putMood } from "../services/moods";
 import { CurrentUserContext } from "../context/CurrentUserContext";
+import { DateContext } from "../context/DateContext";
+import { filterByDate } from "../utils/dateUtils";
 
-export default function MoodsContainer() {
+export default function MoodsContainer({ onFilteredCount }) {
   const [currentUser] = useContext(CurrentUserContext);
+  const { selectedDate, showAllDates } = useContext(DateContext);
   const [moods, setMoods] = useState([]);
   const [updated, setUpdated] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -42,10 +45,19 @@ export default function MoodsContainer() {
     setMoods((prevState) => prevState.filter((mood) => mood.id !== id));
   };
 
+  const filteredMoods = useMemo(
+    () => filterByDate(moods, selectedDate, showAllDates, "time"),
+    [moods, selectedDate, showAllDates]
+  );
+
+  useEffect(() => {
+    onFilteredCount?.(filteredMoods.length);
+  }, [filteredMoods.length, onFilteredCount]);
+
   return (
     <>
       <Moods
-        moods={moods}
+        moods={filteredMoods}
         setMoods={setMoods}
         updated={updated}
         loaded={loaded}

@@ -1,6 +1,6 @@
 import React from "react";
 import Symptoms from "../components/SymptomComponents/Symptoms.jsx";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import {
   destroySymptom,
@@ -9,9 +9,12 @@ import {
   putSymptom,
 } from "../services/symptoms";
 import { CurrentUserContext } from "../context/CurrentUserContext";
+import { DateContext } from "../context/DateContext";
+import { filterByDate } from "../utils/dateUtils";
 
-export default function SymptomsContainer() {
+export default function SymptomsContainer({ onFilteredCount }) {
   const [currentUser] = useContext(CurrentUserContext);
+  const { selectedDate, showAllDates } = useContext(DateContext);
   const [symptoms, setSymptoms] = useState([]);
   const [updated, setUpdated] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -49,10 +52,19 @@ export default function SymptomsContainer() {
     );
   };
 
+  const filteredSymptoms = useMemo(
+    () => filterByDate(symptoms, selectedDate, showAllDates, "time"),
+    [symptoms, selectedDate, showAllDates]
+  );
+
+  useEffect(() => {
+    onFilteredCount?.(filteredSymptoms.length);
+  }, [filteredSymptoms.length, onFilteredCount]);
+
   return (
     <>
       <Symptoms
-        symptoms={symptoms}
+        symptoms={filteredSymptoms}
         updated={updated}
         setSymptoms={setSymptoms}
         loaded={loaded}

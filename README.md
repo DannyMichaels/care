@@ -399,3 +399,4 @@ if the user's input DOESN"T match one of the names in the foodRegex, it will ret
 - rx guide meds fetched from rails server rather than client
 - fixed security gaps, backend validations, rate limiting.
 - performance improvements of N+1 queries 
+- added a date carousel picker and now data in home page is filtered based on date (with a toggle switch for "All")

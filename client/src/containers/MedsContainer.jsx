@@ -1,5 +1,5 @@
 import Meds from "../components/MedComponents/Meds.jsx";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import {
   destroyMed,
@@ -8,8 +8,11 @@ import {
   getAllMeds,
   getRXGuideMeds,
 } from "../services/medications";
+import { DateContext } from "../context/DateContext";
+import { filterByDate } from "../utils/dateUtils";
 
-export default function MedsContainer() {
+export default function MedsContainer({ onFilteredCount }) {
+  const { selectedDate, showAllDates } = useContext(DateContext);
   const [updated, setUpdated] = useState(false);
   const [meds, setMeds] = useState([]);
   const [RXGuideMeds, setRXGuideMeds] = useState([]);
@@ -57,11 +60,20 @@ export default function MedsContainer() {
     );
   };
 
+  const filteredMeds = useMemo(
+    () => filterByDate(meds, selectedDate, showAllDates, "time"),
+    [meds, selectedDate, showAllDates]
+  );
+
+  useEffect(() => {
+    onFilteredCount?.(filteredMeds.length);
+  }, [filteredMeds.length, onFilteredCount]);
+
   return (
     <>
       <Meds
         RXGuideMeds={RXGuideMeds}
-        meds={meds}
+        meds={filteredMeds}
         setMeds={setMeds}
         updated={updated}
         loaded={loaded}

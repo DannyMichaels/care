@@ -20,7 +20,6 @@ const Ul = styled.ul`
   transition: transform 0.3s ease-in-out;
   list-style: none;
   z-index: 998;
-  overflow: scroll;
   display: flex;
   align-items: center;
   li {

@@ -11,6 +11,8 @@ import {
   DialogContent,
   DialogActions,
 } from "../../Form/DialogComponents";
+import { Box } from "@material-ui/core";
+import { foodIcon, foodName } from "../../../utils/foodUtils";
 
 export default function FoodEdit({ setOpenEdit, onSave, foods }) {
   const history = useHistory("/");
@@ -78,6 +80,13 @@ export default function FoodEdit({ setOpenEdit, onSave, foods }) {
                 onChange={handleChange}
                 id="outlined-multiline-static"
                 variant="filled"
+                InputProps={{
+                  startAdornment: (
+                    <Box role="img" aria-label={formData.name} mt={2}>
+                      {foodIcon(formData.name)}
+                    </Box>
+                  ),
+                }}
               />
             </div>
 
@@ -102,7 +111,7 @@ export default function FoodEdit({ setOpenEdit, onSave, foods }) {
               <FormHelperText>
                 On a scale of 1 to 5,
                 <br /> how much did you enjoy&nbsp;
-                {name ? name : "it"}?
+                {name ? foodName(name) : "it"}?
               </FormHelperText>
               <NativeSelect
                 required

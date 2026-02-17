@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
   resources :likes, :only => [:show, :index, :destroy, :create]
-  resources :medications
+  resources :medications do
+    collection do
+      get :rx_guide
+    end
+  end
   resources :foods
   resources :symptoms
   resources :affirmations

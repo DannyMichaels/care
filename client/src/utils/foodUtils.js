@@ -27,13 +27,21 @@ export const foodMap = {
   watermelon: "🍉",
 };
 
+const getFoodEmoji = (food) => {
+  const result = food?.toLowerCase().trim().match(foodRegex);
+  if (result) {
+    return foodMap[result[0]];
+  }
+  return null;
+};
+
 export const foodNameJSX = (food) => {
-  const result = food?.name?.toLowerCase().trim().match(foodRegex);
+  const result = getFoodEmoji(food?.name);
   if (result) {
     return (
       <>
         <span role="img" aria-label={food.name}>
-          {foodMap[result[0]]}
+          {result}
         </span>
         &#8199;{food.name}
       </>
@@ -46,4 +54,21 @@ export const foodNameJSX = (food) => {
       </>
     );
   }
+};
+
+export const foodIcon = (foodName) => {
+  const result = getFoodEmoji(foodName);
+  if (result) {
+    return `${result}`;
+  }
+
+  return '🍽️';
+};
+
+export const foodName = (foodName) => {
+  const result = getFoodEmoji(foodName);
+  if (result) {
+    return `${result} ${foodName}`;
+  }
+  return foodName;
 };

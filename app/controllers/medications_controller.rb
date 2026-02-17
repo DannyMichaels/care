@@ -2,6 +2,15 @@ class MedicationsController < ApplicationController
   before_action :authorize_request, only: [:index, :show, :create, :update, :destroy]
   before_action :set_user_medication, only: [ :update, :destroy]
 
+  # GET /medications/rx_guide
+  def rx_guide
+    response = HTTParty.get(
+      "https://api.airtable.com/v0/#{ENV['RXGUIDE_AIRTABLE_BASE']}/prescriptions",
+      headers: { "Authorization" => "Bearer #{ENV['RXGUIDE_AIRTABLE_KEY']}" }
+    )
+    render json: response.parsed_response["records"]
+  end
+
   # GET /medications
   def index
     @medications = @current_user.medications 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -11,8 +11,10 @@ import {
   DialogContent,
   DialogActions,
 } from "../../Form/DialogComponents";
+import { DateContext } from "../../../context/DateContext";
 
-export default function MoodCreate({ open, onSave, handleClose }) {
+export default function AffirmationCreate({ open, onSave, handleClose }) {
+  const { selectedDate } = useContext(DateContext);
   const [formData, setFormData] = useState({
     content: "",
   });
@@ -24,17 +26,17 @@ export default function MoodCreate({ open, onSave, handleClose }) {
       [name]: value,
     }));
   };
-  let time = new Date();
+
+  // Display the selected date (with current time for the Moment display)
+  const displayDate = new Date(selectedDate + "T00:00:00");
 
   return (
     <Dialog onClose={handleClose} open={open}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          onSave(formData);
-          // setting the formData to an empty string after submission to avoid the case
-          // where the user makes creates another one right after sending one without refreshing.
-          setFormData("");
+          onSave({ ...formData, affirmation_date: selectedDate });
+          setFormData({ content: "" });
         }}
       >
         <DialogTitle onClose={handleClose}>
@@ -45,7 +47,7 @@ export default function MoodCreate({ open, onSave, handleClose }) {
         </DialogTitle>
         <DialogContent dividers>
           <Typography>
-            Today, <Moment format="dddd MMMM Do yyyy: hh:mm A">{time}</Moment>
+            <Moment format="dddd, MMMM Do yyyy">{displayDate}</Moment>
           </Typography>
 
           <div className="input-container">

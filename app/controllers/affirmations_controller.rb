@@ -54,6 +54,6 @@ class AffirmationsController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def affirmation_params
-      params.require(:affirmation).permit(:content, :user_id)
+      params.require(:affirmation).permit(:content, :user_id, :affirmation_date)
     end
 end

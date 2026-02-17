@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { DateContext } from "../../../context/DateContext";
 import { selectedDateToLocal } from "../../../utils/dateUtils";
 import FormLabel from "@material-ui/core/FormLabel";
@@ -25,9 +25,18 @@ export default function MoodCreate({ open, onSave, handleClose }) {
   const { selectedDate } = useContext(DateContext);
   const [formData, setFormData] = useState({
     status: "Okay",
-    time: new Date(selectedDateToLocal(selectedDate)).toISOString(),
+    time: "",
     reason: "",
   });
+
+  useEffect(() => {
+    if (open) {
+      setFormData((prev) => ({
+        ...prev,
+        time: new Date(selectedDateToLocal(selectedDate)).toISOString(),
+      }));
+    }
+  }, [open, selectedDate]);
 
   const handleStatus = (e) => {
     const { name } = e.target;

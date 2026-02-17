@@ -58,7 +58,7 @@ export default function Home() {
 
   const classes = useStyles({ themeState });
   const filteredAffirmations = useMemo(
-    () => filterByDate(affirmations, selectedDate, showAllDates, "created_at"),
+    () => filterByDate(affirmations, selectedDate, showAllDates, "affirmation_date"),
     [affirmations, selectedDate, showAllDates]
   );
 

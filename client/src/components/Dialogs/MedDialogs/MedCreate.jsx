@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
 import { DateContext } from "../../../context/DateContext";
 import { selectedDateToLocal } from "../../../utils/dateUtils";
@@ -20,9 +20,18 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
     medication_class: "",
     reason: "",
     image: "",
-    time: new Date(selectedDateToLocal(selectedDate)).toISOString(),
+    time: "",
     is_taken: false,
   });
+
+  useEffect(() => {
+    if (open) {
+      setFormData((prev) => ({
+        ...prev,
+        time: new Date(selectedDateToLocal(selectedDate)).toISOString(),
+      }));
+    }
+  }, [open, selectedDate]);
 
   const MEDS = React.Children.toArray(
     RXGuideMeds.map((med) => <option>{med.fields.name}</option>)

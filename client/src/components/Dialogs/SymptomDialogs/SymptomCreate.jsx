@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
 import { DateContext } from "../../../context/DateContext";
 import { selectedDateToLocal } from "../../../utils/dateUtils";
@@ -15,8 +15,17 @@ export default function SymptomCreate({ open, onSave, handleClose }) {
   const { selectedDate } = useContext(DateContext);
   const [formData, setFormData] = useState({
     name: "",
-    time: new Date(selectedDateToLocal(selectedDate)).toISOString(),
+    time: "",
   });
+
+  useEffect(() => {
+    if (open) {
+      setFormData((prev) => ({
+        ...prev,
+        time: new Date(selectedDateToLocal(selectedDate)).toISOString(),
+      }));
+    }
+  }, [open, selectedDate]);
 
   const handleChange = (e) => {
     let { name, value } = e.target;

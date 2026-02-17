@@ -56,6 +56,8 @@ const useStyles = makeStyles((theme) => ({
   logo: {
     width: "200px",
     margin: "20px",
+    filter: (props) =>
+      props.themeState === "dark" ? "drop-shadow(0 0 5px #fff)" : "none",
     [theme.breakpoints.down("xs")]: {
       width: "100px",
     },

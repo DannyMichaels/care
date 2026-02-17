@@ -10,6 +10,7 @@ const useStyles = makeStyles({
   },
   logoContainer: {
     display: "flex",
+    alignItems: "center",
     flexDirection: "row",
     padding: "20px",
     marginBottom: (props) => (props.currentUser ? "-10px" : "20px"),
@@ -23,8 +24,11 @@ const useStyles = makeStyles({
     color: (props) => props.themeState === "dark" && yellow[700],
   },
   logo: {
-    maxWidth: "100px",
-    maxHeight: "100px",
+    width: "100%",
+    maxHeight: "80px",
+    objectFit: "cover",
+    filter: (props) =>
+      props.themeState === "dark" ? "drop-shadow(0 0 2px #fff)" : "none",
   },
   form: {
     display: "flex",

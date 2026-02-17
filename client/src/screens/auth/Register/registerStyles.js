@@ -13,6 +13,7 @@ const useStyles = makeStyles(() => ({
     flexDirection: "row",
     padding: "20px",
     marginBottom: (props) => (props.currentUser ? "-10px" : "0"),
+    alignItems: "center",
   },
   title: {
     fontFamily: ["Montserrat", "sans-serif"].join(","),
@@ -22,9 +23,12 @@ const useStyles = makeStyles(() => ({
     textShadow: "0.5px 4px 10px #999",
     color: (props) => props.themeState === "dark" && yellow[700],
   },
-  logo: {
-    maxWidth: "100px",
-    maxHeight: "100px",
+ logo: {
+    width: "100%",
+    maxHeight: "80px",
+    objectFit: "cover",
+    filter: (props) =>
+      props.themeState === "dark" ? "drop-shadow(0 0 2px #fff)" : "none",
   },
   form: {
     display: "flex",

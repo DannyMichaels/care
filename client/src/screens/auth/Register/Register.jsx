@@ -44,6 +44,7 @@ import CameraIcon from "@material-ui/icons/CameraAlt";
 
 // Styles
 import { useStyles } from "./registerStyles";
+import Logo from "../../../components/Logo/Logo.jsx";
 
 export default function Register() {
   const [{ currentUser }, dispatch] = useStateValue();
@@ -175,11 +176,7 @@ export default function Register() {
         <div className={classes.middleWrapper}>
           <div className={classes.logoContainer}>
             <Typography className={classes.title}>Care</Typography>
-            <img
-              className={classes.logo}
-              src="https://i.imgur.com/1QePclv.png"
-              alt="logo"
-            />
+            <Logo className={classes.logo} />
           </div>
           {currentUser && token && (
             <>

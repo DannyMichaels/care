@@ -400,3 +400,4 @@ if the user's input DOESN"T match one of the names in the foodRegex, it will ret
 - fixed security gaps, backend validations, rate limiting.
 - performance improvements of N+1 queries 
 - added a date carousel picker and now data in home page is filtered based on date (with a toggle switch for "All")
+- added a new 3d logo based off of the 2d logo

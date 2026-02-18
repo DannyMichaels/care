@@ -27,7 +27,11 @@
       "Bash(npx react-scripts build:*)",
       "Bash(npx:*)",
       "Bash(npm view:*)",
-      "Bash(bundle exec rails:*)"
+      "Bash(bundle exec rails:*)",
+      "Bash(node -e:*)",
+      "Bash(npm run build:*)",
+      "Bash(node /c/Users/itzda/projects/care/scripts/fix-ajv.js:*)",
+      "Bash(grep:*)"
     ]
   }
 }

@@ -118,22 +118,18 @@ export default function UserEdit({
   };
 
   const handleValidity = () => {
-    password && checkPasswordLength(password, setPasswordAlert);
-    checkEmailValidity(email, setEmailValidityAlert);
-    checkEmailUniqueuess(allUsers, email, setEmailUniquenessAlert, currentUser);
-    if (password !== passwordConfirm) {
-      setPasswordConfirmAlert(true);
+    if (password) {
+      checkPasswordLength(password, setPasswordAlert);
+      setPasswordConfirmAlert(password !== passwordConfirm);
     } else {
+      setPasswordAlert(false);
       setPasswordConfirmAlert(false);
     }
-    if (
-      !passwordAlert &&
-      !emailValidityAlert &&
-      !emailUniquenessAlert &&
-      password === passwordConfirm &&
-      password &&
-      name
-    ) {
+    checkEmailValidity(email, setEmailValidityAlert);
+    checkEmailUniqueuess(allUsers, email, setEmailUniquenessAlert, currentUser);
+
+    const passwordValid = !password || (!passwordAlert && password === passwordConfirm);
+    if (!emailValidityAlert && !emailUniquenessAlert && passwordValid && name) {
       setAllConditionsAreNotMet(false);
     } else {
       setAllConditionsAreNotMet(true);
@@ -180,8 +176,10 @@ export default function UserEdit({
   const handleSubmit = async (e) => {
     e.preventDefault();
     handleValidity();
-    checkPasswordLength(password, setPasswordAlert);
-    await handleUpdate(currentUser.id, formData);
+    if (password) checkPasswordLength(password, setPasswordAlert);
+    const { password: pw, ...rest } = formData;
+    const submitData = pw ? formData : rest;
+    await handleUpdate(currentUser.id, submitData);
     setOpenEdit(false);
   };
 
@@ -274,12 +272,11 @@ export default function UserEdit({
           <div className="input-container">
             <LockIcon className="icon" />
             <FormControl>
-              <InputLabel htmlFor="password">Password</InputLabel>
+              <InputLabel htmlFor="password">New Password (optional)</InputLabel>
               <Input
                 className="input-field"
                 name="password"
                 id="password"
-                required
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={handleChange}
@@ -315,10 +312,9 @@ export default function UserEdit({
             <LockIcon className="icon" />
             <FormControl className="password-confirm">
               <InputLabel htmlFor="passwordConfirm">
-                Confirm Password
+                Confirm New Password
               </InputLabel>
               <Input
-                required
                 className="input-field"
                 name="passwordConfirm"
                 id="password-confirm"

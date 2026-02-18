@@ -2,11 +2,7 @@ import React from "react";
 import Affirmations from "../components/AffirmationComponents/Affirmations.jsx";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
-import {
-  destroyAffirmation,
-  postAffirmation,
-  putAffirmation,
-} from "../services/affirmations";
+import { destroyAffirmation, postAffirmation, putAffirmation } from '@care/shared';
 
 export default function AffirmationsContainer({
   affirmations,

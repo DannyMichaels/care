@@ -5,7 +5,7 @@ import { useHistory, useLocation, Link } from "react-router-dom";
 import { useStateValue } from "../../../context/CurrentUserContext";
 import { ThemeStateContext } from "../../../context/ThemeStateContext";
 import { useStyles } from "./headerStyles";
-import { removeToken } from "../../../services/auth";
+import { removeToken } from '@care/shared';
 import LogoutIcon from "@material-ui/icons/ExitToApp";
 
 function CurrentUserContainer({ isMenuShowing }) {

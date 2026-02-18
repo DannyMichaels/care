@@ -28,6 +28,7 @@ class MedicationsController < ApplicationController
     @medication.user = @current_user
 
     if @medication.save
+      schedule_notification(@medication)
       render json: @medication, status: :created, location: @medication
     else
       render json: @medication.errors, status: :unprocessable_entity
@@ -37,6 +38,7 @@ class MedicationsController < ApplicationController
   # PATCH/PUT /medications/1
   def update
     if @medication.update(medication_params)
+      schedule_notification(@medication)
       render json: @medication
     else
       render json: @medication.errors, status: :unprocessable_entity
@@ -60,6 +62,19 @@ class MedicationsController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def medication_params
-      params.require(:medication).permit(:name, :medication_class, :reason, :image, :time, :user_id, :is_taken, :taken_date)
+      params.require(:medication).permit(:name, :medication_class, :reason, :image, :time, :user_id, :is_taken, :taken_date, :icon, :icon_color)
+    end
+
+    def schedule_notification(medication)
+      return unless medication.time.present?
+
+      med_time = Time.parse(medication.time.to_s)
+      delay = med_time - Time.current
+
+      return unless delay.positive?
+
+      MedicationNotificationJob.set(wait: delay.seconds).perform_later(medication.id)
+    rescue ArgumentError
+      # Skip scheduling if time can't be parsed
     end
 end

@@ -401,3 +401,7 @@ if the user's input DOESN"T match one of the names in the foodRegex, it will ret
 - performance improvements of N+1 queries 
 - added a date carousel picker and now data in home page is filtered based on date (with a toggle switch for "All")
 - added a new 3d logo based off of the 2d logo
+- added email verification and forgot password flow
+- added rspec backend tests
+- added cypress front-end tests
+- added mobile app version

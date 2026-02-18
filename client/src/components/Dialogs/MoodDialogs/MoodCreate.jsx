@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import { DateContext } from "../../../context/DateContext";
-import { selectedDateToLocal } from "../../../utils/dateUtils";
+import { selectedDateToLocal } from '@care/shared';
 import FormLabel from "@material-ui/core/FormLabel";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -19,7 +19,7 @@ import {
   DialogContent,
   DialogActions,
 } from "../../Form/DialogComponents";
-import { compareDateWithCurrentTime } from "../../../utils/compareDateWithCurrentTime";
+import { compareDateWithCurrentTime } from '@care/shared';
 
 export default function MoodCreate({ open, onSave, handleClose }) {
   const { selectedDate } = useContext(DateContext);

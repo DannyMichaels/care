@@ -17,6 +17,10 @@ class ApplicationController < ActionController::API
     begin
       @decoded = decode(token)
       @current_user = User.find(@decoded[:id])
+      unless @current_user.email_verified?
+        render json: { error: 'Email not verified', email: @current_user.email }, status: :forbidden
+        return
+      end
     rescue ActiveRecord::RecordNotFound => e
       render json: { errors: e.message }, status: :unauthorized
     rescue JWT::DecodeError => e

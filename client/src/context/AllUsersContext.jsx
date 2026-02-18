@@ -1,6 +1,5 @@
 import React, { createContext, useMemo, useRef } from "react";
-import useAsyncReducer from "../hooks/useAsyncReducer";
-import { usersReducer } from "../reducers/allUsersReducer";
+import { useAsyncReducer, usersReducer } from '@care/shared';
 
 export const AllUsersStateContext = createContext();
 export const AllUsersDispatchContext = createContext();

@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { Switch, Route } from "react-router-dom";
-import { getOneUser } from "../services/users";
+import { getOneUser } from '@care/shared';
 import UserDetail from "../screens/UserScreens/UserDetail/UserDetail";
 import Community from "../screens/main/Community/Community";
 import {

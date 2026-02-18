@@ -6,8 +6,7 @@ import { useStateValue } from "../../../context/CurrentUserContext";
 import { ThemeStateContext } from "../../../context/ThemeStateContext";
 
 // Services and Utilities
-import { loginUser } from "../../../services/auth";
-import { getAge } from "../../../utils/getAge";
+import { loginUser, getAge } from '@care/shared';
 
 // Components
 import Typography from "@material-ui/core/Typography";
@@ -180,6 +179,11 @@ export default function Login() {
           Don't have an account? &nbsp;
           <Link className={classes.registerLink} to="/register">
             Register
+          </Link>
+        </Typography>
+        <Typography className={classes.register} style={{ fontSize: '16px', marginTop: '8px' }}>
+          <Link className={classes.registerLink} to="/forgot-password">
+            Forgot your password?
           </Link>
         </Typography>
         <br />

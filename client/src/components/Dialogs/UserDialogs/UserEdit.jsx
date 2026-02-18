@@ -32,13 +32,7 @@ import CameraIcon from "@material-ui/icons/CameraAlt";
 import ClearIcon from "@material-ui/icons/Clear";
 
 // Services and Utils
-import { getOneUser, putUser } from "../../../services/users";
-import { toTitleCase } from "../../../utils/toTitleCase";
-import {
-  checkEmailUniqueuess,
-  checkEmailValidity,
-  checkPasswordLength,
-} from "../../../utils/authUtils";
+import { getOneUser, putUser, toTitleCase, checkEmailUniqueuess, checkEmailValidity, checkPasswordLength } from '@care/shared';
 
 // Context
 import { ThemeStateContext } from "../../../context/ThemeStateContext";

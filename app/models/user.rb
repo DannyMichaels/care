@@ -4,7 +4,7 @@ class User < ApplicationRecord
   validates :name, presence: true, uniqueness: false
   validates :email, presence: true, uniqueness: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :password, length: { minimum: 8 }
+  validates :password, length: { minimum: 8 }, allow_nil: true
   validates :gender, presence: true, uniqueness: false
   before_save :downcase_email
 
@@ -15,6 +15,7 @@ class User < ApplicationRecord
   has_many :foods, dependent: :destroy
   has_many :medications, dependent: :destroy
   has_many :likes, dependent: :destroy
+  has_many :push_tokens, dependent: :destroy
   has_many :liked_insights, :through => :likes
   has_many :comments
   

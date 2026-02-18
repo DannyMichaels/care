@@ -29,15 +29,13 @@ import { CurrentUserContext } from "../../../context/CurrentUserContext";
 import { DateContext } from "../../../context/DateContext";
 
 // Services and Utilities
-import { getAllAffirmations } from "../../../services/affirmations";
-import { checkValidity } from "../../../utils/checkValidity";
-import { filterByDate } from "../../../utils/dateUtils";
+import { getAllAffirmations, checkValidity, filterByDate } from '@care/shared';
 import ScrollToTopOnMount from "../../../components/Helpers/ScrollToTopOnMount";
 import DateCarousel from "../../../components/DateCarousel/DateCarousel";
 
 export default function Home() {
   const [themeState] = useContext(ThemeStateContext);
-  const [currentUser] = useContext(CurrentUserContext);
+  const [{ currentUser }] = useContext(CurrentUserContext);
   const { selectedDate, showAllDates } = useContext(DateContext);
   const [affirmations, setAffirmations] = useState([]);
   const [loadedAffirmation, setLoadedAffirmation] = useState(false);
@@ -49,6 +47,8 @@ export default function Home() {
 
   useEffect(() => {
     const fetchAffirmations = async () => {
+      if (!currentUser?.email_verified) return;
+
       const affirmationData = await getAllAffirmations();
       setAffirmations(affirmationData);
       setLoadedAffirmation(true);

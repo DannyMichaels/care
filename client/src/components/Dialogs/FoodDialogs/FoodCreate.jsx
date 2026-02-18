@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
 import { DateContext } from "../../../context/DateContext";
-import { selectedDateToLocal } from "../../../utils/dateUtils";
+import { selectedDateToLocal } from '@care/shared';
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import CreateIcon from "@material-ui/icons/Create";

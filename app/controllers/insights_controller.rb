@@ -1,6 +1,6 @@
 class InsightsController < ApplicationController
   before_action :set_insight, only: [:show]
-  before_action :authorize_request, only: [ :create, :update, :destroy] 
+  before_action :authorize_request, only: [ :create, :update, :destroy]
   before_action :set_user_insight, only: [ :update, :destroy]
 
   # GET /insights

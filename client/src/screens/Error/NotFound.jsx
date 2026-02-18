@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { useLocation } from "react-router-dom";
-import { checkValidity } from "../../utils/checkValidity";
+import { checkValidity } from '@care/shared';
 import Typography from "@material-ui/core/Typography";
 import styled from "styled-components";
 import Button from "@material-ui/core/Button";

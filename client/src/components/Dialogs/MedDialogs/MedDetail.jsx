@@ -4,12 +4,13 @@ import Dialog from "@material-ui/core/Dialog";
 import Typography from "@material-ui/core/Typography";
 import Moment from "react-moment";
 import "moment-timezone";
-import { compareDateWithCurrentTime } from "../../../utils/compareDateWithCurrentTime";
+import { compareDateWithCurrentTime } from "@care/shared";
 import {
   DialogTitle,
   DialogContent,
   DialogActions,
 } from "../../Form/DialogComponents";
+import MedImage from "../../MedComponents/MedImage";
 
 export default function MedDetail({
   med,
@@ -52,12 +53,13 @@ export default function MedDetail({
             padding: "5px",
           }}
         >
-          <img
-            src={med.image}
-            style={{ height: "30px", width: "50px" }}
+          <MedImage
+            image={med.image}
+            icon={med.icon}
+            iconColor={med.icon_color}
             alt={med.name}
+            style={{ height: "30px", width: "50px", objectFit: "contain" }}
           />
-          &nbsp;
           <>{med.name}</>
         </Typography>
         <Typography style={{ textAlign: "left", marginLeft: "10px" }}>

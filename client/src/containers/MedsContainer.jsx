@@ -1,15 +1,8 @@
 import Meds from "../components/MedComponents/Meds.jsx";
 import { useState, useEffect, useContext, useMemo } from "react";
 import { useHistory } from "react-router-dom";
-import {
-  destroyMed,
-  postMed,
-  putMed,
-  getAllMeds,
-  getRXGuideMeds,
-} from "../services/medications";
+import { destroyMed, postMed, putMed, getAllMeds, getRXGuideMeds, filterByDate } from '@care/shared';
 import { DateContext } from "../context/DateContext";
-import { filterByDate } from "../utils/dateUtils";
 
 export default function MedsContainer({ onFilteredCount }) {
   const { selectedDate, showAllDates } = useContext(DateContext);

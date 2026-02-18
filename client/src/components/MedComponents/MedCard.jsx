@@ -10,7 +10,8 @@ import MedEdit from "../Dialogs/MedDialogs/MedEdit";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import MedDetail from "../Dialogs/MedDialogs/MedDetail";
 import Typography from "@material-ui/core/Typography";
-import { compareDateWithCurrentTime } from "../../utils/compareDateWithCurrentTime";
+import { compareDateWithCurrentTime } from '@care/shared';
+import MedImage from "./MedImage";
 
 export default function MedCard({
   meds,
@@ -26,6 +27,7 @@ export default function MedCard({
   const [openEdit, setOpenEdit] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
   const [rerender, toggleRerender] = useState(false);
+
   let timerId = useRef(null);
 
   const onSave = (id, formData) => {
@@ -97,16 +99,17 @@ export default function MedCard({
           </Typography>
           {!isRefreshed ? (
             <div style={{ padding: "20px" }}>
-              <img
+              <MedImage
                 onClick={handleDetailOpen}
-                src={med.image}
-                style={{
-                  width: "100px",
-                  height: "50px",
-                  maxWidth: "100px",
-                  maxHeight: "50px",
-                }}
+                image={med.image}
+                icon={med.icon}
+                iconColor={med.icon_color}
                 alt={med.name}
+                style={{
+                  width: "50px",
+                  height: "50px",
+                  objectFit: "contain",
+                }}
               />
             </div>
           ) : (

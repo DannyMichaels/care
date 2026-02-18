@@ -14,7 +14,7 @@ import {
 } from "../../../context/AllUsersContext";
 
 // Services and Utils
-import { getAge } from "../../../utils/getAge";
+import { getAge } from '@care/shared';
 import ScrollToTopOnMount from "../../../components/Helpers/ScrollToTopOnMount";
 
 // Views

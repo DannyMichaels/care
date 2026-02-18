@@ -19,11 +19,7 @@ import { useStateValue } from "../../../context/CurrentUserContext";
 import { ThemeStateContext } from "../../../context/ThemeStateContext";
 
 // services
-import {
-  destroyComment,
-  postComment,
-  putComment,
-} from "../../../services/comments";
+import { destroyComment, postComment, putComment } from '@care/shared';
 
 // Views
 import DeleteInsightFromDetail from "../../../components/Modals/DeleteInsightFromDetail";

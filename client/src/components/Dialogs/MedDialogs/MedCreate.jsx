@@ -1,27 +1,29 @@
-import React, { useState, useContext, useEffect } from "react";
-import TextField from "@material-ui/core/TextField";
-import { DateContext } from "../../../context/DateContext";
-import { selectedDateToLocal } from "../../../utils/dateUtils";
-import Button from "@material-ui/core/Button";
-import Dialog from "@material-ui/core/Dialog";
-import CreateIcon from "@material-ui/icons/Create";
-import FormHelperText from "@material-ui/core/FormHelperText";
-import NativeSelect from "@material-ui/core/NativeSelect";
+import React, { useState, useContext, useEffect } from 'react';
+import TextField from '@material-ui/core/TextField';
+import { DateContext } from '../../../context/DateContext';
+import { selectedDateToLocal, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR } from '@care/shared';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import CreateIcon from '@material-ui/icons/Create';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import {
   DialogTitle,
   DialogContent,
   DialogActions,
-} from "../../Form/DialogComponents";
+} from '../../Form/DialogComponents';
+import MedIconDisplay from '../../MedComponents/MedIconDisplay';
 
 export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
   const { selectedDate } = useContext(DateContext);
   const [formData, setFormData] = useState({
-    name: "",
-    medication_class: "",
-    reason: "",
-    image: "",
-    time: "",
+    name: '',
+    medication_class: '',
+    reason: '',
+    image: '',
+    time: '',
     is_taken: false,
+    icon: DEFAULT_ICON,
+    icon_color: DEFAULT_COLOR,
   });
 
   useEffect(() => {
@@ -33,74 +35,79 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
     }
   }, [open, selectedDate]);
 
-  const MEDS = React.Children.toArray(
-    RXGuideMeds.map((med) => <option>{med.fields.name}</option>)
-  );
+  const medOptions = RXGuideMeds.map((m) => m.fields.name);
 
-  const handleChange = (e) => {
-    let { name, value } = e.target;
-    if (name === "time" && value) {
-      let date = new Date(value);
-      value = date.toISOString();
-    }
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
+  const handleAutocompleteChange = (e, value) => {
+    const match = RXGuideMeds.find((m) => m.fields.name === value);
+    setFormData((prev) => ({
+      ...prev,
+      name: value || '',
+      image: match?.fields.image || '',
+      medication_class: match?.fields.medClass || '',
+      icon: match?.fields.icon || prev.icon,
+      icon_color: match?.fields.iconColor || prev.icon_color,
     }));
   };
 
-  const handleSelectedMed = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+  const handleInputChange = (e, value) => {
+    setFormData((prev) => ({ ...prev, name: value }));
+  };
+
+  const handleChange = (e) => {
+    let { name, value } = e.target;
+    if (name === 'time' && value) {
+      value = new Date(value).toISOString();
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const medicine = RXGuideMeds.find(
-      (med) => med.fields.name === formData.name
-    );
-
+    const medicine = RXGuideMeds.find((med) => med.fields.name === formData.name);
     const selectedMedData = {
       ...formData,
-      image: medicine?.fields.image,
-      medication_class: medicine?.fields.medClass,
+      image: medicine?.fields.image || formData.image,
+      medication_class: medicine?.fields.medClass || formData.medication_class,
     };
     onSave(selectedMedData);
-    // setting the formData to an empty string after submission to avoid the case
-    // where the user makes creates another one right after sending one without refreshing.
-    setFormData("");
+    setFormData({
+      name: '',
+      medication_class: '',
+      reason: '',
+      image: '',
+      time: '',
+      is_taken: false,
+      icon: DEFAULT_ICON,
+      icon_color: DEFAULT_COLOR,
+    });
   };
 
   return (
     <Dialog onClose={handleClose} open={open}>
       <form onSubmit={handleSubmit}>
         <DialogTitle onClose={handleClose}>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <CreateIcon style={{ margin: "10px" }} />
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <CreateIcon style={{ margin: '10px' }} />
             Log medication
           </div>
         </DialogTitle>
         <DialogContent dividers>
           <div className="input-container">
-            <FormHelperText>Please select a medication</FormHelperText>
-            <NativeSelect
-              className="select-css"
-              name="name"
-              required
-              type="text"
-              defaultValue="select"
+            <Autocomplete
+              freeSolo
+              options={medOptions}
               value={formData.name}
-              onChange={handleSelectedMed}
-              style={{ margin: "10px" }}
-            >
-              <option value="" selected disabled hidden>
-                Select a medication
-              </option>
-              {MEDS}
-            </NativeSelect>
+              onChange={handleAutocompleteChange}
+              onInputChange={handleInputChange}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Medication name"
+                  required
+                  style={{ width: '300px', margin: '10px' }}
+                />
+              )}
+            />
           </div>
 
           <div className="input-container">
@@ -111,10 +118,10 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
               required
               label={
                 !formData.name
-                  ? `Why do you take your medicaiton?`
+                  ? 'Why do you take your medication?'
                   : `Why do you take ${formData.name}?`
               }
-              style={{ display: "flex", width: "300px", margin: "10px" }}
+              style={{ display: 'flex', width: '300px', margin: '10px' }}
               value={formData.reason}
               onChange={handleChange}
             />
@@ -128,17 +135,59 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
               label={
                 formData.name
                   ? `When do you take ${formData.name}?`
-                  : `When do you take this medication?`
+                  : 'When do you take this medication?'
               }
               type="datetime-local"
-              style={{ width: "300px", margin: "10px" }}
-              value={formData.time ? new Date(formData.time).toISOString().slice(0, 16) : ""}
+              style={{ width: '300px', margin: '10px' }}
+              value={formData.time ? new Date(formData.time).toISOString().slice(0, 16) : ''}
               onChange={handleChange}
-              InputLabelProps={{
-                shrink: true,
-              }}
+              InputLabelProps={{ shrink: true }}
             />
           </div>
+
+          <div style={{ margin: '10px' }}>
+            <small style={{ color: 'inherit', opacity: 0.7 }}>Icon</small>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+              {MED_ICONS.map((iconName) => (
+                <div
+                  key={iconName}
+                  onClick={() => setFormData((prev) => ({ ...prev, icon: iconName }))}
+                  style={{
+                    cursor: 'pointer',
+                    padding: '6px',
+                    borderRadius: '8px',
+                    border: formData.icon === iconName ? `2px solid ${formData.icon_color}` : '2px solid transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <MedIconDisplay icon={iconName} color={formData.icon_color} size={32} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ margin: '10px' }}>
+            <small style={{ color: 'inherit', opacity: 0.7 }}>Color</small>
+            <div style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
+              {MED_COLORS.map((c) => (
+                <div
+                  key={c}
+                  onClick={() => setFormData((prev) => ({ ...prev, icon_color: c }))}
+                  style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    backgroundColor: c,
+                    cursor: 'pointer',
+                    border: formData.icon_color === c ? '3px solid currentColor' : '3px solid transparent',
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
           <DialogActions>
             <Button type="submit" variant="contained" color="primary">
               Save

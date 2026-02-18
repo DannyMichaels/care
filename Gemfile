@@ -19,6 +19,10 @@ gem 'httparty'
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'dotenv-rails'
+  gem 'rspec-rails', '~> 7.0'
+  gem 'factory_bot_rails', '~> 6.4'
+  gem 'shoulda-matchers', '~> 6.0'
+  gem 'database_cleaner-active_record', '~> 2.1'
 end
 
 group :development do

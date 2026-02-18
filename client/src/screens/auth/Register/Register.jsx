@@ -10,13 +10,7 @@ import {
 } from "../../../context/AllUsersContext";
 
 // Services and Utils
-import { toTitleCase } from "../../../utils/toTitleCase";
-import { getAge } from "../../../utils/getAge";
-import { registerUser } from "../../../services/auth";
-import {
-  checkEmailValidity,
-  checkPasswordLength,
-} from "../../../utils/authUtils";
+import { toTitleCase, getAge, registerUser, checkEmailValidity, checkPasswordLength, sendVerificationCode } from '@care/shared';
 import moment from "moment";
 
 // Components
@@ -82,8 +76,15 @@ export default function Register() {
 
       dispatchAllUsers({ type: "USER_CREATED", payload: userData });
 
+      // Send verification code and redirect to verify email
+      try {
+        await sendVerificationCode(registerData.email);
+      } catch {
+        // Non-blocking — user can resend from verification screen
+      }
+
       setIsLoading(false);
-      history.push("/");
+      history.push(`/verify-email?email=${encodeURIComponent(registerData.email)}`);
     } catch (error) {
       setIsLoading(false);
       setError(error.response);

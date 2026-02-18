@@ -19,7 +19,7 @@ import {
   DialogContent,
   DialogActions,
 } from "../../Form/DialogComponents";
-import { compareDateWithCurrentTime } from "../../../utils/compareDateWithCurrentTime";
+import { compareDateWithCurrentTime } from '@care/shared';
 
 export default function MoodEdit(props) {
   const [formData, setFormData] = useState({

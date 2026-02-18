@@ -1,0 +1,15 @@
+{
+  "name": "care",
+  "private": true,
+  "workspaces": [
+    "client",
+    "shared",
+    "mobile"
+  ],
+  "devDependencies": {
+    "sharp": "^0.34.5"
+  },
+  "scripts": {
+    "postinstall": "node scripts/fix-ajv.js"
+  }
+}

@@ -9,8 +9,7 @@ import {
   checkLikedInsights,
 } from "../../../utils/checkInsights";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import { toTitleCase } from "../../../utils/toTitleCase";
-import { getAge } from "../../../utils/getAge";
+import { toTitleCase, getAge } from '@care/shared';
 import Wrapper from "./styledUserDetail";
 import LinearProgressLoading from "../../../components/Loading/LinearProgressLoading";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";

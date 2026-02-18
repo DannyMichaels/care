@@ -4,8 +4,7 @@ import Dialog from "@material-ui/core/Dialog";
 import { DialogTitle, DialogActions } from "../Form/DialogComponents";
 
 // services and utils
-import { destroyUser } from "../../services/users";
-import { removeToken } from "../../services/auth";
+import { destroyUser, removeToken } from '@care/shared';
 import { useHistory } from "react-router-dom";
 
 export default function UserDelete({

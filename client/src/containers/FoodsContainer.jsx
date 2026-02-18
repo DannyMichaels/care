@@ -2,10 +2,9 @@ import React from "react";
 import Foods from "../components/FoodComponents/Foods.jsx";
 import { useState, useEffect, useContext, useMemo } from "react";
 import { useHistory } from "react-router-dom";
-import { destroyFood, getAllFoods, postFood, putFood } from "../services/foods";
+import { destroyFood, getAllFoods, postFood, putFood, filterByDate } from '@care/shared';
 import { CurrentUserContext } from "../context/CurrentUserContext";
 import { DateContext } from "../context/DateContext";
-import { filterByDate } from "../utils/dateUtils";
 
 export default function FoodsContainer({ onFilteredCount }) {
   const [currentUser] = useContext(CurrentUserContext);

@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
 import { Switch, Route, useHistory } from "react-router-dom";
-import {
-  destroyInsight,
-  getAllInsights,
-  postInsight,
-  putInsight,
-  getOneInsight,
-} from "../services/insights";
+import { destroyInsight, getAllInsights, postInsight, putInsight, getOneInsight } from '@care/shared';
 import Insights from "../screens/main/Insights/Insights";
 import InsightCreate from "../screens/InsightScreens/InsightCreate/InsightCreate";
 import InsightEdit from "../screens/InsightScreens/InsightEdit/InsightEdit";

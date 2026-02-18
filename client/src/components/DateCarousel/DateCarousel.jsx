@@ -4,7 +4,7 @@ import Switch from "@material-ui/core/Switch";
 import EventIcon from "@material-ui/icons/Event";
 import { DateContext } from "../../context/DateContext";
 import { ThemeStateContext } from "../../context/ThemeStateContext";
-import { daysBetween } from "../../utils/dateUtils";
+import { daysBetween } from '@care/shared';
 import "./DateCarousel.css";
 
 const SHORT_DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

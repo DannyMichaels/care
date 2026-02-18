@@ -11,9 +11,16 @@ Rails.application.routes.draw do
   resources :moods
   post '/auth/login', to: 'authentication#login'
   get '/auth/verify', to: 'authentication#verify'
+  post '/auth/reset_password', to: 'authentication#reset_password'
   resources :users
-  resources :insights do 
+  resources :insights do
     resources :comments
+  end
+  resources :push_tokens, only: [:create, :destroy]
+  resources :email_verifications, only: [:create] do
+    collection do
+      post :verify
+    end
   end
   #routes only for create and index for users controller
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html

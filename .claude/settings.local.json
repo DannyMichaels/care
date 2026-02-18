@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pacman:*)",
+      "Bash(ridk exec pacman:*)",
+      "Bash(C:/Ruby34-x64/msys64/usr/bin/pacman.exe:*)",
+      "Bash(ruby -e:*)",
+      "Bash(C:/Ruby34-x64/bin/ridk.cmd exec pacman -S --noconfirm mingw-w64-ucrt-x86_64-libyaml)",
+      "Bash(C:/Ruby34-x64/bin/ridk.cmd exec bash -c \"ls -la /var/lib/pacman/\")",
+      "Bash(C:/Ruby34-x64/bin/ridk.cmd exec bash -c \"touch /var/lib/pacman/test_write\")",
+      "Bash(bundle config:*)",
+      "Bash(bundle install:*)",
+      "Bash(ls:*)",
+      "Bash(curl:*)",
+      "Bash(tar:*)",
+      "Bash(tar -tf:*)",
+      "Bash(pnpm add:*)",
+      "Bash(rails generate:*)",
+      "Bash(rails db:migrate:*)",
+      "Bash(find:*)",
+      "Bash(npx create-expo-app@latest:*)",
+      "Bash(npm install:*)",
+      "Bash(npm --version:*)",
+      "Bash(node:*)",
+      "Bash(npx expo install:*)",
+      "Bash(eas init:*)",
+      "Bash(npx react-scripts build:*)",
+      "Bash(npx:*)",
+      "Bash(npm view:*)",
+      "Bash(bundle exec rails:*)"
+    ]
+  }
+}

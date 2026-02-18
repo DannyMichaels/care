@@ -2,10 +2,9 @@ import React from "react";
 import Moods from "../components/MoodComponents/Moods.jsx";
 import { useState, useEffect, useContext, useMemo } from "react";
 import { useHistory } from "react-router-dom";
-import { destroyMood, getAllMoods, postMood, putMood } from "../services/moods";
+import { destroyMood, getAllMoods, postMood, putMood, filterByDate } from '@care/shared';
 import { CurrentUserContext } from "../context/CurrentUserContext";
 import { DateContext } from "../context/DateContext";
-import { filterByDate } from "../utils/dateUtils";
 
 export default function MoodsContainer({ onFilteredCount }) {
   const [currentUser] = useContext(CurrentUserContext);

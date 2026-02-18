@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { useStyles } from "./insightCardStyles.js";
 import { useStateValue } from "../../context/CurrentUserContext";
-import { destroyLike, postLike } from "../../services/likes";
+import { destroyLike, postLike } from '@care/shared';
 import DeleteInsight from "../Modals/DeleteInsight";
 import UnlikedIcon from "@material-ui/icons/FavoriteBorder";
 import LikedIcon from "@material-ui/icons/Favorite";

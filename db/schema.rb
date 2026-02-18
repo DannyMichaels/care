@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_17_160328) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_17_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -31,6 +31,17 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_17_160328) do
     t.datetime "updated_at", null: false
     t.index ["insight_id"], name: "index_comments_on_insight_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "email_verifications", force: :cascade do |t|
+    t.string "email", null: false
+    t.string "code", null: false
+    t.datetime "expires_at", null: false
+    t.boolean "verified", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email", "code"], name: "index_email_verifications_on_email_and_code"
+    t.index ["email"], name: "index_email_verifications_on_email"
   end
 
   create_table "foods", force: :cascade do |t|
@@ -75,6 +86,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_17_160328) do
     t.string "image"
     t.boolean "is_taken"
     t.datetime "taken_date", precision: nil
+    t.string "icon", default: "pill"
+    t.string "icon_color", default: "#7E57C2"
     t.index ["user_id"], name: "index_medications_on_user_id"
   end
 
@@ -86,6 +99,17 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_17_160328) do
     t.datetime "time", precision: nil
     t.string "reason"
     t.index ["user_id"], name: "index_moods_on_user_id"
+  end
+
+  create_table "push_tokens", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "token", null: false
+    t.string "platform"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token"], name: "index_push_tokens_on_token", unique: true
+    t.index ["user_id", "token"], name: "index_push_tokens_on_user_id_and_token", unique: true
+    t.index ["user_id"], name: "index_push_tokens_on_user_id"
   end
 
   create_table "symptoms", force: :cascade do |t|
@@ -106,6 +130,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_17_160328) do
     t.string "gender"
     t.date "birthday"
     t.string "image"
+    t.boolean "email_verified", default: false
   end
 
   add_foreign_key "affirmations", "users"
@@ -117,5 +142,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_17_160328) do
   add_foreign_key "likes", "users"
   add_foreign_key "medications", "users"
   add_foreign_key "moods", "users"
+  add_foreign_key "push_tokens", "users"
   add_foreign_key "symptoms", "users"
 end

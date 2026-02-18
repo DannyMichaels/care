@@ -2,15 +2,9 @@ import React from "react";
 import Symptoms from "../components/SymptomComponents/Symptoms.jsx";
 import { useState, useEffect, useContext, useMemo } from "react";
 import { useHistory } from "react-router-dom";
-import {
-  destroySymptom,
-  getAllSymptoms,
-  postSymptom,
-  putSymptom,
-} from "../services/symptoms";
+import { destroySymptom, getAllSymptoms, postSymptom, putSymptom, filterByDate } from '@care/shared';
 import { CurrentUserContext } from "../context/CurrentUserContext";
 import { DateContext } from "../context/DateContext";
-import { filterByDate } from "../utils/dateUtils";
 
 export default function SymptomsContainer({ onFilteredCount }) {
   const [currentUser] = useContext(CurrentUserContext);

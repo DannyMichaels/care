@@ -32,7 +32,8 @@
       "Bash(npm run build:*)",
       "Bash(node /c/Users/itzda/projects/care/scripts/fix-ajv.js:*)",
       "Bash(grep:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "WebFetch(domain:resend.com)"
     ]
   }
 }

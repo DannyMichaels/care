@@ -103,11 +103,12 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
     address: ENV["SMTP_ADDRESS"],
-    port: 587,
+    port: ENV.fetch("SMTP_PORT", 587).to_i,
     user_name: ENV["SMTP_USERNAME"],
     password: ENV["SMTP_PASSWORD"],
     authentication: 'login',
-    enable_starttls_auto: true
+    ssl: ENV["SMTP_SSL"] == "true",
+    enable_starttls_auto: ENV["SMTP_SSL"] != "true"
   }
   config.action_mailer.default_url_options = {
     host: '',

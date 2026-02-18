@@ -33,7 +33,8 @@
       "Bash(node /c/Users/itzda/projects/care/scripts/fix-ajv.js:*)",
       "Bash(grep:*)",
       "Bash(python:*)",
-      "WebFetch(domain:resend.com)"
+      "WebFetch(domain:resend.com)",
+      "Bash(npx expo export:*)"
     ]
   }
 }

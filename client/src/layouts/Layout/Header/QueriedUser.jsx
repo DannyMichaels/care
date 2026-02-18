@@ -36,7 +36,7 @@ const StyledLink = styled(Link)`
   }
 `;
 
-function QueriedUsers({ user, themeState }) {
+function QueriedUser({ user, themeState }) {
   return (
     <StyledLink
       key={user.id}
@@ -53,4 +53,4 @@ function QueriedUsers({ user, themeState }) {
   );
 }
 
-export default QueriedUsers;
+export default QueriedUser;

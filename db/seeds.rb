@@ -18,17 +18,17 @@ Like.destroy_all
 Comment.destroy_all
 
 @admin = User.create!(name: 'admin', email: 'admin@email.com', password: '12345678', gender: "Male", birthday: DateTime.strptime("10/20/1999 17:00", "%m/%d/%Y %H:%M"))
-@daniel = User.create!(name: 'daniel', email: 'daniel@email.com', password: '12345678', gender: "Male", birthday: DateTime.strptime("10/20/1999 17:00", "%m/%d/%Y %H:%M"), image: "https://scontent-lga3-1.xx.fbcdn.net/v/t1.0-9/76997955_1489435331210059_7578690168563957760_n.jpg?_nc_cat=111&ccb=2&_nc_sid=09cbfe&_nc_ohc=ZbXWEQKhCgMAX8Lr6le&_nc_ht=scontent-lga3-1.xx&oh=e2a9637defb5457915c642acc00e3902&oe=60063C21")
+@daniel = User.create!(name: 'daniel', email: 'daniel@email.com', password: '12345678', gender: "Male", birthday: DateTime.strptime("10/20/1999 17:00", "%m/%d/%Y %H:%M"))
 @no_insights = User.create!(name: "Ms.No-Insights", email: 'nope@email.com', password: '12345678', gender: "Female", birthday: DateTime.strptime("10/20/1999 17:00", "%m/%d/%Y %H:%M"))
 @bob = User.create!(name: "bob", email: 'bob@email.com', password: '12345678', gender: "Other", birthday: DateTime.strptime("10/20/1999 17:00", "%m/%d/%Y %H:%M"))
 
 puts "#{User.count} users created"
 
-@mood1 = Mood.create!(status: 'Good', time: DateTime.strptime("09/01/2009 17:00", "%m/%d/%Y %H:%M"), user: @admin)
-@mood2 = Mood.create!(status: 'Poor',time: DateTime.strptime("09/01/2009 17:00", "%m/%d/%Y %H:%M"), user: @admin)
-@mood3 = Mood.create!(status: 'Great', time: DateTime.strptime("09/01/2009 17:00", "%m/%d/%Y %H:%M"), user: @admin)
-@mood4 = Mood.create!(status: 'Okay', time: DateTime.strptime("09/01/2009 17:00", "%m/%d/%Y %H:%M"), user: @admin)
-@mood5 = Mood.create!(status: 'Great', time: DateTime.strptime("09/01/2009 17:00", "%m/%d/%Y %H:%M"), user: @daniel)
+@mood1 = Mood.create!(status: 'Good', time: DateTime.strptime("09/01/2009 17:00", "%m/%d/%Y %H:%M"), user: @admin, reason: "I had a good day because I went to the park and had fun with my friends")
+@mood2 = Mood.create!(status: 'Poor',time: DateTime.strptime("09/01/2009 17:00", "%m/%d/%Y %H:%M"), user: @admin, reason: "I had a bad day because I lost my wallet")
+@mood3 = Mood.create!(status: 'Great', time: DateTime.strptime("09/01/2009 17:00", "%m/%d/%Y %H:%M"), user: @admin, reason: "I had a great day because I got a promotion at work")
+@mood4 = Mood.create!(status: 'Okay', time: DateTime.strptime("09/01/2009 17:00", "%m/%d/%Y %H:%M"), user: @admin, reason: "I had an okay day because it was just a regular day")
+@mood5 = Mood.create!(status: 'Great', time: DateTime.strptime("09/01/2009 17:00", "%m/%d/%Y %H:%M"), user: @daniel, reason: "I had a great day because I spent time with my family")
 
 puts "#{Mood.count} moods created"
 

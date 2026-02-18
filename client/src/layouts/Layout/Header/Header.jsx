@@ -21,7 +21,7 @@ import { useStyles } from "./headerStyles";
 import LocationIcons from "./LocationIcons";
 
 // Views
-import QueriedUsers from "./QueriedUsers";
+import QueriedUser from "./QueriedUser";
 import Burger from "./Burger";
 
 export default function Header({ title, allUsers }) {
@@ -40,16 +40,18 @@ export default function Header({ title, allUsers }) {
     return () => {
       clearInterval(interval);
     };
-  });
+  }, []);
 
   const getQueriedUsers = () =>
-    allUsers.filter((user) =>
+    (allUsers ?? []).filter((user) =>
       user.name.toLowerCase().includes(search.toLowerCase())
     );
 
   const usersJSX = getQueriedUsers()
     .slice(0, 6)
-    .map((user) => <QueriedUsers themeState={themeState} user={user} />);
+    .map((user) => (
+      <QueriedUser key={user.id} themeState={themeState} user={user} />
+    ));
 
   return (
     <>

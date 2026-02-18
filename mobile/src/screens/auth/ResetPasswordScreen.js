@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
-import { View, StyleSheet, TextInput as RNTextInput } from 'react-native';
-import { TextInput, Button, Text, HelperText } from 'react-native-paper';
+import { View, Image, StyleSheet, TextInput as RNTextInput } from 'react-native';
+import { TextInput, Button, Text, HelperText, useTheme } from 'react-native-paper';
 import { resetPassword, sendVerificationCode } from '@care/shared';
+import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function ResetPasswordScreen({ route, navigation }) {
   const { email } = route.params;
@@ -12,6 +13,7 @@ export default function ResetPasswordScreen({ route, navigation }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const inputs = useRef([]);
+  const { colors } = useTheme();
 
   const handleCodeChange = (text, index) => {
     const newCode = [...code];
@@ -65,7 +67,11 @@ export default function ResetPasswordScreen({ route, navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <ScreenWrapper scroll keyboardAvoiding contentContainerStyle={styles.scroll}>
+      <Image
+        source={require('../../../assets/icon.png')}
+        style={styles.logo}
+      />
       <Text variant="headlineMedium" style={styles.title}>Reset Password</Text>
       <Text variant="bodyMedium" style={styles.subtitle}>
         Enter the code sent to {email}
@@ -76,7 +82,7 @@ export default function ResetPasswordScreen({ route, navigation }) {
           <RNTextInput
             key={i}
             ref={(ref) => (inputs.current[i] = ref)}
-            style={styles.codeInput}
+            style={[styles.codeInput, { color: colors.onSurface, borderColor: colors.outline }]}
             value={digit}
             onChangeText={(text) => handleCodeChange(text, i)}
             onKeyPress={(e) => handleKeyPress(e, i)}
@@ -126,12 +132,13 @@ export default function ResetPasswordScreen({ route, navigation }) {
       <Button mode="text" onPress={handleResend} style={styles.link}>
         Resend Code
       </Button>
-    </View>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24 },
+  scroll: { flexGrow: 1, justifyContent: 'center', padding: 24 },
+  logo: { width: 100, height: 100, alignSelf: 'center', marginBottom: 12 },
   title: { textAlign: 'center', marginBottom: 8 },
   subtitle: { textAlign: 'center', marginBottom: 24, opacity: 0.7 },
   codeRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 16 },
@@ -139,7 +146,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 56,
     borderWidth: 2,
-    borderColor: '#888',
     borderRadius: 8,
     fontSize: 24,
     fontWeight: 'bold',

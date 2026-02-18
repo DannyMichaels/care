@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { Image, StyleSheet } from 'react-native';
 import { TextInput, Button, Text, HelperText } from 'react-native-paper';
 import { loginUser } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
+import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function LoginScreen({ navigation }) {
   const [, dispatch] = useCurrentUser();
@@ -19,81 +20,80 @@ export default function LoginScreen({ navigation }) {
       const user = await loginUser({ email, password });
       dispatch({ type: 'SET_USER', currentUser: user });
     } catch (err) {
-      setError('Invalid email or password');
+      setError(err.response.data.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <Text variant="headlineLarge" style={styles.title}>Care</Text>
-        <Text variant="bodyLarge" style={styles.subtitle}>Sign in to your account</Text>
+    <ScreenWrapper scroll keyboardAvoiding contentContainerStyle={styles.scroll}>
+      <Image
+        source={require('../../../assets/icon.png')}
+        style={styles.logo}
+      />
+      <Text variant="headlineLarge" style={styles.title}>Care</Text>
+      <Text variant="bodyLarge" style={styles.subtitle}>Sign in to your account</Text>
 
-        <TextInput
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          style={styles.input}
-          mode="outlined"
-        />
+      <TextInput
+        label="Email"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        style={styles.input}
+        mode="outlined"
+      />
 
-        <TextInput
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-          style={styles.input}
-          mode="outlined"
-          right={
-            <TextInput.Icon
-              icon={showPassword ? 'eye-off' : 'eye'}
-              onPress={() => setShowPassword(!showPassword)}
-            />
-          }
-        />
+      <TextInput
+        label="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry={!showPassword}
+        style={styles.input}
+        mode="outlined"
+        right={
+          <TextInput.Icon
+            icon={showPassword ? 'eye-off' : 'eye'}
+            onPress={() => setShowPassword(!showPassword)}
+          />
+        }
+      />
 
-        {error ? <HelperText type="error">{error}</HelperText> : null}
+      {error ? <HelperText type="error">{error}</HelperText> : null}
 
-        <Button
-          mode="contained"
-          onPress={handleLogin}
-          loading={loading}
-          disabled={!email || !password || loading}
-          style={styles.button}
-        >
-          Sign In
-        </Button>
+      <Button
+        mode="contained"
+        onPress={handleLogin}
+        loading={loading}
+        disabled={!email || !password || loading}
+        style={styles.button}
+      >
+        Sign In
+      </Button>
 
-        <Button
-          mode="text"
-          onPress={() => navigation.navigate('ForgotPassword')}
-          style={styles.link}
-        >
-          Forgot your password?
-        </Button>
+      <Button
+        mode="text"
+        onPress={() => navigation.navigate('ForgotPassword')}
+        style={styles.link}
+      >
+        Forgot your password?
+      </Button>
 
-        <Button
-          mode="text"
-          onPress={() => navigation.navigate('Register')}
-          style={styles.link}
-        >
-          Don't have an account? Sign Up
-        </Button>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <Button
+        mode="text"
+        onPress={() => navigation.navigate('Register')}
+        style={styles.link}
+      >
+        Don't have an account? Sign Up
+      </Button>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
   scroll: { flexGrow: 1, justifyContent: 'center', padding: 24 },
+  logo: { width: 100, height: 100, alignSelf: 'center', marginBottom: 12 },
   title: { textAlign: 'center', marginBottom: 8 },
   subtitle: { textAlign: 'center', marginBottom: 24, opacity: 0.7 },
   input: { marginBottom: 12 },

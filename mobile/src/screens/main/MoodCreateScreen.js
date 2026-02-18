@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { TextInput, Button, Text, RadioButton } from 'react-native-paper';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import dayjs from 'dayjs';
 import { postMood } from '@care/shared';
 import { useDate } from '../../context/DateContext';
+import ScreenWrapper from '../../components/ScreenWrapper';
+import DatePickerModal from '../../components/DatePickerModal';
 
 export default function MoodCreateScreen({ navigation }) {
   const { selectedDate } = useDate();
@@ -16,7 +18,8 @@ export default function MoodCreateScreen({ navigation }) {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await postMood({ status, reason, time: `${selectedDate}T${time.toTimeString().slice(0, 5)}` });
+      const dt = dayjs(selectedDate).hour(time.getHours()).minute(time.getMinutes()).second(0);
+      await postMood({ status, reason, time: dt.toISOString() });
       navigation.goBack();
     } catch {} finally {
       setLoading(false);
@@ -24,7 +27,7 @@ export default function MoodCreateScreen({ navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScreenWrapper scroll contentContainerStyle={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>Log Mood</Text>
       <Text variant="titleMedium" style={styles.label}>How are you feeling?</Text>
       <RadioButton.Group onValueChange={setStatus} value={status}>
@@ -37,17 +40,21 @@ export default function MoodCreateScreen({ navigation }) {
       <Button mode="outlined" onPress={() => setShowTimePicker(true)} style={styles.input}>
         Time: {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </Button>
-      {showTimePicker && (
-        <DateTimePicker value={time} mode="time" onChange={(e, d) => { setShowTimePicker(false); if (d) setTime(d); }} />
-      )}
+      <DatePickerModal
+        visible={showTimePicker}
+        value={time}
+        mode="time"
+        onConfirm={(d) => { setShowTimePicker(false); setTime(d); }}
+        onDismiss={() => setShowTimePicker(false)}
+      />
       <Button mode="contained" onPress={handleSubmit} loading={loading} disabled={loading} style={styles.button}>Save</Button>
       <Button mode="text" onPress={() => navigation.goBack()}>Cancel</Button>
-    </ScrollView>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24, paddingTop: 48 },
+  container: { padding: 24 },
   title: { marginBottom: 16 },
   label: { marginBottom: 8 },
   input: { marginBottom: 12 },

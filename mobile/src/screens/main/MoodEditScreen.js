@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { StyleSheet, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text, RadioButton } from 'react-native-paper';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { putMood, destroyMood } from '@care/shared';
+import ScreenWrapper from '../../components/ScreenWrapper';
+import DatePickerModal from '../../components/DatePickerModal';
 
 export default function MoodEditScreen({ route, navigation }) {
   const { id, item } = route.params;
@@ -30,7 +31,7 @@ export default function MoodEditScreen({ route, navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScreenWrapper scroll contentContainerStyle={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>Edit Mood</Text>
       <RadioButton.Group onValueChange={setStatus} value={status}>
         <RadioButton.Item label="Poor" value="Poor" />
@@ -42,18 +43,22 @@ export default function MoodEditScreen({ route, navigation }) {
       <Button mode="outlined" onPress={() => setShowTimePicker(true)} style={styles.input}>
         Time: {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </Button>
-      {showTimePicker && (
-        <DateTimePicker value={time} mode="time" onChange={(e, d) => { setShowTimePicker(false); if (d) setTime(d); }} />
-      )}
+      <DatePickerModal
+        visible={showTimePicker}
+        value={time}
+        mode="time"
+        onConfirm={(d) => { setShowTimePicker(false); setTime(d); }}
+        onDismiss={() => setShowTimePicker(false)}
+      />
       <Button mode="contained" onPress={handleUpdate} loading={loading} disabled={loading} style={styles.button}>Save</Button>
       <Button mode="outlined" onPress={handleDelete} textColor="red" style={styles.button}>Delete</Button>
       <Button mode="text" onPress={() => navigation.goBack()}>Cancel</Button>
-    </ScrollView>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24, paddingTop: 48 },
+  container: { padding: 24 },
   title: { marginBottom: 16 },
   input: { marginBottom: 12 },
   button: { marginTop: 8 },

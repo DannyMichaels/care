@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Text, Avatar, Card, Paragraph, ActivityIndicator, Divider } from 'react-native-paper';
 import { getOneUser, toTitleCase, getAge } from '@care/shared';
+import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function UserDetailScreen({ route, navigation }) {
   const { id } = route.params;
@@ -24,7 +25,7 @@ export default function UserDetailScreen({ route, navigation }) {
   if (!user) return <Text style={{ padding: 24 }}>User not found</Text>;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScreenWrapper scroll contentContainerStyle={styles.container}>
       <View style={styles.header}>
         {user.image ? (
           <Avatar.Image size={80} source={{ uri: user.image }} />
@@ -54,12 +55,12 @@ export default function UserDetailScreen({ route, navigation }) {
           </Card.Content>
         </Card>
       ))}
-    </ScrollView>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24, paddingTop: 48 },
+  container: { padding: 24 },
   header: { alignItems: 'center', marginBottom: 16 },
   name: { marginTop: 12 },
   meta: { opacity: 0.6, marginTop: 4 },

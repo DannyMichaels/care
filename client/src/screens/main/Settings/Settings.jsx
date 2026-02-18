@@ -15,6 +15,13 @@ import {
 
 // Services and Utils
 import { getAge } from '@care/shared';
+import {
+  isPushSupported,
+  getPermissionState,
+  subscribeToPush,
+  unsubscribeFromPush,
+  registerServiceWorker,
+} from '../../../utils/pushNotifications';
 import ScrollToTopOnMount from "../../../components/Helpers/ScrollToTopOnMount";
 
 // Views
@@ -25,7 +32,9 @@ import UserDelete from "../../../components/Modals/UserDelete";
 import Switch from "@material-ui/core/Switch";
 import Card from "@material-ui/core/Card";
 import Button from "@material-ui/core/Button";
+import Snackbar from "@material-ui/core/Snackbar";
 import Brightness4Icon from "@material-ui/icons/Brightness4";
+import NotificationsIcon from "@material-ui/icons/Notifications";
 
 // Styles
 import { useStyles } from "./settingStyles";
@@ -35,6 +44,11 @@ export default function Settings() {
   const [themeState, setThemeState] = useContext(ThemeStateContext);
   const [openEdit, setOpenEdit] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushSupported, setPushSupported] = useState(false);
+  const [pushDenied, setPushDenied] = useState(false);
+  const [toastMsg, setToastMsg] = useState('');
 
   const { allUsers } = useContext(AllUsersStateContext);
   const dispatchAllUsers = useContext(AllUsersDispatchContext);
@@ -58,6 +72,46 @@ export default function Settings() {
     }
     return false;
   });
+
+  useEffect(() => {
+    const checkPush = async () => {
+      if (!isPushSupported()) return;
+      setPushSupported(true);
+      setPushDenied(getPermissionState() === 'denied');
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+        setPushEnabled(!!subscription);
+      } catch {
+        // SW not registered yet
+      }
+    };
+    checkPush();
+  }, []);
+
+  const handlePushToggle = async () => {
+    if (pushEnabled) {
+      await unsubscribeFromPush();
+      setPushEnabled(false);
+    } else {
+      try {
+        await registerServiceWorker();
+        await subscribeToPush();
+        setPushEnabled(true);
+        setPushDenied(getPermissionState() === 'denied');
+      } catch (err) {
+        console.error('Push subscribe failed:', err);
+        setPushDenied(getPermissionState() === 'denied');
+        if (getPermissionState() === 'denied') {
+          setToastMsg('Notifications blocked — check browser settings');
+        } else if (err?.message?.includes('push service')) {
+          setToastMsg('Push service unavailable — enable Google push messaging in browser settings');
+        } else {
+          setToastMsg('Failed to enable push notifications');
+        }
+      }
+    }
+  };
 
   useEffect(() => {
     // if people are exploiting with application window.
@@ -160,6 +214,22 @@ export default function Settings() {
               />
             </CardActions>
           </Card>
+          {pushSupported && (
+            <Card className={classes.card}>
+              <CardActions className={classes.actionsContainer}>
+                <Typography className={classes.themeStateContainer}>
+                  <NotificationsIcon className={classes.themeStateIcon} />
+                  &nbsp;Push Notifications
+                </Typography>
+                <Switch
+                  className={classes.themeStateSwitch}
+                  checked={pushEnabled}
+                  onChange={handlePushToggle}
+                  disabled={pushDenied}
+                />
+              </CardActions>
+            </Card>
+          )}
         </div>
       </div>
       {openEdit && (
@@ -182,6 +252,13 @@ export default function Settings() {
           dispatchCurrentUser={dispatch}
         />
       )}
+      <Snackbar
+        open={!!toastMsg}
+        autoHideDuration={5000}
+        onClose={() => setToastMsg('')}
+        message={toastMsg}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
     </Layout>
   );
 }

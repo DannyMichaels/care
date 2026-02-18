@@ -66,6 +66,7 @@ class MedicationsController < ApplicationController
     end
 
     def schedule_notification(medication)
+      return if medication.is_taken
       return unless medication.time.present?
 
       med_time = Time.parse(medication.time.to_s)
@@ -73,7 +74,7 @@ class MedicationsController < ApplicationController
 
       return unless delay.positive?
 
-      MedicationNotificationJob.set(wait: delay.seconds).perform_later(medication.id)
+      MedicationNotificationJob.set(wait: delay.seconds).perform_later(medication.id, medication.time.to_s)
     rescue ArgumentError
       # Skip scheduling if time can't be parsed
     end

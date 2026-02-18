@@ -6,7 +6,7 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Dialog from '@material-ui/core/Dialog';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { compareTakenWithSelectedTime, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR } from '@care/shared';
+import { compareTakenWithSelectedTime, toDateTimeLocal, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR } from '@care/shared';
 import {
   DialogTitle,
   DialogContent,
@@ -175,7 +175,7 @@ export default function MedEdit({
               }
               type="datetime-local"
               style={{ width: '300px', margin: '10px' }}
-              value={formData.time ? new Date(formData.time).toISOString().slice(0, 16) : ''}
+              value={toDateTimeLocal(formData.time)}
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
             />

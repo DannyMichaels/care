@@ -11,6 +11,7 @@ import {
   DialogContent,
   DialogActions,
 } from "../../Form/DialogComponents";
+import { toDateTimeLocal } from '@care/shared';
 
 export default function SymptomEdit({
   onSave,
@@ -86,7 +87,7 @@ export default function SymptomEdit({
               required
               type="datetime-local"
               name="time"
-              value={formData.time ? new Date(formData.time).toISOString().slice(0, 16) : ""}
+              value={toDateTimeLocal(formData.time)}
               onChange={handleChange}
             />
           </div>

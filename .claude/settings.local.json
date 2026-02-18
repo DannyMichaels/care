@@ -34,7 +34,18 @@
       "Bash(grep:*)",
       "Bash(python:*)",
       "WebFetch(domain:resend.com)",
-      "Bash(npx expo export:*)"
+      "Bash(npx expo export:*)",
+      "Bash(npx expo doctor:*)",
+      "Bash(ipconfig:*)",
+      "WebFetch(domain:docs.expo.dev)",
+      "Bash(where:*)",
+      "Bash(ngrok version:*)",
+      "Bash(dir:*)",
+      "Bash(bundle exec ruby:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(bundle exec rspec:*)",
+      "Bash(RAILS_ENV=test bundle exec rails db:migrate:*)",
+      "Bash(npm ls:*)"
     ]
   }
 }

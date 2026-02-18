@@ -16,7 +16,17 @@ Rails.application.routes.draw do
   resources :insights do
     resources :comments
   end
-  resources :push_tokens, only: [:create, :destroy]
+  resources :push_tokens, only: [:create, :destroy] do
+    collection do
+      post :test
+    end
+  end
+  get '/web_push/vapid_key', to: 'web_push_subscriptions#vapid_key'
+  resources :web_push_subscriptions, only: [:create, :destroy] do
+    collection do
+      post :test
+    end
+  end
   resources :email_verifications, only: [:create] do
     collection do
       post :verify

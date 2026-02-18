@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { Card, Text, Avatar, Searchbar, ActivityIndicator } from 'react-native-paper';
 import { getAllUsers, toTitleCase } from '@care/shared';
+import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function CommunityScreen({ navigation }) {
   const [users, setUsers] = useState([]);
@@ -19,7 +20,9 @@ export default function CommunityScreen({ navigation }) {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', fetchUsers);
-    return unsubscribe;
+    return () => {
+        unsubscribe();
+    }
   }, [navigation, fetchUsers]);
 
   const filteredUsers = users.filter((u) =>
@@ -29,7 +32,7 @@ export default function CommunityScreen({ navigation }) {
   if (loading) return <ActivityIndicator style={{ flex: 1 }} />;
 
   return (
-    <View style={styles.container}>
+    <ScreenWrapper>
       <Text variant="headlineMedium" style={styles.title}>Community</Text>
       <Searchbar
         placeholder="Search users"
@@ -44,7 +47,7 @@ export default function CommunityScreen({ navigation }) {
           <Card style={styles.card} onPress={() => navigation.navigate('UserDetail', { id: item.id })}>
             <Card.Title
               title={toTitleCase(item.name)}
-              subtitle={`${item.insights?.length || 0} insights`}
+              subtitle={`${item.insights_count ?? item.insights?.length ?? 0} insights`}
               left={(props) =>
                 item.image ? (
                   <Avatar.Image {...props} source={{ uri: item.image }} />
@@ -57,12 +60,11 @@ export default function CommunityScreen({ navigation }) {
         )}
         contentContainerStyle={styles.list}
       />
-    </View>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
   title: { padding: 16 },
   search: { marginHorizontal: 12, marginBottom: 8 },
   list: { padding: 12 },

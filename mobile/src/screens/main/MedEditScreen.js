@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Text, Chip, List } from 'react-native-paper';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { putMed, destroyMed, getRXGuideMeds, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR } from '@care/shared';
+import ScreenWrapper from '../../components/ScreenWrapper';
+import DatePickerModal from '../../components/DatePickerModal';
 
-const ICON_MAP = { tablet: 'tablet', pill: 'pill', droplet: 'water' };
+const ICON_MAP = { tablet: 'circle', pill: 'pill', droplet: 'water' };
 
 export default function MedEditScreen({ route, navigation }) {
   const { id, item } = route.params;
@@ -17,6 +18,7 @@ export default function MedEditScreen({ route, navigation }) {
   const [time, setTime] = useState(item.time ? new Date(item.time) : new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [isTaken, setIsTaken] = useState(!!item.is_taken);
   const [loading, setLoading] = useState(false);
   const [rxGuide, setRxGuide] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -64,6 +66,29 @@ export default function MedEditScreen({ route, navigation }) {
     }
   };
 
+  const handleMarkTaken = () => {
+    Alert.alert(
+      'Mark as Taken',
+      `Did you take ${name}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Yes, I took it',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              await putMed(id, { is_taken: true, taken_date: new Date().toISOString() });
+              setIsTaken(true);
+              navigation.goBack();
+            } catch {} finally {
+              setLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const handleDelete = () => {
     Alert.alert('Delete Medication', `Are you sure you want to delete ${name}?`, [
       { text: 'Cancel', style: 'cancel' },
@@ -79,10 +104,17 @@ export default function MedEditScreen({ route, navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+    <ScreenWrapper scroll contentContainerStyle={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>Edit Medication</Text>
 
-      {item.is_taken && <Chip icon="check" style={styles.chip}>Taken</Chip>}
+      {isTaken
+        ? <Chip icon="check" style={styles.chip}>Taken</Chip>
+        : (
+          <Button mode="contained" icon="check" onPress={handleMarkTaken} disabled={loading} style={styles.takenButton} buttonColor="#4CAF50">
+            Mark as Taken
+          </Button>
+        )
+      }
 
       <View>
         <TextInput
@@ -148,12 +180,20 @@ export default function MedEditScreen({ route, navigation }) {
         Time: {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </Button>
 
-      {showDatePicker && (
-        <DateTimePicker value={time} mode="date" onChange={(e, d) => { setShowDatePicker(false); if (d) setTime(d); }} />
-      )}
-      {showTimePicker && (
-        <DateTimePicker value={time} mode="time" onChange={(e, d) => { setShowTimePicker(false); if (d) setTime(d); }} />
-      )}
+      <DatePickerModal
+        visible={showDatePicker}
+        value={time}
+        mode="date"
+        onConfirm={(d) => { setShowDatePicker(false); setTime(d); }}
+        onDismiss={() => setShowDatePicker(false)}
+      />
+      <DatePickerModal
+        visible={showTimePicker}
+        value={time}
+        mode="time"
+        onConfirm={(d) => { setShowTimePicker(false); setTime(d); }}
+        onDismiss={() => setShowTimePicker(false)}
+      />
 
       <Button mode="contained" onPress={handleUpdate} loading={loading} disabled={!name || loading} style={styles.button}>
         Save
@@ -162,14 +202,15 @@ export default function MedEditScreen({ route, navigation }) {
         Delete
       </Button>
       <Button mode="text" onPress={() => navigation.goBack()}>Cancel</Button>
-    </ScrollView>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24, paddingTop: 48 },
+  container: { padding: 24 },
   title: { marginBottom: 16 },
   chip: { marginBottom: 12, alignSelf: 'flex-start' },
+  takenButton: { marginBottom: 12, alignSelf: 'stretch' },
   input: { marginBottom: 12 },
   button: { marginTop: 8 },
   label: { marginBottom: 4, marginTop: 8 },

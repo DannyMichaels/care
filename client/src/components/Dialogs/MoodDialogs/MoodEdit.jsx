@@ -19,7 +19,7 @@ import {
   DialogContent,
   DialogActions,
 } from "../../Form/DialogComponents";
-import { compareDateWithCurrentTime } from '@care/shared';
+import { compareDateWithCurrentTime, toDateTimeLocal } from '@care/shared';
 
 export default function MoodEdit(props) {
   const [formData, setFormData] = useState({
@@ -131,7 +131,7 @@ export default function MoodEdit(props) {
               label={`Please choose a time`}
               type="datetime-local"
               style={{ width: "300px", margin: "10px" }}
-              value={formData.time ? new Date(formData.time).toISOString().slice(0, 16) : ""}
+              value={toDateTimeLocal(formData.time)}
               onChange={handleChange}
               InputLabelProps={{
                 shrink: true,

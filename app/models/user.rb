@@ -16,6 +16,7 @@ class User < ApplicationRecord
   has_many :medications, dependent: :destroy
   has_many :likes, dependent: :destroy
   has_many :push_tokens, dependent: :destroy
+  has_many :web_push_subscriptions, dependent: :destroy
   has_many :liked_insights, :through => :likes
   has_many :comments
   

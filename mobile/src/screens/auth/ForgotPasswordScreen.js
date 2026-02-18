@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { Image, StyleSheet } from 'react-native';
 import { TextInput, Button, Text, HelperText } from 'react-native-paper';
 import { sendVerificationCode } from '@care/shared';
+import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -26,7 +27,11 @@ export default function ForgotPasswordScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <ScreenWrapper keyboardAvoiding style={styles.container}>
+      <Image
+        source={require('../../../assets/icon.png')}
+        style={styles.logo}
+      />
       <Text variant="headlineMedium" style={styles.title}>Forgot Password</Text>
       <Text variant="bodyMedium" style={styles.subtitle}>
         Enter your email and we'll send you a verification code
@@ -61,12 +66,13 @@ export default function ForgotPasswordScreen({ navigation }) {
       >
         Back to Sign In
       </Button>
-    </View>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24 },
+  container: { justifyContent: 'center', padding: 24 },
+  logo: { width: 100, height: 100, alignSelf: 'center', marginBottom: 12 },
   title: { textAlign: 'center', marginBottom: 8 },
   subtitle: { textAlign: 'center', marginBottom: 24, opacity: 0.7 },
   input: { marginBottom: 12 },

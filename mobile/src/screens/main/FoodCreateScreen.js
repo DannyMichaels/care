@@ -1,15 +1,18 @@
 import { useState } from 'react';
-import { StyleSheet, ScrollView } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import dayjs from 'dayjs';
 import { postFood } from '@care/shared';
 import { useDate } from '../../context/DateContext';
+import ScreenWrapper from '../../components/ScreenWrapper';
+import DatePickerModal from '../../components/DatePickerModal';
 
 export default function FoodCreateScreen({ navigation }) {
   const { selectedDate } = useDate();
   const [name, setName] = useState('');
   const [factors, setFactors] = useState('');
-  const [rating, setRating] = useState('3');
+  const [rating, setRating] = useState(3);
   const [time, setTime] = useState(new Date());
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -17,7 +20,8 @@ export default function FoodCreateScreen({ navigation }) {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await postFood({ name, factors, rating: Number(rating), time: `${selectedDate}T${time.toTimeString().slice(0, 5)}` });
+      const dt = dayjs(selectedDate).hour(time.getHours()).minute(time.getMinutes()).second(0);
+      await postFood({ name, factors, rating, time: dt.toISOString() });
       navigation.goBack();
     } catch {} finally {
       setLoading(false);
@@ -25,26 +29,56 @@ export default function FoodCreateScreen({ navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScreenWrapper scroll contentContainerStyle={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>Log Food</Text>
       <TextInput label="Food Name" value={name} onChangeText={setName} mode="outlined" style={styles.input} maxLength={20} />
       <TextInput label="Factors" value={factors} onChangeText={setFactors} mode="outlined" style={styles.input} maxLength={131} />
-      <TextInput label="Rating (1-5)" value={rating} onChangeText={setRating} mode="outlined" style={styles.input} keyboardType="number-pad" />
+      <View style={styles.ratingRow}>
+        <Text variant="bodyLarge" style={styles.ratingLabel}>Rating</Text>
+        <View style={styles.stars}>
+          {[1, 2, 3, 4, 5].map((n) => (
+            <TouchableOpacity key={n} onPress={() => setRating(n)}>
+              <MaterialCommunityIcons
+                name={n <= rating ? 'star' : 'star-outline'}
+                size={36}
+                color="#FFB300"
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
       <Button mode="outlined" onPress={() => setShowTimePicker(true)} style={styles.input}>
         Time: {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </Button>
-      {showTimePicker && (
-        <DateTimePicker value={time} mode="time" onChange={(e, d) => { setShowTimePicker(false); if (d) setTime(d); }} />
-      )}
+      <DatePickerModal
+        visible={showTimePicker}
+        value={time}
+        mode="time"
+        onConfirm={(d) => { setShowTimePicker(false); setTime(d); }}
+        onDismiss={() => setShowTimePicker(false)}
+      />
       <Button mode="contained" onPress={handleSubmit} loading={loading} disabled={!name || loading} style={styles.button}>Save</Button>
       <Button mode="text" onPress={() => navigation.goBack()}>Cancel</Button>
-    </ScrollView>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24, paddingTop: 48 },
+  container: { padding: 24 },
   title: { marginBottom: 16 },
   input: { marginBottom: 12 },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  ratingLabel: {
+    marginRight: 12,
+    opacity: 0.7,
+  },
+  stars: {
+    flexDirection: 'row',
+    gap: 4,
+  },
   button: { marginTop: 8, paddingVertical: 4 },
 });

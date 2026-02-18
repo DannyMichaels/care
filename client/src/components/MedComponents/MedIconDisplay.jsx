@@ -1,5 +1,5 @@
 import React from 'react';
-import LocalPharmacy from '@material-ui/icons/LocalPharmacy';
+import FiberManualRecord from '@material-ui/icons/FiberManualRecord';
 import Opacity from '@material-ui/icons/Opacity';
 import SvgIcon from '@material-ui/core/SvgIcon';
 
@@ -12,7 +12,7 @@ function PillIcon(props) {
 }
 
 const iconMap = {
-  tablet: LocalPharmacy,
+  tablet: FiberManualRecord,
   pill: PillIcon,
   droplet: Opacity,
 };

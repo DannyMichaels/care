@@ -52,6 +52,30 @@ RSpec.describe 'Medications', type: :request do
     end
   end
 
+  describe 'PUT /medications/:id (mark as taken)' do
+    let!(:medication) { create(:medication, user: user) }
+
+    it 'marks medication as taken' do
+      put "/medications/#{medication.id}",
+        params: { medication: { is_taken: true, taken_date: Time.current.iso8601 } },
+        headers: headers
+
+      expect(response).to have_http_status(:ok)
+      medication.reload
+      expect(medication.is_taken).to be true
+      expect(medication.taken_date).to be_present
+    end
+
+    it 'does not clear other fields when marking as taken' do
+      original_name = medication.name
+      put "/medications/#{medication.id}",
+        params: { medication: { is_taken: true } },
+        headers: headers
+
+      expect(medication.reload.name).to eq(original_name)
+    end
+  end
+
   describe 'DELETE /medications/:id' do
     let!(:medication) { create(:medication, user: user) }
 

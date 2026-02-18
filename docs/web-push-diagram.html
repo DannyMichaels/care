@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Push Notifications — How It Works</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; padding: 40px 20px; line-height: 1.6; }
+  .container { max-width: 1000px; margin: 0 auto; }
+  h1 { text-align: center; font-size: 2rem; margin-bottom: 8px; color: #f8fafc; }
+  .subtitle { text-align: center; color: #94a3b8; margin-bottom: 48px; font-size: 1.1rem; }
+  h2 { color: #38bdf8; margin: 48px 0 24px; font-size: 1.4rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 8px; }
+  h3 { color: #fbbf24; margin: 24px 0 12px; font-size: 1.1rem; }
+
+  /* Flow diagram */
+  .flow { display: flex; flex-direction: column; gap: 0; margin: 32px 0; }
+  .step { display: flex; align-items: flex-start; gap: 20px; position: relative; }
+  .step-num { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; position: relative; z-index: 1; }
+  .step-content { flex: 1; padding: 16px 20px; border-radius: 12px; margin-bottom: 8px; }
+  .step-content p { margin-top: 6px; font-size: 0.9rem; color: #94a3b8; }
+  .step-content code { background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: #a5f3fc; }
+  .step-content .file { color: #a78bfa; font-style: italic; font-size: 0.85rem; }
+  .connector { width: 2px; height: 20px; margin-left: 19px; }
+
+  /* Phase colors */
+  .phase-setup .step-num { background: #7c3aed; color: #fff; }
+  .phase-setup .step-content { background: #1e1b4b; border: 1px solid #4c1d95; }
+  .phase-setup .connector { background: #7c3aed; }
+
+  .phase-sub .step-num { background: #2563eb; color: #fff; }
+  .phase-sub .step-content { background: #172554; border: 1px solid #1e40af; }
+  .phase-sub .connector { background: #2563eb; }
+
+  .phase-send .step-num { background: #059669; color: #fff; }
+  .phase-send .step-content { background: #022c22; border: 1px solid #065f46; }
+  .phase-send .connector { background: #059669; }
+
+  .phase-receive .step-num { background: #d97706; color: #fff; }
+  .phase-receive .step-content { background: #451a03; border: 1px solid #92400e; }
+  .phase-receive .connector { background: #d97706; }
+
+  /* Architecture diagram */
+  .arch { display: grid; grid-template-columns: 1fr 80px 1fr 80px 1fr; align-items: center; gap: 0; margin: 32px 0; }
+  .box { padding: 20px; border-radius: 12px; text-align: center; }
+  .box h4 { margin-bottom: 8px; font-size: 1rem; }
+  .box ul { list-style: none; text-align: left; font-size: 0.85rem; color: #94a3b8; }
+  .box ul li { padding: 3px 0; }
+  .box ul li::before { content: "→ "; color: #64748b; }
+  .box-browser { background: #172554; border: 1px solid #1e40af; }
+  .box-browser h4 { color: #60a5fa; }
+  .box-push { background: #1e1b4b; border: 1px solid #4c1d95; }
+  .box-push h4 { color: #a78bfa; }
+  .box-server { background: #022c22; border: 1px solid #065f46; }
+  .box-server h4 { color: #34d399; }
+  .arrow { text-align: center; color: #475569; font-size: 2rem; line-height: 1; }
+  .arrow span { display: block; font-size: 0.7rem; color: #64748b; margin-top: 4px; }
+
+  /* Key concepts */
+  .concepts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+  .concept { padding: 20px; border-radius: 12px; background: #1e293b; border: 1px solid #334155; }
+  .concept h4 { color: #fbbf24; margin-bottom: 8px; }
+  .concept p { font-size: 0.9rem; color: #94a3b8; }
+
+  /* Code blocks */
+  pre { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 16px; overflow-x: auto; margin: 12px 0; font-size: 0.82rem; color: #a5f3fc; line-height: 1.5; }
+  .comment { color: #64748b; }
+  .keyword { color: #c084fc; }
+  .string { color: #86efac; }
+  .func { color: #fbbf24; }
+
+  /* Lifecycle */
+  .lifecycle { display: flex; gap: 16px; margin: 24px 0; flex-wrap: wrap; }
+  .lc-card { flex: 1; min-width: 200px; padding: 16px; border-radius: 12px; background: #1e293b; border: 1px solid #334155; }
+  .lc-card h4 { font-size: 0.95rem; margin-bottom: 8px; }
+  .lc-card p { font-size: 0.85rem; color: #94a3b8; }
+  .lc-card.active { border-color: #059669; }
+  .lc-card.active h4 { color: #34d399; }
+  .lc-card.dormant { border-color: #d97706; }
+  .lc-card.dormant h4 { color: #fbbf24; }
+  .lc-card.wake { border-color: #2563eb; }
+  .lc-card.wake h4 { color: #60a5fa; }
+
+  @media (max-width: 700px) {
+    .arch { grid-template-columns: 1fr; gap: 12px; }
+    .arrow { transform: rotate(90deg); }
+    .concepts { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Push Notifications in Care</h1>
+<p class="subtitle">How browser + mobile push notifications work</p>
+
+<!-- ───── ARCHITECTURE ───── -->
+<h2>Architecture Overview</h2>
+<div class="arch">
+  <div class="box box-browser">
+    <h4>Browser (Client)</h4>
+    <ul>
+      <li>Service Worker (sw.js)</li>
+      <li>Push subscription</li>
+      <li>Shows notifications</li>
+    </ul>
+  </div>
+  <div class="arrow">⟶<span>subscribe</span></div>
+  <div class="box box-push">
+    <h4>Push Service (FCM)</h4>
+    <ul>
+      <li>Google's FCM servers</li>
+      <li>Holds subscriptions</li>
+      <li>Delivers to browser</li>
+    </ul>
+  </div>
+  <div class="arrow">⟵<span>push msg</span></div>
+  <div class="box box-server">
+    <h4>Rails API (Backend)</h4>
+    <ul>
+      <li>Stores subscription info</li>
+      <li>Signs with VAPID keys</li>
+      <li>Sends encrypted payload</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ───── KEY CONCEPTS ───── -->
+<h2>Key Concepts</h2>
+<div class="concepts">
+  <div class="concept">
+    <h4>VAPID Keys</h4>
+    <p><strong>Voluntary Application Server Identification.</strong> An EC P-256 key pair that identifies your server to the push service. The <em>public key</em> is shared with the browser during subscription. The <em>private key</em> signs a JWT that proves to FCM "yes, I'm the server that created this subscription."</p>
+  </div>
+  <div class="concept">
+    <h4>Service Worker</h4>
+    <p>A JavaScript file (<code>sw.js</code>) that the browser runs in a <strong>separate thread</strong>, independent of your web page. It has no DOM access. It can receive push events even when your site tab is closed. The browser wakes it up when a push arrives.</p>
+  </div>
+  <div class="concept">
+    <h4>Push Subscription</h4>
+    <p>When a user grants permission, the browser contacts FCM and gets back an object containing: an <strong>endpoint</strong> (unique FCM URL), <strong>p256dh</strong> (browser's public encryption key), and <strong>auth</strong> (shared auth secret). We store these in our DB.</p>
+  </div>
+  <div class="concept">
+    <h4>Encryption (aes128gcm)</h4>
+    <p>Push payloads are <strong>end-to-end encrypted</strong>. Your server encrypts the message using the browser's p256dh key + auth secret. FCM can't read the content — it just delivers the encrypted blob. Only the browser's service worker can decrypt it.</p>
+  </div>
+</div>
+
+<!-- ───── PHASE 1: SETUP ───── -->
+<h2>Phase 1: One-Time Setup</h2>
+<div class="flow phase-setup">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>Generate VAPID key pair</strong>
+      <p>Done once, stored in <code>.env</code>. Public key goes to the browser, private key stays on the server.</p>
+      <div class="file">VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY in .env</div>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>Register Service Worker</strong>
+      <p>On page load, <code>navigator.serviceWorker.register('/sw.js')</code> installs the service worker. The browser downloads sw.js and keeps it running in the background. This is <strong>idempotent</strong> — calling it again just returns the existing registration.</p>
+      <div class="file">client/src/index.js → client/public/sw.js</div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── PHASE 2: SUBSCRIBE ───── -->
+<h2>Phase 2: Subscribing (User Clicks "Enable")</h2>
+<div class="flow phase-sub">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>Request notification permission</strong>
+      <p><code>Notification.requestPermission()</code> — browser shows "Allow notifications?" prompt. User must click Allow.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>Fetch VAPID public key from API</strong>
+      <p><code>GET /web_push/vapid_key</code> returns the server's VAPID public key. This tells the push service which server is allowed to send to this subscription.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <strong>Browser contacts FCM to create subscription</strong>
+      <p><code>pushManager.subscribe({ applicationServerKey })</code> — the browser sends your VAPID public key to FCM. FCM creates a unique push endpoint and returns the subscription object.</p>
+      <p>The subscription contains: <code>endpoint</code> (FCM URL), <code>keys.p256dh</code> (browser encryption key), <code>keys.auth</code> (shared secret).</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <strong>Send subscription to our API</strong>
+      <p><code>POST /web_push_subscriptions</code> with endpoint, p256dh, auth. Our Rails API stores these in the <code>web_push_subscriptions</code> table so we can send pushes later.</p>
+      <div class="file">shared/src/services/webPushSubscriptions.js → app/controllers/web_push_subscriptions_controller.rb</div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── PHASE 3: SENDING ───── -->
+<h2>Phase 3: Sending a Push (Medication Reminder)</h2>
+<div class="flow phase-send">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>Job fires at medication time</strong>
+      <p><code>MedicationNotificationJob</code> runs. Finds the user's web push subscriptions from the DB.</p>
+      <div class="file">app/jobs/medication_notification_job.rb</div>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>Encrypt the payload</strong>
+      <p>Using the subscription's <code>p256dh</code> + <code>auth</code>, the server performs ECDH key exchange and AES-128-GCM encryption. The JSON payload (title, body, icon) becomes an encrypted blob that only the browser can decrypt.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <strong>Sign a VAPID JWT</strong>
+      <p>Server creates a JWT with <code>{ aud: "https://fcm.googleapis.com", exp: ..., sub: "mailto:..." }</code> signed with the VAPID private key. This proves to FCM that our server owns this subscription.</p>
+      <p>The JWT goes in the <code>Authorization: vapid t=JWT,k=PUBLIC_KEY</code> header.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <strong>POST to FCM endpoint</strong>
+      <p>Server sends the encrypted payload + VAPID auth header to the subscription's <code>endpoint</code> URL (e.g., <code>https://fcm.googleapis.com/fcm/send/xxx</code>). FCM validates the JWT, queues the message.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ───── PHASE 4: RECEIVING ───── -->
+<h2>Phase 4: Browser Receives the Push</h2>
+<div class="flow phase-receive">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>FCM delivers to browser</strong>
+      <p>FCM pushes the encrypted message to the browser through a persistent connection. This works even if the tab is closed — the browser maintains a background connection to FCM.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>Browser wakes up the Service Worker</strong>
+      <p>The browser decrypts the payload using its private key, then fires the <code>push</code> event on sw.js. The SW was dormant in memory — now it's active for a few seconds to handle this event.</p>
+      <div class="file">client/public/sw.js → push event listener</div>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <strong>Service Worker shows notification</strong>
+      <p><code>self.registration.showNotification(title, { body, icon })</code> — this is an OS-level notification. Shows in the system tray / notification center even if the browser is minimized.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <strong>User clicks notification</strong>
+      <p>The <code>notificationclick</code> event fires on sw.js. It focuses the existing tab or opens a new one at the URL from the notification data.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ───── SW LIFECYCLE ───── -->
+<h2>Service Worker Lifecycle</h2>
+<p style="color: #94a3b8; margin-bottom: 16px;">The service worker is NOT a long-running process. It sleeps most of the time.</p>
+<div class="lifecycle">
+  <div class="lc-card active">
+    <h4>Install</h4>
+    <p>First <code>register()</code> call downloads sw.js. Browser parses and installs it. Happens once (or when sw.js content changes).</p>
+  </div>
+  <div class="lc-card dormant">
+    <h4>Idle / Dormant</h4>
+    <p>After install, the SW sleeps. Uses zero CPU/memory. The browser keeps a reference to it. Can stay dormant for days/weeks.</p>
+  </div>
+  <div class="lc-card wake">
+    <h4>Wake on Event</h4>
+    <p>Browser wakes the SW for specific events: <code>push</code>, <code>notificationclick</code>, <code>fetch</code>, <code>sync</code>. SW runs for a few seconds, then goes back to sleep.</p>
+  </div>
+</div>
+
+<!-- ───── CARE-SPECIFIC ───── -->
+<h2>Care App File Map</h2>
+<pre>
+<span class="comment">── Backend (Rails) ──────────────────────────────────────</span>
+.env                                <span class="comment"># VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT</span>
+config/initializers/web_push_patch.rb <span class="comment"># Patches web-push gem for OpenSSL 3.0</span>
+app/models/web_push_subscription.rb  <span class="comment"># DB model: endpoint, p256dh, auth per user</span>
+app/controllers/web_push_subscriptions_controller.rb
+  <span class="func">vapid_key</span>  → GET  /web_push/vapid_key    <span class="comment"># Returns public key (no auth)</span>
+  <span class="func">create</span>     → POST /web_push_subscriptions <span class="comment"># Saves browser subscription</span>
+  <span class="func">destroy</span>    → DEL  /web_push_subscriptions/:id
+  <span class="func">test</span>       → POST /web_push_subscriptions/test <span class="comment"># Debug endpoint</span>
+app/jobs/medication_notification_job.rb
+  <span class="func">send_web_push</span> → encrypts + sends via WebPush.payload_send
+
+<span class="comment">── Shared Package ───────────────────────────────────────</span>
+shared/src/services/webPushSubscriptions.js <span class="comment"># API calls for subscribe/unsubscribe</span>
+
+<span class="comment">── Web Client (React) ───────────────────────────────────</span>
+client/public/sw.js                  <span class="comment"># Service Worker — receives push, shows notification</span>
+client/src/index.js                  <span class="comment"># Registers sw.js on page load</span>
+client/src/utils/pushNotifications.js <span class="comment"># subscribe/unsubscribe helpers</span>
+client/src/components/NotificationBanner/ <span class="comment"># "Enable notifications" prompt on Home</span>
+client/src/screens/main/Settings/    <span class="comment"># Push toggle switch</span>
+</pre>
+
+<h2>Data Flow Summary</h2>
+<pre>
+<span class="comment">SUBSCRIBE:</span>
+  Browser → <span class="string">"I want push"</span> → FCM → <span class="string">"here's your endpoint + keys"</span> → Browser
+  Browser → <span class="string">"store these"</span> → Rails API → web_push_subscriptions table
+
+<span class="comment">SEND:</span>
+  Rails Job → <span class="func">encrypt</span>(payload, p256dh, auth) → <span class="func">sign</span>(JWT, VAPID private key)
+           → POST encrypted blob + JWT → FCM endpoint
+           → FCM delivers → Browser decrypts → SW shows notification
+
+<span class="comment">WHY VAPID?</span>
+  Without VAPID, anyone with the endpoint URL could spam the user.
+  VAPID = "only the server with this private key can send to this subscription."
+  FCM checks: JWT audience matches, JWT not expired, signature valid.
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- EXPO PUSH NOTIFICATIONS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+
+<h1 style="margin-top: 80px; padding-top: 40px; border-top: 2px solid #334155;">Expo Push Notifications (Mobile)</h1>
+<p class="subtitle">How push notifications work in the React Native / Expo Go app</p>
+
+<h2>Architecture Overview</h2>
+<div class="arch">
+  <div class="box box-browser">
+    <h4>Mobile App (Expo)</h4>
+    <ul>
+      <li>expo-notifications SDK</li>
+      <li>Gets Expo Push Token</li>
+      <li>Receives + displays notifs</li>
+      <li>Handles notification tap</li>
+    </ul>
+  </div>
+  <div class="arrow">⟶<span>register</span></div>
+  <div class="box box-push">
+    <h4>Expo Push Service</h4>
+    <ul>
+      <li>exp.host/--/api/v2/push/send</li>
+      <li>Routes to APNs (iOS) or FCM (Android)</li>
+      <li>Handles token translation</li>
+      <li>No encryption needed (Expo handles it)</li>
+    </ul>
+  </div>
+  <div class="arrow">⟵<span>HTTP POST</span></div>
+  <div class="box box-server">
+    <h4>Rails API (Backend)</h4>
+    <ul>
+      <li>Stores Expo push tokens</li>
+      <li>Sends via HTTParty POST</li>
+      <li>No VAPID / no encryption</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Key Differences from Web Push</h2>
+<div class="concepts">
+  <div class="concept">
+    <h4>No VAPID Keys Needed</h4>
+    <p>Expo Push Service acts as a proxy. Your server just sends a simple JSON POST to Expo's API. Expo handles the authentication with APNs (Apple) and FCM (Google) on your behalf. No key pairs, no JWTs, no encryption.</p>
+  </div>
+  <div class="concept">
+    <h4>Expo Push Token</h4>
+    <p>Instead of a subscription object with endpoint/keys, the app gets a single token string like <code>ExponentPushToken[xxxxxx]</code>. This token is all your server needs to send a notification.</p>
+  </div>
+  <div class="concept">
+    <h4>Works in Expo Go</h4>
+    <p>Unlike a production build, Expo Go can still receive push notifications because the Expo Push Service routes them through Expo's own infrastructure. The token is tied to the Expo project, not the device's native app.</p>
+  </div>
+  <div class="concept">
+    <h4>Native Notification Handling</h4>
+    <p>The OS handles displaying notifications natively — no service worker needed. <code>expo-notifications</code> provides listeners for when notifications arrive (foreground) and when the user taps them.</p>
+  </div>
+</div>
+
+<h2>Phase 1: Registration</h2>
+<div class="flow phase-setup">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>Request permission</strong>
+      <p><code>Notifications.requestPermissionsAsync()</code> — iOS shows a system prompt. Android grants automatically (but needs a notification channel).</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>Get Expo Push Token</strong>
+      <p><code>Notifications.getExpoPushTokenAsync()</code> — Expo SDK contacts Expo's servers, which register with APNs/FCM behind the scenes. Returns a token like <code>ExponentPushToken[abc123]</code>.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <strong>Send token to our API</strong>
+      <p><code>POST /push_tokens</code> with <code>{ token, platform }</code>. Rails stores it in the <code>push_tokens</code> table.</p>
+      <div class="file">mobile/src/services/notifications.js → app/controllers/push_tokens_controller.rb</div>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <strong>Set up Android notification channel</strong>
+      <p><code>Notifications.setNotificationChannelAsync('default', { importance: MAX })</code> — Android requires a channel for notifications to display properly.</p>
+    </div>
+  </div>
+</div>
+
+<h2>Phase 2: Sending a Notification</h2>
+<div class="flow phase-send">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>Job fires at medication time</strong>
+      <p><code>MedicationNotificationJob</code> runs. Gets the user's Expo push tokens from <code>push_tokens</code> table.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>POST to Expo Push API</strong>
+      <p>Simple HTTP POST to <code>https://exp.host/--/api/v2/push/send</code> with a JSON body. No encryption, no signing — just JSON:</p>
+      <pre style="margin-top: 8px;">{
+  <span class="string">"to"</span>: <span class="string">"ExponentPushToken[abc123]"</span>,
+  <span class="string">"title"</span>: <span class="string">"Medication Reminder"</span>,
+  <span class="string">"body"</span>: <span class="string">"Time to take Aspirin!"</span>,
+  <span class="string">"sound"</span>: <span class="string">"default"</span>,
+  <span class="string">"data"</span>: { <span class="string">"medication_id"</span>: 42 }
+}</pre>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <strong>Expo routes to native push service</strong>
+      <p>Expo's servers translate the token and forward to <strong>APNs</strong> (iOS) or <strong>FCM</strong> (Android). The device receives it as a native OS notification.</p>
+    </div>
+  </div>
+</div>
+
+<h2>Phase 3: Receiving + Tapping</h2>
+<div class="flow phase-receive">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>Notification arrives</strong>
+      <p>If app is in foreground: <code>setNotificationHandler</code> decides whether to show it (we set <code>shouldShowAlert: true</code>).</p>
+      <p>If app is in background/closed: OS shows it natively in the notification tray.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>User taps notification</strong>
+      <p><code>addNotificationResponseReceivedListener</code> fires. We read <code>data.medication_id</code>, fetch the med from the API, and navigate to <code>MedEdit</code> screen where they can mark it as taken.</p>
+      <div class="file">mobile/src/navigation/RootNavigator.js</div>
+    </div>
+  </div>
+</div>
+
+<h2>Expo File Map</h2>
+<pre>
+<span class="comment">── Backend (Rails) ──────────────────────────────────────</span>
+app/models/push_token.rb             <span class="comment"># DB model: token + platform per user</span>
+app/controllers/push_tokens_controller.rb
+  <span class="func">create</span>     → POST /push_tokens          <span class="comment"># Saves expo token</span>
+  <span class="func">destroy</span>    → DEL  /push_tokens/:id
+  <span class="func">test</span>       → POST /push_tokens/test     <span class="comment"># Debug endpoint</span>
+app/jobs/medication_notification_job.rb
+  <span class="func">send_expo_push</span> → HTTParty.post to exp.host
+
+<span class="comment">── Shared Package ───────────────────────────────────────</span>
+shared/src/services/pushTokens.js    <span class="comment"># registerPushToken(), removePushToken()</span>
+
+<span class="comment">── Mobile App (Expo) ────────────────────────────────────</span>
+mobile/src/services/notifications.js <span class="comment"># registerForPushNotifications(), scheduleLocalMedReminder()</span>
+mobile/src/navigation/RootNavigator.js <span class="comment"># Notification tap → navigate to MedEdit</span>
+mobile/app.json                      <span class="comment"># notification.icon + notification.color config</span>
+</pre>
+
+<h2>Side-by-Side Comparison</h2>
+<pre>
+                    <span class="func">Web Push</span>                    <span class="func">Expo Push</span>
+───────────────── ─────────────────────────── ───────────────────────────
+<span class="comment">Push Service</span>      FCM (Google)                Expo → APNs/FCM
+<span class="comment">Auth Method</span>       VAPID keys (EC P-256)       None (Expo handles it)
+<span class="comment">Encryption</span>        Yes (aes128gcm, mandatory)  No (Expo handles it)
+<span class="comment">Token Format</span>      { endpoint, p256dh, auth }  "ExponentPushToken[xxx]"
+<span class="comment">Stored In</span>         web_push_subscriptions      push_tokens
+<span class="comment">Background</span>        Service Worker              Native OS
+<span class="comment">Works Offline?</span>    Yes (browser must be open)  Yes (fully native)
+<span class="comment">Dev Testing</span>       Needs HTTPS or localhost    Works in Expo Go
+<span class="comment">Complexity</span>        High (crypto, VAPID, SW)    Low (HTTP POST w/ JSON)
+</pre>
+
+</div>
+</body>
+</html>

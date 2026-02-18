@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { Card, Text, FAB, Paragraph, useTheme, ActivityIndicator } from 'react-native-paper';
 import { getAllInsights } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
+import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function InsightsListScreen({ navigation }) {
   const [{ currentUser }] = useCurrentUser();
@@ -21,7 +22,9 @@ export default function InsightsListScreen({ navigation }) {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', fetchInsights);
-    return unsubscribe;
+    return () => {
+        unsubscribe();
+    }
   }, [navigation, fetchInsights]);
 
   if (loading) {
@@ -29,7 +32,7 @@ export default function InsightsListScreen({ navigation }) {
   }
 
   return (
-    <View style={styles.container}>
+    <ScreenWrapper>
       <Text variant="headlineMedium" style={styles.title}>Insights</Text>
       <FlatList
         data={insights}
@@ -49,14 +52,13 @@ export default function InsightsListScreen({ navigation }) {
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={() => navigation.navigate('InsightCreate')}
       />
-    </View>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  title: { padding: 16 },
   loader: { flex: 1 },
+  title: { padding: 16 },
   list: { padding: 12 },
   card: { marginBottom: 12 },
   fab: { position: 'absolute', right: 16, bottom: 16 },

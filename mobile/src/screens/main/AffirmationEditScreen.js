@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { StyleSheet, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { putAffirmation, destroyAffirmation } from '@care/shared';
+import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function AffirmationEditScreen({ route, navigation }) {
   const { id, item } = route.params;
@@ -26,18 +27,18 @@ export default function AffirmationEditScreen({ route, navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScreenWrapper scroll contentContainerStyle={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>Edit Affirmation</Text>
       <TextInput label="I am..." value={content} onChangeText={setContent} mode="outlined" style={styles.input} multiline numberOfLines={4} />
       <Button mode="contained" onPress={handleUpdate} loading={loading} disabled={!content || loading} style={styles.button}>Save</Button>
       <Button mode="outlined" onPress={handleDelete} textColor="red" style={styles.button}>Delete</Button>
       <Button mode="text" onPress={() => navigation.goBack()}>Cancel</Button>
-    </ScrollView>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24, paddingTop: 48 },
+  container: { padding: 24 },
   title: { marginBottom: 16 },
   input: { marginBottom: 12 },
   button: { marginTop: 8 },

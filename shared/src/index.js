@@ -16,6 +16,7 @@ export * from './services/users';
 export * from './services/comments';
 export * from './services/likes';
 export * from './services/pushTokens';
+export * from './services/webPushSubscriptions';
 export * from './services/emailVerification';
 
 // Utils

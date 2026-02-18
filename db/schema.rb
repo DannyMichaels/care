@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_17_200000) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_18_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -133,6 +133,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_17_200000) do
     t.boolean "email_verified", default: false
   end
 
+  create_table "web_push_subscriptions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "endpoint", null: false
+    t.string "p256dh", null: false
+    t.string "auth", null: false
+    t.string "user_agent"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "endpoint"], name: "index_web_push_subscriptions_on_user_id_and_endpoint", unique: true
+    t.index ["user_id"], name: "index_web_push_subscriptions_on_user_id"
+  end
+
   add_foreign_key "affirmations", "users"
   add_foreign_key "comments", "insights"
   add_foreign_key "comments", "users"
@@ -144,4 +156,5 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_17_200000) do
   add_foreign_key "moods", "users"
   add_foreign_key "push_tokens", "users"
   add_foreign_key "symptoms", "users"
+  add_foreign_key "web_push_subscriptions", "users"
 end

@@ -18,7 +18,7 @@ setStorage({
 const baseUrl =
   process.env.NODE_ENV === 'production'
     ? 'https://care-api-k1b8.onrender.com/'
-    : 'http://localhost:3000';
+    : 'http://localhost:3005';
 setBaseUrl(baseUrl);
 
 ReactDOM.render(
@@ -33,3 +33,10 @@ ReactDOM.render(
 );
 
 reportWebVitals();
+
+// Register service worker for push notifications
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}

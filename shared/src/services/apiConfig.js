@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getStorage } from './storage';
 
-let baseUrl = 'http://localhost:3000';
+let baseUrl = 'http://localhost:3005';
 
 export const setBaseUrl = (url) => {
   baseUrl = url;

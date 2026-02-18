@@ -1,8 +1,17 @@
 import { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Text, HelperText } from 'react-native-paper';
 import { registerUser, sendVerificationCode } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
+import ScreenWrapper from '../../components/ScreenWrapper';
+import DatePickerModal from '../../components/DatePickerModal';
+
+const formatDate = (date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
 
 export default function RegisterScreen({ navigation }) {
   const [, dispatch] = useCurrentUser();
@@ -13,6 +22,8 @@ export default function RegisterScreen({ navigation }) {
     birthday: '',
     gender: 'Male',
   });
+  const [birthdayDate, setBirthdayDate] = useState(new Date(2000, 0, 1));
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -20,6 +31,12 @@ export default function RegisterScreen({ navigation }) {
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleDateConfirm = (date) => {
+    setShowDatePicker(false);
+    setBirthdayDate(date);
+    handleChange('birthday', formatDate(date));
   };
 
   const handleRegister = async () => {
@@ -48,92 +65,104 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <Text variant="headlineLarge" style={styles.title}>Create Account</Text>
+    <ScreenWrapper scroll keyboardAvoiding contentContainerStyle={styles.scroll}>
+      <Image
+        source={require('../../../assets/icon.png')}
+        style={styles.logo}
+      />
+      <Text variant="headlineLarge" style={styles.title}>Create Account</Text>
 
-        <TextInput
-          label="Name"
-          value={formData.name}
-          onChangeText={(v) => handleChange('name', v)}
-          style={styles.input}
-          mode="outlined"
-          maxLength={20}
-        />
+      <TextInput
+        label="Name"
+        value={formData.name}
+        onChangeText={(v) => handleChange('name', v)}
+        style={styles.input}
+        mode="outlined"
+        maxLength={20}
+      />
 
-        <TextInput
-          label="Email"
-          value={formData.email}
-          onChangeText={(v) => handleChange('email', v)}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          style={styles.input}
-          mode="outlined"
-        />
+      <TextInput
+        label="Email"
+        value={formData.email}
+        onChangeText={(v) => handleChange('email', v)}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        style={styles.input}
+        mode="outlined"
+      />
 
-        <TextInput
-          label="Password"
-          value={formData.password}
-          onChangeText={(v) => handleChange('password', v)}
-          secureTextEntry={!showPassword}
-          style={styles.input}
-          mode="outlined"
-          right={
-            <TextInput.Icon
-              icon={showPassword ? 'eye-off' : 'eye'}
-              onPress={() => setShowPassword(!showPassword)}
-            />
-          }
-        />
+      <TextInput
+        label="Password"
+        value={formData.password}
+        onChangeText={(v) => handleChange('password', v)}
+        secureTextEntry={!showPassword}
+        style={styles.input}
+        mode="outlined"
+        right={
+          <TextInput.Icon
+            icon={showPassword ? 'eye-off' : 'eye'}
+            onPress={() => setShowPassword(!showPassword)}
+          />
+        }
+      />
 
-        <TextInput
-          label="Confirm Password"
-          value={passwordConfirm}
-          onChangeText={setPasswordConfirm}
-          secureTextEntry={!showPassword}
-          style={styles.input}
-          mode="outlined"
-        />
+      <TextInput
+        label="Confirm Password"
+        value={passwordConfirm}
+        onChangeText={setPasswordConfirm}
+        secureTextEntry={!showPassword}
+        style={styles.input}
+        mode="outlined"
+      />
 
+      <TouchableOpacity onPress={() => setShowDatePicker(true)}>
         <TextInput
-          label="Birthday (YYYY-MM-DD)"
+          label="Date of Birth"
           value={formData.birthday}
-          onChangeText={(v) => handleChange('birthday', v)}
           style={styles.input}
           mode="outlined"
-          placeholder="1990-01-15"
+          editable={false}
+          right={<TextInput.Icon icon="calendar" onPress={() => setShowDatePicker(true)} />}
+          placeholder="Tap to select"
+          pointerEvents="none"
         />
+      </TouchableOpacity>
 
-        {error ? <HelperText type="error">{error}</HelperText> : null}
+      <DatePickerModal
+        visible={showDatePicker}
+        value={birthdayDate}
+        mode="date"
+        maximumDate={new Date()}
+        onConfirm={handleDateConfirm}
+        onDismiss={() => setShowDatePicker(false)}
+      />
 
-        <Button
-          mode="contained"
-          onPress={handleRegister}
-          loading={loading}
-          disabled={!formData.name || !formData.email || !formData.password || loading}
-          style={styles.button}
-        >
-          Sign Up
-        </Button>
+      {error ? <HelperText type="error">{error}</HelperText> : null}
 
-        <Button
-          mode="text"
-          onPress={() => navigation.navigate('Login')}
-          style={styles.link}
-        >
-          Already have an account? Sign In
-        </Button>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <Button
+        mode="contained"
+        onPress={handleRegister}
+        loading={loading}
+        disabled={!formData.name || !formData.email || !formData.password || loading}
+        style={styles.button}
+      >
+        Sign Up
+      </Button>
+
+      <Button
+        mode="text"
+        onPress={() => navigation.navigate('Login')}
+        style={styles.link}
+      >
+        Already have an account? Sign In
+      </Button>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
   scroll: { flexGrow: 1, justifyContent: 'center', padding: 24 },
+  logo: { width: 100, height: 100, alignSelf: 'center', marginBottom: 12 },
   title: { textAlign: 'center', marginBottom: 24 },
   input: { marginBottom: 12 },
   button: { marginTop: 8, paddingVertical: 4 },

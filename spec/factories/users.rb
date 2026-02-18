@@ -5,5 +5,6 @@ FactoryBot.define do
     password { 'password123' }
     gender { %w[Male Female Other].sample }
     birthday { 25.years.ago.to_date }
+    email_verified { true }
   end
 end

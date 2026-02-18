@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { Paper } from "@material-ui/core";
 import FirefoxBrowser from "./screens/Error/FirefoxBrowser";
@@ -12,7 +12,7 @@ function App() {
   const { push } = useHistory();
   const { pathname } = useLocation();
 
-  useMemo(async () => {
+  useEffect(async () => {
     const isPublicRoute =
       pathname.match(/^\/login$/i) ||
       pathname.match(/^\/register$/i) ||

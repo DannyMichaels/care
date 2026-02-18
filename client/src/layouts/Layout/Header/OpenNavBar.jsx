@@ -42,7 +42,7 @@ const Ul = styled.ul`
   }
 `;
 
-const Dropdown = styled(Card)`
+const Dropdown = styled(({ isSearching, themeState, ...rest }) => <Card {...rest} />)`
   position: absolute;
   min-width: 250px;
   top: 110px;

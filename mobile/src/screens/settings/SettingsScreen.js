@@ -1,8 +1,10 @@
-import { View, StyleSheet, Alert } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
+import { View } from 'react-native';
 import { Text, Avatar, Button, Switch, List, Divider } from 'react-native-paper';
 import { removeToken, getAge, toTitleCase, destroyUser } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import { useTheme } from '../../context/ThemeContext';
+import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function SettingsScreen() {
   const [{ currentUser }, dispatch] = useCurrentUser();
@@ -35,7 +37,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScreenWrapper>
       <View style={styles.profile}>
         {currentUser?.image ? (
           <Avatar.Image size={80} source={{ uri: currentUser.image }} />
@@ -71,12 +73,11 @@ export default function SettingsScreen() {
           Delete Account
         </Button>
       </View>
-    </View>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
   profile: { alignItems: 'center', padding: 24 },
   name: { marginTop: 12 },
   email: { opacity: 0.6, marginTop: 4 },

@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import { DateContext } from "../../../context/DateContext";
-import { selectedDateToLocal } from '@care/shared';
+import { selectedDateToLocal, toDateTimeLocal } from '@care/shared';
 import FormLabel from "@material-ui/core/FormLabel";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -130,7 +130,7 @@ export default function MoodCreate({ open, onSave, handleClose }) {
               label={`Please choose a time`}
               type="datetime-local"
               style={{ width: "300px", margin: "10px" }}
-              value={formData.time ? new Date(formData.time).toISOString().slice(0, 16) : ""}
+              value={toDateTimeLocal(formData.time)}
               onChange={handleChange}
               InputLabelProps={{
                 shrink: true,

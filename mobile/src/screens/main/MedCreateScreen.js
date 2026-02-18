@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Text, List } from 'react-native-paper';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import dayjs from 'dayjs';
 import { postMed, getRXGuideMeds, selectedDateToLocal, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR } from '@care/shared';
 import { useDate } from '../../context/DateContext';
 import { scheduleLocalMedReminder } from '../../services/notifications';
+import ScreenWrapper from '../../components/ScreenWrapper';
+import DatePickerModal from '../../components/DatePickerModal';
 
-const ICON_MAP = { tablet: 'tablet', pill: 'pill', droplet: 'water' };
+const ICON_MAP = { tablet: 'circle', pill: 'pill', droplet: 'water' };
 
 export default function MedCreateScreen({ navigation }) {
   const { selectedDate, showAllDates } = useDate();
@@ -56,7 +58,7 @@ export default function MedCreateScreen({ navigation }) {
     try {
       const medTime = needsDatePicker
         ? time.toISOString()
-        : `${selectedDate}T${time.toTimeString().slice(0, 5)}`;
+        : dayjs(selectedDate).hour(time.getHours()).minute(time.getMinutes()).second(0).toISOString();
 
       const newMed = await postMed({
         name,
@@ -74,7 +76,7 @@ export default function MedCreateScreen({ navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+    <ScreenWrapper scroll contentContainerStyle={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>Add Medication</Text>
 
       <View>
@@ -144,27 +146,21 @@ export default function MedCreateScreen({ navigation }) {
         Time: {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </Button>
 
-      {showDatePicker && (
-        <DateTimePicker
-          value={time}
-          mode="date"
-          onChange={(e, date) => {
-            setShowDatePicker(false);
-            if (date) setTime(date);
-          }}
-        />
-      )}
+      <DatePickerModal
+        visible={showDatePicker}
+        value={time}
+        mode="date"
+        onConfirm={(d) => { setShowDatePicker(false); setTime(d); }}
+        onDismiss={() => setShowDatePicker(false)}
+      />
 
-      {showTimePicker && (
-        <DateTimePicker
-          value={time}
-          mode="time"
-          onChange={(e, date) => {
-            setShowTimePicker(false);
-            if (date) setTime(date);
-          }}
-        />
-      )}
+      <DatePickerModal
+        visible={showTimePicker}
+        value={time}
+        mode="time"
+        onConfirm={(d) => { setShowTimePicker(false); setTime(d); }}
+        onDismiss={() => setShowTimePicker(false)}
+      />
 
       <Button
         mode="contained"
@@ -176,12 +172,12 @@ export default function MedCreateScreen({ navigation }) {
         Save
       </Button>
       <Button mode="text" onPress={() => navigation.goBack()}>Cancel</Button>
-    </ScrollView>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24, paddingTop: 48 },
+  container: { padding: 24 },
   title: { marginBottom: 16 },
   input: { marginBottom: 12 },
   button: { marginTop: 8, paddingVertical: 4 },

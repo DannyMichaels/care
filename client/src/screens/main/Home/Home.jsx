@@ -32,6 +32,7 @@ import { DateContext } from "../../../context/DateContext";
 import { getAllAffirmations, checkValidity, filterByDate } from '@care/shared';
 import ScrollToTopOnMount from "../../../components/Helpers/ScrollToTopOnMount";
 import DateCarousel from "../../../components/DateCarousel/DateCarousel";
+import NotificationBanner from "../../../components/NotificationBanner/NotificationBanner";
 
 export default function Home() {
   const [themeState] = useContext(ThemeStateContext);
@@ -76,9 +77,10 @@ export default function Home() {
       <div className={classes.root}>
         <ScrollToTopOnMount />
         <DateCarousel />
+        <NotificationBanner />
         <Accordion className={classes.accordion}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Badge badgeContent={moodCount} color="primary" showZero={false}>
+            <Badge badgeContent={moodCount} color="primary" showZero={false} overlap="rectangular">
               <Typography className={classes.heading}>Mood</Typography>
             </Badge>
           </AccordionSummary>
@@ -95,6 +97,7 @@ export default function Home() {
               badgeContent={filteredAffirmations.length}
               color="primary"
               showZero={false}
+              overlap="rectangular"
             >
               <Typography className={classes.heading}>
                 {filteredAffirmations.length === 1
@@ -120,6 +123,7 @@ export default function Home() {
               badgeContent={symptomCount}
               color="primary"
               showZero={false}
+              overlap="rectangular"
             >
               <Typography className={classes.heading}>Symptoms</Typography>
             </Badge>
@@ -132,7 +136,7 @@ export default function Home() {
         </Accordion>
         <Accordion className={classes.accordion}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Badge badgeContent={foodCount} color="primary" showZero={false}>
+            <Badge badgeContent={foodCount} color="primary" showZero={false} overlap="rectangular">
               <Typography className={classes.heading}>Food diary</Typography>
             </Badge>
           </AccordionSummary>
@@ -145,7 +149,7 @@ export default function Home() {
 
         <Accordion className={classes.accordion}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Badge badgeContent={medCount} color="primary" showZero={false}>
+            <Badge badgeContent={medCount} color="primary" showZero={false} overlap="rectangular">
               <RXGuideLogo />
             </Badge>
           </AccordionSummary>

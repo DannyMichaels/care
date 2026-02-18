@@ -1,7 +1,9 @@
-import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { useRef } from 'react';
+import { NavigationContainer, DefaultTheme, DarkTheme, createNavigationContainerRef } from '@react-navigation/native';
 import { PaperProvider, MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { StatusBar } from 'expo-status-bar';
 import * as SecureStore from 'expo-secure-store';
 import { setStorage, setBaseUrl } from '@care/shared';
 import { CurrentUserProvider } from './src/context/CurrentUserContext';
@@ -15,7 +17,12 @@ setStorage({
   removeItem: (key) => SecureStore.deleteItemAsync(key),
 });
 
-setBaseUrl('https://care-api-k1b8.onrender.com/');
+setBaseUrl(__DEV__
+  ? 'https://eac9-72-69-40-53.ngrok-free.app'
+  : 'https://care-api-k1b8.onrender.com'
+);
+
+const navigationRef = createNavigationContainerRef();
 
 function AppContent() {
   const { isDark } = useTheme();
@@ -28,8 +35,9 @@ function AppContent() {
 
   return (
     <PaperProvider theme={paperTheme}>
-      <NavigationContainer theme={navTheme}>
-        <RootNavigator />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <NavigationContainer ref={navigationRef} theme={navTheme}>
+        <RootNavigator navigationRef={navigationRef} />
       </NavigationContainer>
     </PaperProvider>
   );

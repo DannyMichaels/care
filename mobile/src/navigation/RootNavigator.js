@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { verifyUser } from '@care/shared';
+import * as Notifications from 'expo-notifications';
+import { verifyUser, getOneMed } from '@care/shared';
 import { useCurrentUser } from '../context/CurrentUserContext';
 import { registerForPushNotifications } from '../services/notifications';
 import AuthStack from './AuthStack';
@@ -9,7 +10,7 @@ import EmailVerificationScreen from '../screens/auth/EmailVerificationScreen';
 
 const Stack = createNativeStackNavigator();
 
-export default function RootNavigator() {
+export default function RootNavigator({ navigationRef }) {
   const [{ currentUser }, dispatch] = useCurrentUser();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -37,6 +38,27 @@ export default function RootNavigator() {
       registerForPushNotifications();
     }
   }, [currentUser?.email_verified]);
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(async (response) => {
+      const data = response.notification.request.content.data;
+      if (data?.medication_id && navigationRef?.current) {
+        try {
+          const med = await getOneMed(data.medication_id);
+          navigationRef.current.navigate('Main', {
+            screen: 'Home',
+            params: {
+              screen: 'MedEdit',
+              params: { id: med.id, item: med },
+            },
+          });
+        } catch {
+          // Med might have been deleted
+        }
+      }
+    });
+    return () => subscription.remove();
+  }, [navigationRef]);
 
   if (isLoading) return null;
 

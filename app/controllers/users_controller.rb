@@ -8,7 +8,8 @@ class UsersController < ApplicationController
     # another example:  @users = User.order('name ASC'), order by name ascending.
     @users = User.order('created_at ASC')
     # render the users but down show password digest and updated at (even if hashed)                        # Mapping through the user to get the likes, mapping through the likes to get the insight name.                                                                     
-    render json: @users.map {|user| user.attributes.except('password_digest', 'updated_at').merge( 
+    render json: @users.map {|user| user.attributes.except('password_digest', 'updated_at').merge(
+      {insights_count: user.insights.size},
       {liked_insights: user.likes.order('created_at DESC').map {|like| like.attributes.slice().merge({ :title => like.insight.title, :insight_id => like.insight_id, :like_id => like.id, :liked_at => like.created_at})}},
       {comments: user.comments.order('created_at DESC').map {|comment| comment.attributes.merge({:insight_title => comment.insight.title})}}
       )}
@@ -26,7 +27,7 @@ class UsersController < ApplicationController
 
     if existing_user
       render json: {message: "Email already in use"}, status: :unauthorized
-      return;
+      return
     end
 
     user_params[:email] = user_params[:email].strip;

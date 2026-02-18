@@ -13,6 +13,7 @@ import {
 } from "../../Form/DialogComponents";
 import { Box } from "@material-ui/core";
 import { foodIcon, foodName } from "../../../utils/foodUtils";
+import { toDateTimeLocal } from '@care/shared';
 
 export default function FoodEdit({ setOpenEdit, onSave, foods }) {
   const history = useHistory("/");
@@ -100,7 +101,7 @@ export default function FoodEdit({ setOpenEdit, onSave, foods }) {
                 }
                 type="datetime-local"
                 style={{ width: "300px", margin: "10px" }}
-                value={formData.time ? new Date(formData.time).toISOString().slice(0, 16) : ""}
+                value={toDateTimeLocal(formData.time)}
                 onChange={handleChange}
                 InputLabelProps={{
                   shrink: true,

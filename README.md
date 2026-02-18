@@ -405,3 +405,4 @@ if the user's input DOESN"T match one of the names in the foodRegex, it will ret
 - added rspec backend tests
 - added cypress front-end tests
 - added mobile app version
+- added web browser push notifications ([docs](docs/web-push-diagram.html))

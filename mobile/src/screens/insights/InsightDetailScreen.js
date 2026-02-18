@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { Text, Card, Button, TextInput, Divider, ActivityIndicator, IconButton } from 'react-native-paper';
 import { getOneInsight, destroyInsight, postComment, destroyComment, postLike, destroyLike } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
+import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function InsightDetailScreen({ route, navigation }) {
   const { id } = route.params;
@@ -67,7 +68,7 @@ export default function InsightDetailScreen({ route, navigation }) {
   const isLiked = insight.likes?.some((l) => l.user_id === currentUser?.id);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScreenWrapper scroll contentContainerStyle={styles.container}>
       <Text variant="headlineMedium">{insight.title}</Text>
       <Text variant="bodySmall" style={styles.meta}>
         by {insight.user?.name} | {insight.likes?.length || 0} likes
@@ -114,12 +115,12 @@ export default function InsightDetailScreen({ route, navigation }) {
         />
         <IconButton icon="send" onPress={handleComment} />
       </View>
-    </ScrollView>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24, paddingTop: 48 },
+  container: { padding: 24 },
   meta: { opacity: 0.6, marginTop: 4, marginBottom: 16 },
   body: { marginBottom: 16, lineHeight: 24 },
   actions: { flexDirection: 'row', gap: 8, marginBottom: 8 },

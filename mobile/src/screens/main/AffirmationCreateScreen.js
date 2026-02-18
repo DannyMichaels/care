@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { postAffirmation } from '@care/shared';
 import { useDate } from '../../context/DateContext';
+import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function AffirmationCreateScreen({ navigation }) {
   const { selectedDate } = useDate();
@@ -20,17 +21,17 @@ export default function AffirmationCreateScreen({ navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScreenWrapper scroll contentContainerStyle={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>New Affirmation</Text>
       <TextInput label="I am..." value={content} onChangeText={setContent} mode="outlined" style={styles.input} multiline numberOfLines={4} />
       <Button mode="contained" onPress={handleSubmit} loading={loading} disabled={!content || loading} style={styles.button}>Save</Button>
       <Button mode="text" onPress={() => navigation.goBack()}>Cancel</Button>
-    </ScrollView>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24, paddingTop: 48 },
+  container: { padding: 24 },
   title: { marginBottom: 16 },
   input: { marginBottom: 12 },
   button: { marginTop: 8, paddingVertical: 4 },

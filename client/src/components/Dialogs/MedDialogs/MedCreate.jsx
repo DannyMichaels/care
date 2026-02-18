@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import TextField from '@material-ui/core/TextField';
 import { DateContext } from '../../../context/DateContext';
-import { selectedDateToLocal, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR } from '@care/shared';
+import { selectedDateToLocal, toDateTimeLocal, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR } from '@care/shared';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import CreateIcon from '@material-ui/icons/Create';
@@ -38,7 +38,7 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
   const medOptions = RXGuideMeds.map((m) => m.fields.name);
 
   const handleAutocompleteChange = (e, value) => {
-    const match = RXGuideMeds.find((m) => m.fields.name === value);
+    const match = RXGuideMeds.find((m) => m.fields.name.toLowerCase().includes(value.toLowerCase()));
     setFormData((prev) => ({
       ...prev,
       name: value || '',
@@ -139,7 +139,7 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
               }
               type="datetime-local"
               style={{ width: '300px', margin: '10px' }}
-              value={formData.time ? new Date(formData.time).toISOString().slice(0, 16) : ''}
+              value={toDateTimeLocal(formData.time)}
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
             />

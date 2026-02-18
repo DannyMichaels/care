@@ -60,7 +60,7 @@ export default function Community({ usersAreLoading, allUsers }) {
         ) : (
           <Grid item xs={3} />
         )}
-        <Grid item xs={6}>
+        <Grid item xs={isLargeScreen ? 6 : 12}>
           {usersAreLoading ? (
             <>
               <p className="loading-title">Loading...</p>

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo, useState } from 'react';
+import { useRef, useEffect, useMemo, useState, memo } from 'react';
 import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Text, IconButton, useTheme } from 'react-native-paper';
 import { useDate } from '../context/DateContext';
@@ -9,11 +9,66 @@ const CARD_W = 56;
 const CARD_MX = 4;
 const CARD_TOTAL = CARD_W + CARD_MX * 2;
 
+const DayCard = memo(function DayCard({ day, isSelected, colors, onSelect }) {
+  return (
+    <TouchableOpacity
+      activeOpacity={day.isFuture ? 1 : 0.7}
+      style={[
+        styles.card,
+        { backgroundColor: colors.surfaceVariant },
+        day.isFuture && styles.futureCard,
+        isSelected && { backgroundColor: colors.primary },
+      ]}
+      onPress={() => !day.isFuture && onSelect(day.dateStr)}
+    >
+      {day.isToday && (
+        <Text style={[styles.todayLabel, isSelected && { color: colors.onPrimary }]}>
+          TODAY
+        </Text>
+      )}
+      <Text
+        style={[
+          styles.dayText,
+          { color: colors.onSurfaceVariant },
+          isSelected && { color: colors.onPrimary },
+        ]}
+      >
+        {day.dayOfWeek}
+      </Text>
+      <Text
+        style={[
+          styles.dayNum,
+          { color: colors.onSurface },
+          isSelected && { color: colors.onPrimary },
+        ]}
+      >
+        {day.dayOfMonth}
+      </Text>
+      <Text
+        style={[
+          styles.monthText,
+          { color: colors.onSurfaceVariant },
+          isSelected && { color: colors.onPrimary },
+        ]}
+      >
+        {day.month}
+      </Text>
+    </TouchableOpacity>
+  );
+});
+
 export default function DateCarousel() {
   const { selectedDate, setSelectedDate } = useDate();
   const { colors } = useTheme();
   const scrollRef = useRef(null);
-  const days = useMemo(() => buildCalendarDays(selectedDate), [selectedDate]);
+  // Only rebuild days when the selected date extends beyond the default 365-day window.
+  // For taps within the normal range, the array is identical — only isSelected styling changes.
+  const rangeKey = useMemo(() => {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 365);
+    return new Date(selectedDate + 'T00:00:00') < cutoff ? selectedDate : 'default';
+  }, [selectedDate]);
+  const days = useMemo(() => buildCalendarDays(selectedDate), [rangeKey]);
   const [showPicker, setShowPicker] = useState(false);
   const [visibleYear, setVisibleYear] = useState(
     () => parseInt(selectedDate.substring(0, 4), 10)
@@ -67,59 +122,20 @@ export default function DateCarousel() {
         ref={scrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scroll}
         onScroll={handleScroll}
         scrollEventThrottle={64}
       >
-        {days.map((day) => {
-          const isSelected = day.dateStr === selectedDate;
-          return (
-            <TouchableOpacity
-              key={day.dateStr}
-              activeOpacity={day.isFuture ? 1 : 0.7}
-              style={[
-                styles.card,
-                { backgroundColor: colors.surfaceVariant },
-                day.isFuture && styles.futureCard,
-                isSelected && { backgroundColor: colors.primary },
-              ]}
-              onPress={() => !day.isFuture && setSelectedDate(day.dateStr)}
-            >
-              {day.isToday && (
-                <Text style={[styles.todayLabel, isSelected && { color: colors.onPrimary }]}>
-                  TODAY
-                </Text>
-              )}
-              <Text
-                style={[
-                  styles.dayText,
-                  { color: colors.onSurfaceVariant },
-                  isSelected && { color: colors.onPrimary },
-                ]}
-              >
-                {day.dayOfWeek}
-              </Text>
-              <Text
-                style={[
-                  styles.dayNum,
-                  { color: colors.onSurface },
-                  isSelected && { color: colors.onPrimary },
-                ]}
-              >
-                {day.dayOfMonth}
-              </Text>
-              <Text
-                style={[
-                  styles.monthText,
-                  { color: colors.onSurfaceVariant },
-                  isSelected && { color: colors.onPrimary },
-                ]}
-              >
-                {day.month}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+        {days.map((day) => (
+          <DayCard
+            key={day.dateStr}
+            day={day}
+            isSelected={day.dateStr === selectedDate}
+            colors={colors}
+            onSelect={setSelectedDate}
+          />
+        ))}
       </ScrollView>
     </View>
   );

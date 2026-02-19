@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Care Monorepo Architecture</title>
+
+  <!-- Prism.js for syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css">
+
+  <!-- Mermaid.js for diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface-alt: #222636;
+      --border: #2e3348;
+      --text: #e1e4ed;
+      --text-muted: #8b90a5;
+      --accent: #60a5fa;
+      --accent-alt: #a78bfa;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --red: #f87171;
+      --code-bg: #1e2030;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 24px 60px;
+      background: linear-gradient(135deg, #1a1d27 0%, #0f1117 50%, #1a1028 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent-alt));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .hero .badges {
+      margin-top: 24px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .badge.react { color: #61dafb; border-color: #61dafb44; }
+    .badge.rails { color: #cc0000; border-color: #cc000044; }
+    .badge.expo { color: var(--text); border-color: #ffffff44; }
+    .badge.node { color: var(--green); border-color: #34d39944; }
+
+    /* Content container */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* Section cards */
+    .section {
+      margin-top: 48px;
+    }
+    .section h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--accent);
+    }
+    .section h2 .num {
+      color: var(--accent-alt);
+      margin-right: 8px;
+      font-size: 1.1rem;
+    }
+    .section > .subtitle {
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin-top: 16px;
+    }
+    .card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .card p, .card li {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    .card p + p { margin-top: 10px; }
+    .card ul { padding-left: 20px; margin-top: 8px; }
+    .card li { margin-bottom: 4px; }
+    .card li code, .card p code {
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: var(--amber);
+    }
+
+    /* Diagrams */
+    .diagram-wrapper {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin-top: 16px;
+      overflow-x: auto;
+    }
+    .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Code blocks */
+    .code-block {
+      margin-top: 16px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .code-block .file-label {
+      background: var(--surface-alt);
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .code-block .file-label .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-alt);
+    }
+    .code-block pre {
+      margin: 0 !important;
+      border-radius: 0 !important;
+      border: none !important;
+    }
+    .code-block pre code {
+      font-size: 0.85rem !important;
+      line-height: 1.6 !important;
+    }
+
+    /* Side by side code */
+    .side-by-side {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    @media (max-width: 768px) {
+      .side-by-side { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2rem; }
+    }
+
+    /* Tables */
+    .table-wrapper {
+      overflow-x: auto;
+      margin-top: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th {
+      background: var(--surface-alt);
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td code {
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: var(--amber);
+    }
+    tr:last-child td { border-bottom: none; }
+
+    /* Tree */
+    .tree {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-top: 16px;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .tree .folder { color: var(--accent); font-weight: 600; }
+    .tree .file { color: var(--text-muted); }
+    .tree .highlight { color: var(--amber); font-weight: 600; }
+
+    /* Callout */
+    .callout {
+      background: #1a2332;
+      border: 1px solid #264a73;
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-top: 16px;
+    }
+    .callout.green {
+      background: #1a2e24;
+      border-color: #1a5c3a;
+      border-left-color: var(--green);
+    }
+    .callout.amber {
+      background: #2e2a1a;
+      border-color: #5c4e1a;
+      border-left-color: var(--amber);
+    }
+    .callout strong {
+      color: var(--text);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .callout p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* Nav */
+    .toc {
+      position: sticky;
+      top: 20px;
+    }
+
+    /* Arrow connector */
+    .arrow {
+      text-align: center;
+      color: var(--accent-alt);
+      font-size: 1.5rem;
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- HERO                                                         -->
+<!-- ============================================================ -->
+<div class="hero">
+  <h1>Care Monorepo Architecture</h1>
+  <p>How three npm workspaces, two React versions, and two bundlers share a single codebase.</p>
+  <div class="badges">
+    <span class="badge react">React 17 (Web)</span>
+    <span class="badge react">React 19 (Mobile)</span>
+    <span class="badge rails">Rails 7.1 API</span>
+    <span class="badge expo">Expo SDK 54</span>
+    <span class="badge node">npm Workspaces</span>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- 1. HIGH-LEVEL OVERVIEW                                       -->
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">01</span> High-Level Overview</h2>
+  <p class="subtitle">The Care monorepo at a glance &mdash; three JS workspaces backed by a Rails API.</p>
+
+  <div class="diagram-wrapper">
+    <pre class="mermaid">
+graph TB
+  subgraph Monorepo ["care/ (monorepo root)"]
+    direction TB
+    ROOT["package.json<br/><i>workspaces config</i>"]
+
+    subgraph WEB ["client/ &mdash; Web App"]
+      W1["React 17 + MUI v4"]
+      W2["react-app-rewired<br/>(Webpack)"]
+    end
+
+    subgraph SHARED ["shared/ &mdash; @care/shared"]
+      S1["Services &bull; Utils<br/>Reducers &bull; Hooks"]
+      S2["peerDep: react &ge;17"]
+    end
+
+    subgraph MOBILE ["mobile/ &mdash; Mobile App"]
+      M1["React 19 + RN 0.81"]
+      M2["Expo / Metro Bundler"]
+    end
+  end
+
+  API["Rails 7.1 API<br/>(PostgreSQL &bull; JWT)"]
+
+  ROOT -.-> WEB
+  ROOT -.-> SHARED
+  ROOT -.-> MOBILE
+
+  WEB -- "import from<br/>@care/shared" --> SHARED
+  MOBILE -- "import from<br/>@care/shared" --> SHARED
+
+  WEB -- "HTTP / axios" --> API
+  MOBILE -- "HTTP / axios" --> API
+
+  style Monorepo fill:#1a1d27,stroke:#2e3348,color:#e1e4ed
+  style WEB fill:#1e2a3a,stroke:#3b82f6,color:#e1e4ed
+  style SHARED fill:#2a1e3a,stroke:#a78bfa,color:#e1e4ed
+  style MOBILE fill:#1e3a2a,stroke:#34d399,color:#e1e4ed
+  style API fill:#3a1e1e,stroke:#f87171,color:#e1e4ed
+    </pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 2. NPM WORKSPACES                                            -->
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">02</span> npm Workspaces</h2>
+  <p class="subtitle">How <code>npm install</code> wires three packages together in one <code>node_modules</code> tree.</p>
+
+  <div class="card">
+    <h3>How it works</h3>
+    <p>The root <code>package.json</code> declares three workspaces. When you run <code>npm install</code> at the repo root, npm:</p>
+    <ul>
+      <li>Creates a single top-level <code>node_modules/</code> and hoists shared dependencies there</li>
+      <li>Symlinks each workspace package (e.g. <code>node_modules/@care/shared</code> &rarr; <code>shared/</code>)</li>
+      <li>Allows any workspace to import from another using its <code>name</code> field</li>
+    </ul>
+    <p>Both <code>client/</code> and <code>mobile/</code> declare <code>"@care/shared": "*"</code> as a dependency. The <code>*</code> means "any version" &mdash; since the shared package is local and symlinked, the version doesn't matter.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="file-label"><span class="dot"></span>package.json (root)</div>
+    <pre><code class="language-json">{
+  "name": "care",
+  "private": true,
+  "workspaces": [
+    "client",
+    "shared",
+    "mobile"
+  ],
+  "devDependencies": {
+    "sharp": "^0.34.5"
+  },
+  "scripts": {
+    "postinstall": "node scripts/fix-ajv.js"
+  }
+}</code></pre>
+  </div>
+
+  <div class="callout amber">
+    <strong>Heads up: --legacy-peer-deps</strong>
+    <p>The root install requires <code>npm install --legacy-peer-deps</code> because <code>material-ui-password-field</code> in the client has a conflicting React peer dependency. This flag tells npm to skip peer dep validation.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 3. THE SHARED PACKAGE                                        -->
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">03</span> The Shared Package (@care/shared)</h2>
+  <p class="subtitle">A pure-JS library consumed by both web and mobile &mdash; no build step required.</p>
+
+  <div class="tree"><span class="folder">shared/</span>
+<span class="file">&boxvr;&boxh;&boxh; package.json</span>            <span class="highlight">&larr; "main": "src/index.js"</span>
+<span class="folder">&boxur;&boxh;&boxh; src/</span>
+    <span class="file">&boxvr;&boxh;&boxh; index.js</span>             <span class="highlight">&larr; barrel exports (entry point)</span>
+    <span class="folder">&boxvr;&boxh;&boxh; services/</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; storage.js</span>        <span class="highlight">&larr; adapter pattern</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; apiConfig.js</span>      <span class="highlight">&larr; axios + JWT interceptor</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; auth.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; medications.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; moods.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; foods.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; symptoms.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; affirmations.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; insights.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; users.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; comments.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; likes.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; pushTokens.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; webPushSubscriptions.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; emailVerification.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; reports.js</span>
+    <span class="file">&boxv;   &boxur;&boxh;&boxh; blocks.js</span>
+    <span class="folder">&boxvr;&boxh;&boxh; utils/</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; dateUtils.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; authUtils.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; checkValidity.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; getAge.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; toTitleCase.js</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; getApiError.js</span>
+    <span class="file">&boxv;   &boxur;&boxh;&boxh; medConstants.js</span>
+    <span class="folder">&boxvr;&boxh;&boxh; reducers/</span>
+    <span class="file">&boxv;   &boxvr;&boxh;&boxh; currentUserReducer.js</span>
+    <span class="file">&boxv;   &boxur;&boxh;&boxh; allUsersReducer.js</span>
+    <span class="folder">&boxvr;&boxh;&boxh; hooks/</span>
+    <span class="file">&boxv;   &boxur;&boxh;&boxh; useAsyncReducer.js</span>
+    <span class="folder">&boxvr;&boxh;&boxh; content/</span>
+    <span class="file">&boxv;   &boxur;&boxh;&boxh; legal.js</span>
+    <span class="folder">&boxur;&boxh;&boxh; __tests__/</span>
+        <span class="file">&boxur;&boxh;&boxh; ...</span></div>
+
+  <div class="code-block">
+    <div class="file-label"><span class="dot"></span>shared/src/index.js &mdash; barrel exports</div>
+    <pre><code class="language-javascript">// Storage
+export { setStorage, getStorage } from './services/storage';
+
+// API config
+export { default as api, setBaseUrl } from './services/apiConfig';
+
+// Services
+export * from './services/auth';
+export * from './services/medications';
+export * from './services/moods';
+export * from './services/foods';
+export * from './services/symptoms';
+export * from './services/affirmations';
+export * from './services/insights';
+export * from './services/users';
+export * from './services/comments';
+export * from './services/likes';
+export * from './services/pushTokens';
+export * from './services/webPushSubscriptions';
+export * from './services/emailVerification';
+export * from './services/reports';
+export * from './services/blocks';
+
+// Utils
+export * from './utils/dateUtils';
+export * from './utils/compareDateWithCurrentTime';
+export * from './utils/authUtils';
+export { getAge } from './utils/getAge';
+export { toTitleCase } from './utils/toTitleCase';
+export { checkValidity } from './utils/checkValidity';
+export * from './utils/medConstants';
+export { getApiError } from './utils/getApiError';
+
+// Reducers
+export { default as currentUserReducer, initialState } from './reducers/currentUserReducer';
+export { usersReducer } from './reducers/allUsersReducer';
+
+// Content
+export { PRIVACY_POLICY, TERMS_OF_SERVICE } from './content/legal';
+
+// Hooks
+export { default as useAsyncReducer } from './hooks/useAsyncReducer';</code></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="file-label"><span class="dot"></span>shared/package.json (key fields)</div>
+    <pre><code class="language-json">{
+  "name": "@care/shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.js",
+  "dependencies": {
+    "axios": "^0.21.0"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0"
+  }
+}</code></pre>
+  </div>
+
+  <div class="callout">
+    <strong>Why "main": "src/index.js"?</strong>
+    <p>No build step. Both Webpack (web) and Metro (mobile) can parse raw ES module source directly, so the shared package points straight at uncompiled source. This means instant changes during development &mdash; edit a file in <code>shared/</code> and both apps pick it up immediately.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 4. THE STORAGE ADAPTER PATTERN                               -->
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">04</span> The Storage Adapter Pattern</h2>
+  <p class="subtitle">The key architectural insight: shared code defines an interface, each platform injects its own implementation.</p>
+
+  <div class="diagram-wrapper">
+    <pre class="mermaid">
+graph LR
+  subgraph SHARED ["@care/shared"]
+    IFACE["storage.js<br/><b>getItem / setItem / removeItem</b><br/><i>interface only &mdash; no implementation</i>"]
+  end
+
+  subgraph WEB ["client/ (Web)"]
+    LS["localStorage<br/><code>sync, unencrypted</code>"]
+  end
+
+  subgraph MOBILE ["mobile/ (Mobile)"]
+    SS["expo-secure-store<br/><code>async, encrypted</code>"]
+  end
+
+  WEB -- "setStorage({ getItem: localStorage.getItem, ... })" --> IFACE
+  MOBILE -- "setStorage({ getItem: SecureStore.getItemAsync, ... })" --> IFACE
+
+  style SHARED fill:#2a1e3a,stroke:#a78bfa,color:#e1e4ed
+  style WEB fill:#1e2a3a,stroke:#3b82f6,color:#e1e4ed
+  style MOBILE fill:#1e3a2a,stroke:#34d399,color:#e1e4ed
+    </pre>
+  </div>
+
+  <div class="code-block">
+    <div class="file-label"><span class="dot"></span>shared/src/services/storage.js &mdash; the adapter</div>
+    <pre><code class="language-javascript">let _storage = null;
+
+export const setStorage = (impl) => {
+  _storage = impl;
+};
+
+export const getStorage = () => {
+  if (!_storage) {
+    throw new Error('Storage not initialized. Call setStorage() first.');
+  }
+  return _storage;
+};</code></pre>
+  </div>
+
+  <div class="side-by-side">
+    <div class="code-block">
+      <div class="file-label"><span class="dot"></span>client/src/index.js &mdash; web injects localStorage</div>
+      <pre><code class="language-javascript">import { setStorage, setBaseUrl } from '@care/shared';
+
+// Initialize shared package with web storage adapter
+setStorage({
+  getItem: (key) => localStorage.getItem(key),
+  setItem: (key, value) => localStorage.setItem(key, value),
+  removeItem: (key) => localStorage.removeItem(key),
+});
+
+// Set API base URL based on environment
+const baseUrl =
+  process.env.NODE_ENV === 'production'
+    ? 'https://care-api-k1b8.onrender.com/'
+    : 'http://localhost:3005';
+setBaseUrl(baseUrl);</code></pre>
+    </div>
+    <div class="code-block">
+      <div class="file-label"><span class="dot"></span>mobile/App.js &mdash; mobile injects SecureStore</div>
+      <pre><code class="language-javascript">import * as SecureStore from 'expo-secure-store';
+import { setStorage, setBaseUrl } from '@care/shared';
+
+setStorage({
+  getItem: (key) => SecureStore.getItemAsync(key),
+  setItem: (key, value) => SecureStore.setItemAsync(key, value),
+  removeItem: (key) => SecureStore.deleteItemAsync(key),
+});
+
+setBaseUrl(__DEV__
+  ? 'https://eac9-72-69-40-53.ngrok-free.app'
+  : 'https://care-api-k1b8.onrender.com'
+);</code></pre>
+    </div>
+  </div>
+
+  <div class="callout green">
+    <strong>Why this matters</strong>
+    <p><b>Sync vs Async:</b> <code>localStorage</code> is synchronous; <code>SecureStore</code> is async. The adapter uses <code>await</code> everywhere (in <code>apiConfig.js</code>), so sync calls just resolve instantly while async calls are properly awaited.<br><br>
+    <b>Security:</b> On mobile, tokens are stored in the device's encrypted keychain via <code>expo-secure-store</code>. On web, they live in plain <code>localStorage</code>. Same shared code, different security guarantees per platform.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 5. API SERVICE LAYER                                         -->
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">05</span> API Service Layer</h2>
+  <p class="subtitle">A single axios instance with JWT auth, shared across both platforms.</p>
+
+  <div class="code-block">
+    <div class="file-label"><span class="dot"></span>shared/src/services/apiConfig.js</div>
+    <pre><code class="language-javascript">import axios from 'axios';
+import { getStorage } from './storage';
+
+let baseUrl = 'http://localhost:3005';
+
+export const setBaseUrl = (url) => {
+  baseUrl = url;
+  api.defaults.baseURL = url;
+};
+
+const api = axios.create({
+  baseURL: baseUrl,
+});
+
+api.interceptors.request.use(async (config) => {
+  try {
+    const storage = getStorage();
+    const token = await storage.getItem('authToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch {
+    // Storage not initialized yet — skip auth header
+  }
+  return config;
+});
+
+export default api;</code></pre>
+  </div>
+
+  <div class="card">
+    <h3>How it works</h3>
+    <ul>
+      <li><code>axios.create()</code> creates a reusable HTTP client instance</li>
+      <li><code>setBaseUrl()</code> lets each platform configure the API endpoint at boot</li>
+      <li>The <b>request interceptor</b> runs before every API call, reading the JWT token from whichever storage adapter was injected</li>
+      <li>The <code>await storage.getItem('authToken')</code> handles both sync (web) and async (mobile) transparently</li>
+      <li>All service modules (<code>auth.js</code>, <code>medications.js</code>, etc.) import this same <code>api</code> instance</li>
+    </ul>
+  </div>
+
+  <div class="diagram-wrapper">
+    <pre class="mermaid">
+graph LR
+  A["Service module<br/>(e.g. auth.js)"] --> B["api instance<br/>(apiConfig.js)"]
+  B --> C["Request interceptor<br/>attaches JWT"]
+  C --> D["getStorage()<br/>reads token"]
+  D --> E["axios sends request<br/>to Rails API"]
+
+  style A fill:#2a1e3a,stroke:#a78bfa,color:#e1e4ed
+  style B fill:#1e2a3a,stroke:#3b82f6,color:#e1e4ed
+  style C fill:#2e2a1a,stroke:#fbbf24,color:#e1e4ed
+  style D fill:#1e3a2a,stroke:#34d399,color:#e1e4ed
+  style E fill:#3a1e1e,stroke:#f87171,color:#e1e4ed
+    </pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 6. REACT VERSION ISOLATION                                   -->
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">06</span> React Version Isolation</h2>
+  <p class="subtitle">The critical question: how does one shared package work with React 17 <em>and</em> React 19?</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Package</th>
+          <th>React Version</th>
+          <th>React Declaration</th>
+          <th>Why</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>client/</code></td>
+          <td>17.0.1</td>
+          <td><code>"react": "^17.0.1"</code> (dependency)</td>
+          <td>CRA + MUI v4 require React 17</td>
+        </tr>
+        <tr>
+          <td><code>mobile/</code></td>
+          <td>19.1.0</td>
+          <td><code>"react": "19.1.0"</code> (dependency)</td>
+          <td>RN 0.81 + Expo 54 require React 19</td>
+        </tr>
+        <tr>
+          <td><code>shared/</code></td>
+          <td>None installed</td>
+          <td><code>"react": ">=17.0.0"</code> (peerDep)</td>
+          <td>Works with whatever the consumer provides</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Why it works</h3>
+    <ul>
+      <li><b>peerDependencies</b> &mdash; Shared declares <code>"react": ">=17.0.0"</code> as a <em>peer</em> dependency, meaning it does NOT install its own React. It uses whatever version the consuming app provides.</li>
+      <li><b>No version-specific APIs</b> &mdash; Shared only uses <code>useReducer</code> and <code>useCallback</code> (stable since React 16.8). No concurrent features, no <code>use()</code> hook, no server components.</li>
+      <li><b>Bundler aliasing</b> &mdash; Both Webpack and Metro are configured to resolve <code>react</code> to their own local copy, so shared code always gets the host app's React instance.</li>
+    </ul>
+  </div>
+
+  <div class="diagram-wrapper">
+    <pre class="mermaid">
+graph TB
+  SHARED["@care/shared<br/><i>peerDep: react &ge;17</i>"]
+
+  subgraph WebBuild ["Web Build (Webpack)"]
+    WI["import React from 'react'"]
+    WR["React 17.0.1<br/><i>from client/node_modules</i>"]
+    WI --> WR
+  end
+
+  subgraph MobileBuild ["Mobile Build (Metro)"]
+    MI["import React from 'react'"]
+    MR["React 19.1.0<br/><i>from mobile/node_modules</i>"]
+    MI --> MR
+  end
+
+  SHARED --> WebBuild
+  SHARED --> MobileBuild
+
+  style SHARED fill:#2a1e3a,stroke:#a78bfa,color:#e1e4ed
+  style WebBuild fill:#1e2a3a,stroke:#3b82f6,color:#e1e4ed
+  style MobileBuild fill:#1e3a2a,stroke:#34d399,color:#e1e4ed
+    </pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 7. BUNDLER CONFIGURATION                                     -->
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">07</span> Bundler Configuration</h2>
+  <p class="subtitle">Each platform uses a different bundler, each configured to resolve <code>@care/shared</code> correctly.</p>
+
+  <div class="side-by-side">
+    <div>
+      <div class="code-block">
+        <div class="file-label"><span class="dot"></span>client/config-overrides.js (Webpack)</div>
+        <pre><code class="language-javascript">const path = require('path');
+
+module.exports = function override(config) {
+  // Resolve react to client's own copy
+  const reactPath = path.dirname(
+    require.resolve('react/package.json')
+  );
+  const reactDomPath = path.dirname(
+    require.resolve('react-dom/package.json')
+  );
+
+  // Ensure shared resolves same React
+  config.resolve.alias = {
+    ...config.resolve.alias,
+    react: reactPath,
+    'react-dom': reactDomPath,
+  };
+
+  // Allow imports outside src/
+  config.resolve.plugins =
+    config.resolve.plugins.filter(
+      (p) => p.constructor.name
+        !== 'ModuleScopePlugin'
+    );
+
+  return config;
+};</code></pre>
+      </div>
+      <div class="card">
+        <h3>What this does</h3>
+        <ul>
+          <li><b>React alias</b> &mdash; Forces all <code>import 'react'</code> statements (including from shared) to resolve to client's React 17</li>
+          <li><b>ModuleScopePlugin removal</b> &mdash; CRA normally blocks imports from outside <code>src/</code>. Since shared lives outside the client folder, this plugin must be removed.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="code-block">
+        <div class="file-label"><span class="dot"></span>mobile/metro.config.js (Metro)</div>
+        <pre><code class="language-javascript">const { getDefaultConfig } =
+  require('expo/metro-config');
+const path = require('path');
+
+const projectRoot = __dirname;
+const monorepoRoot =
+  path.resolve(projectRoot, '..');
+const mobileReact =
+  path.resolve(projectRoot,
+    'node_modules', 'react');
+
+const config =
+  getDefaultConfig(projectRoot);
+
+// Watch shared for live reloads
+config.watchFolders = [monorepoRoot];
+
+// Resolve from mobile first, then root
+config.resolver.nodeModulesPaths = [
+  path.resolve(projectRoot, 'node_modules'),
+  path.resolve(monorepoRoot, 'node_modules'),
+];
+
+// Force react &rarr; mobile's React 19
+config.resolver.resolveRequest =
+  (context, moduleName, platform) => {
+    if (moduleName === 'react') {
+      return context.resolveRequest(
+        context, mobileReact, platform
+      );
+    }
+    if (moduleName.startsWith('react/')) {
+      const sub =
+        moduleName.slice('react'.length);
+      return context.resolveRequest(
+        context, mobileReact + sub, platform
+      );
+    }
+    return context.resolveRequest(
+      context, moduleName, platform
+    );
+  };
+
+module.exports = config;</code></pre>
+      </div>
+      <div class="card">
+        <h3>What this does</h3>
+        <ul>
+          <li><b>watchFolders</b> &mdash; Tells Metro to watch the monorepo root so changes in <code>shared/</code> trigger hot reloads</li>
+          <li><b>nodeModulesPaths</b> &mdash; Search mobile's <code>node_modules</code> first, then root (where hoisted deps live)</li>
+          <li><b>resolveRequest</b> &mdash; Intercepts any <code>import 'react'</code> and forces it to mobile's React 19, preventing the root-hoisted React 17 from being used</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-wrapper">
+    <pre class="mermaid">
+graph TB
+  subgraph Resolution ["How @care/shared resolves"]
+    IMP["shared code does:<br/><code>import { useReducer } from 'react'</code>"]
+
+    subgraph WP ["Webpack (Web)"]
+      WA["config.resolve.alias maps<br/>'react' &rarr; client/node_modules/react"]
+      WV["React 17.0.1"]
+      WA --> WV
+    end
+
+    subgraph MT ["Metro (Mobile)"]
+      MR["resolveRequest intercepts<br/>'react' &rarr; mobile/node_modules/react"]
+      MV["React 19.1.0"]
+      MR --> MV
+    end
+
+    IMP --> WP
+    IMP --> MT
+  end
+
+  style Resolution fill:#1a1d27,stroke:#2e3348,color:#e1e4ed
+  style WP fill:#1e2a3a,stroke:#3b82f6,color:#e1e4ed
+  style MT fill:#1e3a2a,stroke:#34d399,color:#e1e4ed
+    </pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 8. IMPORT EXAMPLES                                           -->
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">08</span> Identical Imports, Different Platforms</h2>
+  <p class="subtitle">The same <code>import</code> statement works in both apps &mdash; that's the whole point.</p>
+
+  <div class="side-by-side">
+    <div class="code-block">
+      <div class="file-label"><span class="dot"></span>client/src/SomeComponent.js (Web)</div>
+      <pre><code class="language-javascript">import {
+  setStorage,
+  setBaseUrl,
+  api,
+  currentUserReducer,
+  initialState,
+  useAsyncReducer,
+  getMedications,
+  getApiError,
+} from '@care/shared';</code></pre>
+    </div>
+    <div class="code-block">
+      <div class="file-label"><span class="dot"></span>mobile/src/SomeScreen.js (Mobile)</div>
+      <pre><code class="language-javascript">import {
+  setStorage,
+  setBaseUrl,
+  api,
+  currentUserReducer,
+  initialState,
+  useAsyncReducer,
+  getMedications,
+  getApiError,
+} from '@care/shared';</code></pre>
+    </div>
+  </div>
+
+  <div class="callout green">
+    <strong>Identical imports, zero platform checks</strong>
+    <p>Neither app needs <code>Platform.OS</code> checks or conditional imports for shared business logic. The adapter pattern (storage) and bundler config (React aliasing) handle all platform differences at the edges.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 9. DATA FLOW                                                 -->
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">09</span> Data Flow</h2>
+  <p class="subtitle">End-to-end flow from user action to screen update.</p>
+
+  <div class="diagram-wrapper">
+    <pre class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant C as Component<br/>(Web or Mobile)
+    participant R as useAsyncReducer<br/>(@care/shared)
+    participant S as Service function<br/>(@care/shared)
+    participant A as axios instance<br/>(apiConfig.js)
+    participant I as JWT Interceptor
+    participant ST as Storage Adapter
+    participant API as Rails API
+
+    U->>C: Taps button / submits form
+    C->>R: dispatch(asyncAction)
+    R->>S: calls service (e.g. getMedications)
+    S->>A: api.get('/medications')
+    A->>I: request interceptor fires
+    I->>ST: await storage.getItem('authToken')
+    ST-->>I: returns JWT token
+    I->>API: GET /medications<br/>Authorization: Bearer &lt;token&gt;
+    API-->>A: 200 OK { medications: [...] }
+    A-->>S: response.data
+    S-->>R: returns data
+    R->>C: state updated via reducer
+    C->>U: UI re-renders with new data
+    </pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 10. QUICK REFERENCE                                          -->
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="num">10</span> Quick Reference</h2>
+  <p class="subtitle">Key files and their roles at a glance.</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Role</th>
+          <th>Key Detail</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>package.json</code> (root)</td>
+          <td>Monorepo config</td>
+          <td>Declares workspaces: client, shared, mobile</td>
+        </tr>
+        <tr>
+          <td><code>shared/package.json</code></td>
+          <td>Shared library config</td>
+          <td><code>main: src/index.js</code>, peerDep <code>react >=17</code></td>
+        </tr>
+        <tr>
+          <td><code>shared/src/index.js</code></td>
+          <td>Barrel exports</td>
+          <td>Re-exports all services, utils, hooks, reducers</td>
+        </tr>
+        <tr>
+          <td><code>shared/src/services/storage.js</code></td>
+          <td>Storage adapter</td>
+          <td><code>setStorage(impl)</code> / <code>getStorage()</code></td>
+        </tr>
+        <tr>
+          <td><code>shared/src/services/apiConfig.js</code></td>
+          <td>HTTP client</td>
+          <td>axios instance + JWT interceptor + <code>setBaseUrl()</code></td>
+        </tr>
+        <tr>
+          <td><code>client/src/index.js</code></td>
+          <td>Web entry point</td>
+          <td>Injects <code>localStorage</code> adapter, sets base URL</td>
+        </tr>
+        <tr>
+          <td><code>client/config-overrides.js</code></td>
+          <td>Webpack config</td>
+          <td>React alias + ModuleScopePlugin removal</td>
+        </tr>
+        <tr>
+          <td><code>mobile/App.js</code></td>
+          <td>Mobile entry point</td>
+          <td>Injects <code>SecureStore</code> adapter, sets base URL</td>
+        </tr>
+        <tr>
+          <td><code>mobile/metro.config.js</code></td>
+          <td>Metro bundler config</td>
+          <td>watchFolders + React 19 resolution override</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <strong>TL;DR</strong>
+    <p>
+      The Care monorepo uses <b>npm workspaces</b> to share a <code>@care/shared</code> package between a React 17 web app and a React 19 mobile app.
+      The shared package has <b>no build step</b> and uses <b>peerDependencies</b> so it never bundles its own React.
+      Each platform's bundler (<b>Webpack</b> / <b>Metro</b>) is configured to alias <code>react</code> to its own version.
+      Platform-specific differences (storage, API base URL) are handled via an <b>adapter pattern</b> &mdash; shared defines the interface, each app injects its implementation at boot.
+    </p>
+  </div>
+</div>
+
+</div><!-- /.container -->
+
+<!-- Prism.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
+
+<!-- Mermaid init -->
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      darkMode: true,
+      background: '#1a1d27',
+      primaryColor: '#2a1e3a',
+      primaryTextColor: '#e1e4ed',
+      primaryBorderColor: '#a78bfa',
+      lineColor: '#60a5fa',
+      secondaryColor: '#1e2a3a',
+      tertiaryColor: '#1e3a2a',
+      fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
+      fontSize: '14px',
+    },
+    flowchart: {
+      curve: 'monotoneX',
+      padding: 20,
+    },
+    sequence: {
+      actorMargin: 40,
+      messageMargin: 30,
+    },
+  });
+</script>
+
+</body>
+</html>

@@ -14,6 +14,8 @@ import AuthenticatedRoute from "./AuthenticatedRoute";
 import AdminRoute from "./AdminRoute";
 import GuestRoute from "./GuestRoute";
 import AdminPanel from "../screens/Admin/AdminPanel";
+import MobileApp from "../screens/MobileApp/MobileApp";
+import Support from "../screens/Support/Support";
 
 const AppRouter = () => (
   <Switch>
@@ -24,6 +26,8 @@ const AppRouter = () => (
     <GuestRoute path="/reset-password" component={ResetPassword} />
     <Route path="/privacy" component={LegalPage} />
     <Route path="/terms" component={LegalPage} />
+    <Route path="/mobile" component={MobileApp} />
+    <Route path="/support" component={Support} />
     <AdminRoute path="/admin" component={AdminPanel} />
     <AuthenticatedRoute path="/insights" component={InsightsContainer} />
     <AuthenticatedRoute path="/settings" component={Settings} />

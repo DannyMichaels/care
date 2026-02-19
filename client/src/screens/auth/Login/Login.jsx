@@ -171,6 +171,11 @@ export default function Login() {
             Terms of Service
           </Link>
         </Typography>
+        <Typography className={classes.register} style={{ fontSize: '14px', marginTop: '12px' }}>
+          <Link className={classes.registerLink} to="/mobile">
+            Try the mobile app
+          </Link>
+        </Typography>
         <br />
         <Typography className={classes.user}>
           <br />

@@ -484,6 +484,14 @@ export default function Register() {
               Terms of Service
             </span>
           </Typography>
+          <Typography
+            className={classes.login}
+            style={{ fontSize: '14px', marginTop: '12px' }}
+          >
+            <Link className={classes.loginLink} to="/mobile">
+              Try the mobile app
+            </Link>
+          </Typography>
           <br />
           <Typography className={classes.user}>
             <a

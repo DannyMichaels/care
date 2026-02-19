@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { View, ScrollView, Image, StyleSheet } from 'react-native';
 import { List, Text, Badge, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { getAllMeds, getAllMoods, getAllFoods, getAllSymptoms, getAllAffirmations, filterByDate } from '@care/shared';
+import { getAllMeds, getAllMoods, getAllFoods, getAllSymptoms, getAllAffirmations, filterByDate, MED_ICON_DISPLAY_MAP } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import { useDate } from '../../context/DateContext';
 import DateCarousel from '../../components/DateCarousel';
@@ -60,14 +60,12 @@ export default function HomeScreen({ navigation }) {
     return () => clearInterval(id);
   }, [hasUrgentMed]);
 
-  const MED_ICON_MAP_LOCAL = { tablet: 'circle', pill: 'pill', droplet: 'water' };
-
   const getSectionIcon = (section, item) => {
     switch (section.type) {
       case 'med':
         return () => (
           <MaterialCommunityIcons
-            name={MED_ICON_MAP_LOCAL[item.icon] || 'pill'}
+            name={MED_ICON_DISPLAY_MAP[item.icon] || 'pill'}
             size={24}
             color={item.icon_color || '#7E57C2'}
             style={styles.itemIcon}

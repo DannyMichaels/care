@@ -2,12 +2,10 @@ import { useState } from 'react';
 import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { Button, Text, Chip } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { putMed, destroyMed, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR, getApiError } from '@care/shared';
+import { putMed, destroyMed, MED_ICONS, MED_COLORS, MED_ICON_DISPLAY_MAP, DEFAULT_ICON, DEFAULT_COLOR, getApiError } from '@care/shared';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 import MedicationSuggestions from '../../components/MedicationSuggestions';
-
-const ICON_MAP = { tablet: 'circle', pill: 'pill', droplet: 'water' };
 
 export default function MedEditScreen({ route, navigation }) {
   const { id, item } = route.params;
@@ -139,7 +137,7 @@ export default function MedEditScreen({ route, navigation }) {
               icon === iconName && { borderColor: iconColor, borderWidth: 2 },
             ]}
           >
-            <MaterialCommunityIcons name={ICON_MAP[iconName]} size={28} color={iconColor} />
+            <MaterialCommunityIcons name={MED_ICON_DISPLAY_MAP[iconName]} size={28} color={iconColor} />
           </TouchableOpacity>
         ))}
       </View>

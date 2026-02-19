@@ -13,5 +13,7 @@ export const MED_COLORS = [
   '#6D4C41', // brown
 ];
 
+export const MED_ICON_DISPLAY_MAP = { tablet: 'circle', pill: 'pill', droplet: 'water' };
+
 export const DEFAULT_ICON = 'pill';
 export const DEFAULT_COLOR = '#7E57C2';

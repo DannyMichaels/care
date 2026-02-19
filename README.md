@@ -411,7 +411,7 @@ if the user's input DOESN"T match one of the names in the foodRegex, it will ret
 - added [Privacy Policy](https://care-app.netlify.app/privacy) and [Terms of Service](https://care-app.netlify.app/terms) pages
 
 <strong>Feb 22nd, 2026</strong>
-- added reports feature, can now report insights
+- added reports feature, can now report insights ([docs](docs/reports-blocks.html))
 - added admin users, admins can look at reported insights and verify
 - added blocking, users can now block other users
 - added backend blocking for insight content that might be inappropriate, uses OpenAI to review the content.

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, Modal } from 'react-native';
-import { Text, Card, Button, TextInput, Divider, ActivityIndicator, IconButton, Portal } from 'react-native-paper';
+import { Text, Card, Button, TextInput, Divider, ActivityIndicator, IconButton, Portal, useTheme as usePaperTheme } from 'react-native-paper';
 import { getOneInsight, destroyInsight, postComment, destroyComment, postLike, destroyLike, postReport } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
@@ -8,6 +8,7 @@ import ScreenWrapper from '../../components/ScreenWrapper';
 export default function InsightDetailScreen({ route, navigation }) {
   const { id } = route.params;
   const [{ currentUser }] = useCurrentUser();
+  const theme = usePaperTheme();
   const [insight, setInsight] = useState(null);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(true);
@@ -75,14 +76,20 @@ export default function InsightDetailScreen({ route, navigation }) {
   if (loading) return <ActivityIndicator style={{ flex: 1 }} />;
   if (!insight) return <Text style={{ padding: 24 }}>Insight not found</Text>;
 
-  const isOwner = insight.user_id === currentUser?.id;
+  const isOwner = insight.user?.id === currentUser?.id;
   const isLiked = insight.likes?.some((l) => l.user_id === currentUser?.id);
 
   return (
     <ScreenWrapper scroll contentContainerStyle={styles.container}>
       <Text variant="headlineMedium">{insight.title}</Text>
       <Text variant="bodySmall" style={styles.meta}>
-        by {insight.user?.name} | {insight.likes?.length || 0} likes
+        by{' '}
+        <Text
+          style={styles.link}
+          onPress={() => navigation.navigate('Community', { screen: 'UserDetail', params: { id: insight.user?.id } })}>
+          {insight.user?.name}
+        </Text>
+        {' '}| {insight.likes?.length || 0} likes
       </Text>
 
       <Text variant="bodyLarge" style={styles.body}>{insight.body || insight.description}</Text>
@@ -112,7 +119,12 @@ export default function InsightDetailScreen({ route, navigation }) {
         <Card key={c.id} style={styles.commentCard}>
           <Card.Content>
             <Text variant="bodyMedium">{c.content}</Text>
-            <Text variant="bodySmall" style={styles.commentMeta}>{c.user?.name}</Text>
+            <Text
+              variant="bodySmall"
+              style={[styles.commentMeta, styles.link]}
+              onPress={() => navigation.navigate('Community', { screen: 'UserDetail', params: { id: c.user?.id } })}>
+              {c.user?.name}
+            </Text>
           </Card.Content>
           {c.user_id === currentUser?.id && (
             <Card.Actions>
@@ -136,7 +148,7 @@ export default function InsightDetailScreen({ route, navigation }) {
       <Portal>
         <Modal visible={reportVisible} transparent animationType="slide" onRequestClose={() => setReportVisible(false)}>
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
+            <View style={[styles.modalContent, { backgroundColor: theme.colors.surface }]}>
               <Text variant="titleLarge" style={{ marginBottom: 12 }}>Report Insight</Text>
               <TextInput
                 label="Reason for reporting"
@@ -173,5 +185,6 @@ const styles = StyleSheet.create({
   commentMeta: { opacity: 0.6, marginTop: 4 },
   commentInput: { flexDirection: 'row', alignItems: 'center', marginTop: 16, gap: 8 },
   modalOverlay: { flex: 1, justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 24 },
-  modalContent: { backgroundColor: 'white', borderRadius: 12, padding: 24 },
+  modalContent: { borderRadius: 12, padding: 24 },
+  link: { textDecorationLine: 'underline' },
 });

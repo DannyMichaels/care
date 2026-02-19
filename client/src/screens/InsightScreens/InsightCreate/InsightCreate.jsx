@@ -52,7 +52,7 @@ export default function InsightCreate({ handleCreate, moderationError }) {
         </Typography>
       </div>
       {moderationError && (
-        <Typography style={{ color: 'red', marginBottom: 8 }}>
+        <Typography style={{ color: 'red', marginBottom: 8, textAlign: 'center' }}>
           {moderationError}
         </Typography>
       )}

@@ -19,7 +19,8 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
-import Link from '@material-ui/core/Link';
+import MuiLink from '@material-ui/core/Link';
+import { Link as RouterLink } from 'react-router-dom';
 import Layout from '../../layouts/Layout/Layout';
 import {getAllReports, updateReport, removeReportedInsight, unhideReportedInsight} from '@care/shared';
 
@@ -104,7 +105,8 @@ export default function AdminPanel() {
                   <TableCell>Author</TableCell>
                   <TableCell>Reporter</TableCell>
                   <TableCell>Reason</TableCell>
-                  <TableCell>Status</TableCell>
+                  <TableCell>Report Status</TableCell>
+                  <TableCell>Insight Status</TableCell>
                   <TableCell>Date</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
@@ -115,16 +117,28 @@ export default function AdminPanel() {
                     <TableCell>{report.id}</TableCell>
                     <TableCell>
                       {report.insight ? (
-                        <Link
+                        <MuiLink
                           component="button"
                           variant="body2"
                           onClick={() => setSelectedInsight(report.insight)}>
                           {report.insight.title}
-                        </Link>
+                        </MuiLink>
                       ) : '—'}
                     </TableCell>
-                    <TableCell>{report.insight?.user?.name || '—'}</TableCell>
-                    <TableCell>{report.user?.name || '—'}</TableCell>
+                    <TableCell>
+                      {report.insight?.user ? (
+                        <MuiLink component={RouterLink} to={`/users/${report.insight.user.id}`}>
+                          {report.insight.user.name}
+                        </MuiLink>
+                      ) : '—'}
+                    </TableCell>
+                    <TableCell>
+                      {report.user ? (
+                        <MuiLink component={RouterLink} to={`/users/${report.user.id}`}>
+                          {report.user.name}
+                        </MuiLink>
+                      ) : '—'}
+                    </TableCell>
                     <TableCell>{report.reason}</TableCell>
                     <TableCell>
                       <Chip
@@ -132,6 +146,17 @@ export default function AdminPanel() {
                         size="small"
                         style={statusColors[report.status] || {}}
                       />
+                    </TableCell>
+                    <TableCell>
+                      {report.insight ? (
+                        <Chip
+                          label={report.insight.status}
+                          size="small"
+                          style={report.insight.status === 'hidden'
+                            ? { backgroundColor: '#ffebee', color: '#c62828' }
+                            : { backgroundColor: '#e8f5e9', color: '#2e7d32' }}
+                        />
+                      ) : '—'}
                     </TableCell>
                     <TableCell>{new Date(report.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>

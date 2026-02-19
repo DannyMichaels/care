@@ -48,7 +48,7 @@ export default function InsightEdit({ handleUpdate, insights, moderationError })
         <Typography className="title">Edit Insight</Typography>
       </div>
       {moderationError && (
-        <Typography style={{ color: 'red', marginBottom: 8 }}>
+        <Typography style={{ color: 'red', marginBottom: 8, textAlign: 'center' }}>
           {moderationError}
         </Typography>
       )}

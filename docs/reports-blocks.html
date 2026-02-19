@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reports, Blocks &amp; Content Moderation — How It Works</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; padding: 40px 20px; line-height: 1.6; }
+  .container { max-width: 1000px; margin: 0 auto; }
+  h1 { text-align: center; font-size: 2rem; margin-bottom: 8px; color: #f8fafc; }
+  .subtitle { text-align: center; color: #94a3b8; margin-bottom: 48px; font-size: 1.1rem; }
+  h2 { color: #38bdf8; margin: 48px 0 24px; font-size: 1.4rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 8px; }
+  h3 { color: #fbbf24; margin: 24px 0 12px; font-size: 1.1rem; }
+
+  /* Flow diagram */
+  .flow { display: flex; flex-direction: column; gap: 0; margin: 32px 0; }
+  .step { display: flex; align-items: flex-start; gap: 20px; position: relative; }
+  .step-num { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; position: relative; z-index: 1; }
+  .step-content { flex: 1; padding: 16px 20px; border-radius: 12px; margin-bottom: 8px; }
+  .step-content p { margin-top: 6px; font-size: 0.9rem; color: #94a3b8; }
+  .step-content code { background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: #a5f3fc; }
+  .step-content .file { color: #a78bfa; font-style: italic; font-size: 0.85rem; }
+  .connector { width: 2px; height: 20px; margin-left: 19px; }
+
+  /* Phase colors */
+  .phase-report .step-num { background: #dc2626; color: #fff; }
+  .phase-report .step-content { background: #450a0a; border: 1px solid #7f1d1d; }
+  .phase-report .connector { background: #dc2626; }
+
+  .phase-admin .step-num { background: #7c3aed; color: #fff; }
+  .phase-admin .step-content { background: #1e1b4b; border: 1px solid #4c1d95; }
+  .phase-admin .connector { background: #7c3aed; }
+
+  .phase-block .step-num { background: #2563eb; color: #fff; }
+  .phase-block .step-content { background: #172554; border: 1px solid #1e40af; }
+  .phase-block .connector { background: #2563eb; }
+
+  .phase-mod .step-num { background: #059669; color: #fff; }
+  .phase-mod .step-content { background: #022c22; border: 1px solid #065f46; }
+  .phase-mod .connector { background: #059669; }
+
+  .phase-age .step-num { background: #d97706; color: #fff; }
+  .phase-age .step-content { background: #451a03; border: 1px solid #92400e; }
+  .phase-age .connector { background: #d97706; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; }
+  th, td { padding: 10px 14px; text-align: left; border: 1px solid #334155; font-size: 0.9rem; }
+  th { background: #1e293b; color: #38bdf8; font-weight: 600; }
+  td { color: #cbd5e1; }
+  td code { background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 0.82rem; color: #a5f3fc; }
+  tr:nth-child(even) { background: rgba(30,41,59,0.4); }
+
+  /* Key concepts */
+  .concepts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+  .concept { padding: 20px; border-radius: 12px; background: #1e293b; border: 1px solid #334155; }
+  .concept h4 { color: #fbbf24; margin-bottom: 8px; }
+  .concept p { font-size: 0.9rem; color: #94a3b8; }
+
+  /* Code blocks */
+  pre { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 16px; overflow-x: auto; margin: 12px 0; font-size: 0.82rem; color: #a5f3fc; line-height: 1.5; }
+  .comment { color: #64748b; }
+  .keyword { color: #c084fc; }
+  .string { color: #86efac; }
+  .func { color: #fbbf24; }
+
+  /* Status badges */
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
+  .badge-pending { background: #fff3e0; color: #e65100; }
+  .badge-reviewed { background: #e8f5e9; color: #2e7d32; }
+  .badge-dismissed { background: #efebe9; color: #5d4037; }
+  .badge-active { background: #e8f5e9; color: #2e7d32; }
+  .badge-hidden { background: #fce4ec; color: #c62828; }
+
+  /* Architecture diagram */
+  .arch { display: grid; grid-template-columns: 1fr 80px 1fr 80px 1fr; align-items: center; gap: 0; margin: 32px 0; }
+  .box { padding: 20px; border-radius: 12px; text-align: center; }
+  .box h4 { margin-bottom: 8px; font-size: 1rem; }
+  .box ul { list-style: none; text-align: left; font-size: 0.85rem; color: #94a3b8; }
+  .box ul li { padding: 3px 0; }
+  .box ul li::before { content: "\2192 "; color: #64748b; }
+  .box-client { background: #172554; border: 1px solid #1e40af; }
+  .box-client h4 { color: #60a5fa; }
+  .box-api { background: #022c22; border: 1px solid #065f46; }
+  .box-api h4 { color: #34d399; }
+  .box-openai { background: #1e1b4b; border: 1px solid #4c1d95; }
+  .box-openai h4 { color: #a78bfa; }
+  .arrow { text-align: center; color: #475569; font-size: 2rem; line-height: 1; }
+  .arrow span { display: block; font-size: 0.7rem; color: #64748b; margin-top: 4px; }
+
+  @media (max-width: 700px) {
+    .arch { grid-template-columns: 1fr; gap: 12px; }
+    .arrow { transform: rotate(90deg); }
+    .concepts { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Reports, Blocks &amp; Content Moderation</h1>
+<p class="subtitle">How community moderation works in the Care app</p>
+
+<!-- ===== OVERVIEW ===== -->
+<h2>Feature Overview</h2>
+<div class="concepts">
+  <div class="concept">
+    <h4>Reporting</h4>
+    <p>Users can report inappropriate insights. Reports go to an admin panel where admins can review, dismiss, or hide the insight. Each user can only report an insight once. The report status is visible to the reporter.</p>
+  </div>
+  <div class="concept">
+    <h4>User Blocking</h4>
+    <p>Users can block other users. Blocked users' insights, comments, and profiles are hidden from the blocker. Blocking is one-directional and reversible from Settings or the user's profile.</p>
+  </div>
+  <div class="concept">
+    <h4>Content Moderation</h4>
+    <p>When creating or editing an insight, the content is checked against OpenAI's Moderation API. Flagged content is rejected with a 422 error explaining which categories were triggered. Fails open if the API is unreachable.</p>
+  </div>
+  <div class="concept">
+    <h4>Age Privacy</h4>
+    <p>Users can toggle "Show Age on Profile" in Settings. When disabled, the backend strips the <code>birthday</code> field from the user show response, so other users can't see or calculate the age.</p>
+  </div>
+</div>
+
+<!-- ===== DATABASE TABLES ===== -->
+<h2>Database Tables</h2>
+
+<h3>reports</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr>
+  <tr><td><code>id</code></td><td>bigint</td><td>PK</td><td>Auto-increment primary key</td></tr>
+  <tr><td><code>user_id</code></td><td>bigint</td><td>FK &rarr; users, NOT NULL, CASCADE</td><td>The user who submitted the report</td></tr>
+  <tr><td><code>insight_id</code></td><td>bigint</td><td>FK &rarr; insights, NOT NULL, CASCADE</td><td>The insight being reported</td></tr>
+  <tr><td><code>reason</code></td><td>string</td><td>NOT NULL</td><td>Free-text explanation from the reporter</td></tr>
+  <tr><td><code>status</code></td><td>string</td><td>NOT NULL, default: <code>'pending'</code></td><td><span class="badge badge-pending">pending</span> <span class="badge badge-reviewed">reviewed</span> <span class="badge badge-dismissed">dismissed</span></td></tr>
+  <tr><td><code>created_at</code></td><td>datetime</td><td></td><td></td></tr>
+  <tr><td><code>updated_at</code></td><td>datetime</td><td></td><td></td></tr>
+</table>
+<p style="color:#94a3b8; font-size:0.85rem;">Unique index on <code>[user_id, insight_id]</code> &mdash; one report per user per insight.</p>
+
+<h3>blocks</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr>
+  <tr><td><code>id</code></td><td>bigint</td><td>PK</td><td>Auto-increment primary key</td></tr>
+  <tr><td><code>blocker_id</code></td><td>bigint</td><td>FK &rarr; users, NOT NULL, CASCADE</td><td>The user who initiated the block</td></tr>
+  <tr><td><code>blocked_id</code></td><td>bigint</td><td>FK &rarr; users, NOT NULL, CASCADE</td><td>The user being blocked</td></tr>
+  <tr><td><code>created_at</code></td><td>datetime</td><td></td><td></td></tr>
+  <tr><td><code>updated_at</code></td><td>datetime</td><td></td><td></td></tr>
+</table>
+<p style="color:#94a3b8; font-size:0.85rem;">Unique index on <code>[blocker_id, blocked_id]</code>. Model validation prevents self-blocking. Both FKs use <code>class_name: 'User'</code> since neither column is named <code>user_id</code>.</p>
+
+<h3>insights (modified)</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr>
+  <tr><td><code>status</code></td><td>string</td><td>NOT NULL, default: <code>'active'</code></td><td><span class="badge badge-active">active</span> visible to all &nbsp;|&nbsp; <span class="badge badge-hidden">hidden</span> admin-only (soft delete)</td></tr>
+</table>
+
+<h3>users (modified)</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr>
+  <tr><td><code>is_admin</code></td><td>boolean</td><td>NOT NULL, default: <code>false</code></td><td>Grants access to admin panel and report management</td></tr>
+  <tr><td><code>show_age</code></td><td>boolean</td><td>NOT NULL, default: <code>false</code></td><td>When false, birthday is stripped from the user show endpoint</td></tr>
+</table>
+
+<!-- ===== MODEL ASSOCIATIONS ===== -->
+<h2>Model Associations</h2>
+<pre>
+<span class="keyword">User</span>
+  has_many <span class="string">:reports</span>                                <span class="comment"># reports this user has filed</span>
+  has_many <span class="string">:blocks_as_blocker</span> (Block, FK: blocker_id)  <span class="comment"># users I've blocked</span>
+  has_many <span class="string">:blocks_as_blocked</span> (Block, FK: blocked_id)  <span class="comment"># users who blocked me</span>
+  has_many <span class="string">:blocked_users</span>, through: blocks_as_blocker  <span class="comment"># shortcut to blocked User records</span>
+
+<span class="keyword">Insight</span>
+  has_many <span class="string">:reports</span>                                <span class="comment"># reports filed against this insight</span>
+
+<span class="keyword">Report</span>
+  belongs_to <span class="string">:user</span>                               <span class="comment"># the reporter</span>
+  belongs_to <span class="string">:insight</span>                            <span class="comment"># the reported insight</span>
+
+<span class="keyword">Block</span>
+  belongs_to <span class="string">:blocker</span>, class_name: 'User'         <span class="comment"># who blocked</span>
+  belongs_to <span class="string">:blocked</span>, class_name: 'User'         <span class="comment"># who got blocked</span>
+</pre>
+
+<!-- ===== API ROUTES ===== -->
+<h2>API Routes</h2>
+<table>
+  <tr><th>Method</th><th>Path</th><th>Auth</th><th>Description</th></tr>
+  <tr><td>POST</td><td><code>/reports</code></td><td>User</td><td>Create a report (insight_id + reason)</td></tr>
+  <tr><td>GET</td><td><code>/reports</code></td><td>Admin</td><td>List all reports (optional <code>?status=</code> filter)</td></tr>
+  <tr><td>PUT</td><td><code>/reports/:id</code></td><td>Admin</td><td>Update report status (pending/reviewed/dismissed)</td></tr>
+  <tr><td>DELETE</td><td><code>/reports/:id/remove_insight</code></td><td>Admin</td><td>Hide the insight + mark report as reviewed</td></tr>
+  <tr><td>PATCH</td><td><code>/reports/:id/unhide_insight</code></td><td>Admin</td><td>Unhide the insight + reopen report as pending</td></tr>
+  <tr><td>GET</td><td><code>/blocks</code></td><td>User</td><td>List current user's blocks with blocked user info</td></tr>
+  <tr><td>POST</td><td><code>/blocks</code></td><td>User</td><td>Block a user (blocked_id)</td></tr>
+  <tr><td>DELETE</td><td><code>/blocks/:id</code></td><td>User</td><td>Unblock by block ID</td></tr>
+  <tr><td>DELETE</td><td><code>/blocks/unblock/:user_id</code></td><td>User</td><td>Unblock by user ID (convenience)</td></tr>
+</table>
+
+<!-- ===== CONTENT MODERATION ARCHITECTURE ===== -->
+<h2>Content Moderation Architecture</h2>
+<div class="arch">
+  <div class="box box-client">
+    <h4>Client (Web / Mobile)</h4>
+    <ul>
+      <li>POST /insights (create)</li>
+      <li>PUT /insights/:id (edit)</li>
+      <li>Displays 422 error to user</li>
+    </ul>
+  </div>
+  <div class="arrow">&#10230;<span>request</span></div>
+  <div class="box box-api">
+    <h4>Rails API</h4>
+    <ul>
+      <li>InsightsController</li>
+      <li>Calls ContentModerator.check()</li>
+      <li>Returns 422 if flagged</li>
+    </ul>
+  </div>
+  <div class="arrow">&#10230;<span>moderate</span></div>
+  <div class="box box-openai">
+    <h4>OpenAI Moderation API</h4>
+    <ul>
+      <li>Checks text categories</li>
+      <li>Returns flagged: true/false</li>
+      <li>Categories: hate, violence, etc.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===== FLOW: REPORTING ===== -->
+<h2>Flow 1: Reporting an Insight</h2>
+<div class="flow phase-report">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>User views an insight they didn't author</strong>
+      <p>A "Report" button (flag icon) appears. If they've already reported it, the button is replaced with "Report <em>status</em>" text showing the current status.</p>
+      <div class="file">InsightDetail.jsx / InsightDetailScreen.js</div>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>User clicks Report, enters a reason</strong>
+      <p>A dialog (web) or modal (mobile) collects a free-text reason. Submit is disabled until text is entered.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <strong>POST /reports</strong>
+      <p><code>{ report: { insight_id, reason } }</code> &mdash; creates a report with status <span class="badge badge-pending">pending</span>. The unique index prevents duplicate reports from the same user.</p>
+      <div class="file">shared/src/services/reports.js &rarr; app/controllers/reports_controller.rb</div>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <strong>UI updates immediately</strong>
+      <p>The returned report object is set on <code>insight.my_report</code> locally. On page reload, the backend includes <code>my_report</code> in the insight show response, so the state persists.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FLOW: ADMIN REVIEW ===== -->
+<h2>Flow 2: Admin Reviews Reports</h2>
+<div class="flow phase-admin">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>Admin navigates to /admin</strong>
+      <p>Protected by <code>AdminRoute</code> &mdash; checks <code>currentUser.is_admin</code>, redirects to / if not. Settings page shows "Admin Panel" link for admins.</p>
+      <div class="file">client/src/Router/AdminRoute.jsx &rarr; client/src/screens/Admin/AdminPanel.jsx</div>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>GET /reports (admin-only)</strong>
+      <p>Returns all reports with nested user + insight data. Filterable by status via dropdown. Reports with deleted insights are excluded via <code>INNER JOIN</code>.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <strong>Admin clicks insight title to preview</strong>
+      <p>Opens a modal showing the full insight content (title, author, description, body, status) without leaving the table.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <strong>Admin takes action</strong>
+      <p>All actions are <strong>reversible</strong>:</p>
+      <p><span class="badge badge-pending">pending</span> &rarr; <strong>Dismiss</strong> (sets report to <span class="badge badge-dismissed">dismissed</span>) or <strong>Hide Insight</strong> (sets insight status to <span class="badge badge-hidden">hidden</span>, report to <span class="badge badge-reviewed">reviewed</span>)</p>
+      <p><span class="badge badge-reviewed">reviewed</span> &rarr; <strong>Unhide Insight</strong> (restores insight to <span class="badge badge-active">active</span>, reopens report as <span class="badge badge-pending">pending</span>)</p>
+      <p><span class="badge badge-dismissed">dismissed</span> &rarr; <strong>Reopen</strong> (sets report back to <span class="badge badge-pending">pending</span>)</p>
+    </div>
+  </div>
+</div>
+
+<h3>What "Hidden" Means</h3>
+<p style="color:#94a3b8; margin-bottom: 12px;">Insights are <strong>never deleted</strong> by admin action. Instead, their status is set to <code>'hidden'</code>:</p>
+<table>
+  <tr><th>Scenario</th><th>Behavior</th></tr>
+  <tr><td>Insights index (<code>GET /insights</code>)</td><td>Hidden insights are excluded (<code>Insight.active</code> scope)</td></tr>
+  <tr><td>Insight show (<code>GET /insights/:id</code>)</td><td>Returns 404 for non-admins, full content for admins</td></tr>
+  <tr><td>Admin panel reports</td><td>Admins can always see the insight content via the preview modal</td></tr>
+</table>
+
+<!-- ===== FLOW: BLOCKING ===== -->
+<h2>Flow 3: Blocking a User</h2>
+<div class="flow phase-block">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>User visits another user's profile</strong>
+      <p>A "Block User" button appears (not shown on own profile). On mount, <code>GET /blocks</code> checks if this user is already blocked.</p>
+      <div class="file">UserDetail.jsx / UserDetailScreen.js</div>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>POST /blocks with blocked_id</strong>
+      <p>Creates a Block record. Mobile shows a confirmation Alert before blocking. Button switches to "Unblock User".</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <strong>Blocked user's content is filtered server-side</strong>
+      <p>Uses <code>set_current_user_if_present</code> (optional JWT auth) on public endpoints to filter without requiring login:</p>
+      <p><code>GET /insights</code> &mdash; excludes insights by blocked users</p>
+      <p><code>GET /insights/:id</code> &mdash; returns 404 if insight author is blocked; filters out comments by blocked users</p>
+      <p><code>GET /users</code> &mdash; excludes blocked users from the community list</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <strong>Unblock from profile or Settings</strong>
+      <p>Profile page: button toggles to "Unblock User" &rarr; <code>DELETE /blocks/unblock/:user_id</code></p>
+      <p>Settings page: "Blocked Users" section lists all blocks with "Unblock" buttons &rarr; same endpoint</p>
+      <div class="file">Settings.jsx (web) / BlockedUsersScreen.js (mobile)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FLOW: CONTENT MODERATION ===== -->
+<h2>Flow 4: Content Moderation (AI)</h2>
+<div class="flow phase-mod">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>User creates or edits an insight</strong>
+      <p>Title, description, and body are concatenated into a single string for moderation.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>ContentModerator.check(text) called</strong>
+      <p>A reusable service class in <code>app/services/content_moderator.rb</code>. Uses the <code>ruby-openai</code> gem to call <code>POST https://api.openai.com/v1/moderations</code>.</p>
+      <p>Returns <code>nil</code> if content is clean, or a string like <code>"Content flagged for: violence, hate"</code> if flagged.</p>
+      <div class="file">app/services/content_moderator.rb</div>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <strong>If flagged: 422 Unprocessable Entity</strong>
+      <p>Response: <code>{ "error": "Content flagged for: violence, hate" }</code></p>
+      <p>The insight is <strong>not saved</strong>. User sees the error message on the form.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <strong>If clean or API down: proceeds normally</strong>
+      <p>The <code>rescue StandardError => nil</code> ensures the app <strong>fails open</strong> &mdash; if OpenAI is unreachable, the insight is saved without moderation. This prevents the moderation service from being a single point of failure.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FLOW: AGE TOGGLE ===== -->
+<h2>Flow 5: Age Privacy Toggle</h2>
+<div class="flow phase-age">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>User toggles "Show Age on Profile" in Settings</strong>
+      <p><code>PUT /users/:id</code> with <code>{ show_age: true/false }</code>. The response is merged into <code>currentUser</code> state.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>Backend conditionally strips birthday</strong>
+      <p>In <code>UsersController#show</code>: if <code>user.show_age?</code> is false, the <code>birthday</code> field is excluded from the JSON response using <code>.except('birthday')</code>.</p>
+    </div>
+  </div>
+  <div class="connector"></div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <strong>Frontend conditionally renders age</strong>
+      <p>Both web and mobile wrap the age display in <code>{user?.birthday && (...)}</code>. When the backend strips the field, the age section simply doesn't render.</p>
+      <div class="file">UserDetail.jsx / UserDetailScreen.js</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FILE MAP ===== -->
+<h2>File Map</h2>
+<pre>
+<span class="comment">-- Backend (Rails) ------------------------------------------------</span>
+db/migrate/20260219160000_add_is_admin_to_users.rb
+db/migrate/20260219160001_add_show_age_to_users.rb
+db/migrate/20260219160002_create_reports.rb
+db/migrate/20260219160003_create_blocks.rb
+db/migrate/20260219170000_add_status_to_insights.rb
+
+app/models/<span class="func">report.rb</span>              <span class="comment"># belongs_to user + insight, status validation</span>
+app/models/<span class="func">block.rb</span>               <span class="comment"># blocker/blocked, self-block prevention</span>
+app/models/<span class="func">user.rb</span>                <span class="comment"># +reports, +blocks_as_blocker/blocked, +blocked_users</span>
+app/models/<span class="func">insight.rb</span>             <span class="comment"># +reports, +status validation, +active scope</span>
+
+app/services/<span class="func">content_moderator.rb</span>  <span class="comment"># ContentModerator.check(text) -- OpenAI moderation</span>
+
+app/controllers/<span class="func">application_controller.rb</span>  <span class="comment"># +authorize_admin, +set_current_user_if_present</span>
+app/controllers/<span class="func">reports_controller.rb</span>      <span class="comment"># CRUD + remove_insight + unhide_insight</span>
+app/controllers/<span class="func">blocks_controller.rb</span>       <span class="comment"># CRUD + unblock by user_id</span>
+app/controllers/<span class="func">insights_controller.rb</span>     <span class="comment"># +blocked filtering, +moderation, +my_report</span>
+app/controllers/<span class="func">users_controller.rb</span>        <span class="comment"># +blocked filtering, +show_age, +birthday stripping</span>
+
+config/<span class="func">routes.rb</span>                   <span class="comment"># +reports (index/create/update/remove/unhide)</span>
+                                   <span class="comment"># +blocks (index/create/destroy/unblock)</span>
+
+<span class="comment">-- Shared Package --------------------------------------------------</span>
+shared/src/services/<span class="func">reports.js</span>     <span class="comment"># postReport, getAllReports, updateReport, remove, unhide</span>
+shared/src/services/<span class="func">blocks.js</span>      <span class="comment"># getAllBlocks, postBlock, destroyBlock, unblockUser</span>
+
+<span class="comment">-- Web Client (React) ----------------------------------------------</span>
+client/src/Router/<span class="func">AdminRoute.jsx</span>           <span class="comment"># is_admin gate</span>
+client/src/screens/Admin/<span class="func">AdminPanel.jsx</span>   <span class="comment"># Reports table + insight preview modal</span>
+client/src/screens/InsightScreens/InsightDetail/ <span class="comment"># +report button/dialog</span>
+client/src/screens/InsightScreens/InsightCreate/ <span class="comment"># +moderation error display</span>
+client/src/screens/InsightScreens/InsightEdit/   <span class="comment"># +moderation error display</span>
+client/src/screens/UserScreens/UserDetail/       <span class="comment"># +block/unblock, +conditional age</span>
+client/src/screens/main/Settings/                <span class="comment"># +age toggle, +admin link, +blocked users list</span>
+client/src/containers/<span class="func">InsightsContainer.jsx</span>    <span class="comment"># +moderation error handling</span>
+
+<span class="comment">-- Mobile App (Expo) -----------------------------------------------</span>
+mobile/src/screens/insights/<span class="func">InsightDetailScreen.js</span>  <span class="comment"># +report button/modal</span>
+mobile/src/screens/insights/<span class="func">InsightCreateScreen.js</span>  <span class="comment"># +moderation error alert</span>
+mobile/src/screens/insights/<span class="func">InsightEditScreen.js</span>    <span class="comment"># +moderation error alert</span>
+mobile/src/screens/community/<span class="func">UserDetailScreen.js</span>    <span class="comment"># +block/unblock button</span>
+mobile/src/screens/settings/<span class="func">SettingsScreen.js</span>       <span class="comment"># +age toggle, +blocked users nav</span>
+mobile/src/screens/settings/<span class="func">BlockedUsersScreen.js</span>   <span class="comment"># new -- FlatList + unblock</span>
+mobile/src/navigation/<span class="func">MainTabs.js</span>                 <span class="comment"># Settings wrapped in SettingsStack</span>
+</pre>
+
+<!-- ===== AUTHORIZATION SUMMARY ===== -->
+<h2>Authorization Summary</h2>
+<table>
+  <tr><th>Helper</th><th>Used On</th><th>Behavior</th></tr>
+  <tr><td><code>authorize_request</code></td><td>reports#create, blocks#*</td><td>Requires valid JWT + verified email. Returns 401/403 on failure.</td></tr>
+  <tr><td><code>authorize_admin</code></td><td>reports#index/update/remove/unhide</td><td>Calls <code>authorize_request</code> first, then checks <code>is_admin?</code>. Returns 403 if not admin.</td></tr>
+  <tr><td><code>set_current_user_if_present</code></td><td>insights#index/show, users#index/show</td><td>Tries to decode JWT silently. Sets <code>@current_user</code> if valid, otherwise <code>nil</code>. Never returns an error &mdash; allows public access with optional personalization (blocked user filtering).</td></tr>
+</table>
+
+</div>
+</body>
+</html>

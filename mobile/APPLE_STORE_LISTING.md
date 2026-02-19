@@ -36,18 +36,6 @@ https://care-app.netlify.app/mobile
 ## Copyright
 2026 Daniel Michael
 
-## App Review Information
-
-### Sign-In Credentials
-- Email: mcmintmc@gmail.com
-- Password: 33311109
-
-### Contact Information
-- First Name: Daniel
-- Last Name: Michael
-- Phone: 5164446903
-- Email: itzdanielmichael@gmail.com
-
 ### Notes
 Care is a wellness tracking app. After signing in with the credentials provided, you will land on the Home screen where you can:
 

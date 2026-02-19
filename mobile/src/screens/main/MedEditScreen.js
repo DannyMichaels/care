@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
-import { Button, Text, Chip } from 'react-native-paper';
+import { Button, Text, Chip, TextInput } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { putMed, destroyMed, MED_ICONS, MED_COLORS, MED_ICON_DISPLAY_MAP, DEFAULT_ICON, DEFAULT_COLOR, getApiError } from '@care/shared';
 import ScreenWrapper from '../../components/ScreenWrapper';

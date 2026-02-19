@@ -112,6 +112,38 @@ export default function HomeScreen({ navigation }) {
 
   const MED_ICON_MAP_LOCAL = { tablet: 'circle', pill: 'pill', droplet: 'water' };
 
+  const getSectionIcon = (section, item) => {
+    switch (section.type) {
+      case 'med':
+        return () => (
+          <MaterialCommunityIcons
+            name={MED_ICON_MAP_LOCAL[item.icon] || 'pill'}
+            size={24}
+            color={item.icon_color || '#7E57C2'}
+            style={styles.itemIcon}
+          />
+        );
+      case 'mood': {
+        const mood = MOOD_ICON_MAP[item.status?.toLowerCase()] || MOOD_ICON_MAP.okay;
+        return () => (
+          <MaterialCommunityIcons name={mood.icon} size={24} color={mood.color} style={styles.itemIcon} />
+        );
+      }
+      case 'food':
+        return () => <Text style={styles.foodEmoji}>{getFoodEmoji(item.name)}</Text>;
+      case 'symptom':
+        return () => (
+          <MaterialCommunityIcons name="thermometer" size={24} color="#FF7043" style={styles.itemIcon} />
+        );
+      case 'affirmation':
+        return () => (
+          <MaterialCommunityIcons name="heart" size={24} color="#E91E63" style={styles.itemIcon} />
+        );
+      default:
+        return undefined;
+    }
+  };
+
   const sections = [
     { title: 'Medications', data: filteredMeds, icon: 'pill', createScreen: 'MedCreate', editScreen: 'MedEdit', nameField: 'name', type: 'med' },
     { title: 'Diet', data: filteredFoods, icon: 'food-apple', createScreen: 'FoodCreate', editScreen: 'FoodEdit', nameField: 'name', type: 'food', singular: 'Food' },
@@ -154,40 +186,7 @@ export default function HomeScreen({ navigation }) {
                   <List.Item
                     key={item.id}
                     title={item[section.nameField]?.substring(0, 40) || 'Untitled'}
-                    left={section.type === 'med' ? () => (
-                      <MaterialCommunityIcons
-                        name={MED_ICON_MAP_LOCAL[item.icon] || 'pill'}
-                        size={24}
-                        color={item.icon_color || '#7E57C2'}
-                        style={styles.itemIcon}
-                      />
-                    ) : section.type === 'mood' ? () => {
-                      const mood = MOOD_ICON_MAP[item.status?.toLowerCase()] || MOOD_ICON_MAP.okay;
-                      return (
-                        <MaterialCommunityIcons
-                          name={mood.icon}
-                          size={24}
-                          color={mood.color}
-                          style={styles.itemIcon}
-                        />
-                      );
-                    } : section.type === 'food' ? () => (
-                      <Text style={styles.foodEmoji}>{getFoodEmoji(item.name)}</Text>
-                    ) : section.type === 'symptom' ? () => (
-                      <MaterialCommunityIcons
-                        name="thermometer"
-                        size={24}
-                        color="#FF7043"
-                        style={styles.itemIcon}
-                      />
-                    ) : section.type === 'affirmation' ? () => (
-                      <MaterialCommunityIcons
-                        name="heart"
-                        size={24}
-                        color="#E91E63"
-                        style={styles.itemIcon}
-                      />
-                    ) : undefined}
+                    left={getSectionIcon(section, item)}
                     right={(isMed || time) ? () => (
                       <View style={styles.medBadges}>
                         {isMed && item.is_taken ? (

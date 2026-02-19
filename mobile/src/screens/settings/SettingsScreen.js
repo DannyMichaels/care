@@ -1,16 +1,64 @@
-import { StyleSheet, Alert } from 'react-native';
+import { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, Alert, Linking } from 'react-native';
 import { View } from 'react-native';
 import { Text, Avatar, Button, Switch, List, Divider } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
 import { removeToken, getAge, toTitleCase, destroyUser } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import { useTheme } from '../../context/ThemeContext';
+import { registerForPushNotifications } from '../../services/notifications';
 import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function SettingsScreen() {
   const [{ currentUser }, dispatch] = useCurrentUser();
   const { isDark, toggleTheme } = useTheme();
   const navigation = useNavigation();
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushDenied, setPushDenied] = useState(false);
+  const [isDevice, setIsDevice] = useState(false);
+
+  const checkPushStatus = useCallback(async () => {
+    if (!Device.isDevice) return;
+    setIsDevice(true);
+    const { status } = await Notifications.getPermissionsAsync();
+    setPushEnabled(status === 'granted');
+    setPushDenied(status === 'denied');
+  }, []);
+
+  useEffect(() => {
+    checkPushStatus();
+    const unsubscribe = navigation.addListener('focus', checkPushStatus);
+    return unsubscribe;
+  }, [checkPushStatus, navigation]);
+
+  const handlePushToggle = async () => {
+    if (pushEnabled) {
+      Alert.alert(
+        'Disable Notifications',
+        'To disable, go to device Settings > Apps > Care > Notifications',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Settings', onPress: () => Linking.openSettings() },
+        ]
+      );
+      return;
+    }
+    const token = await registerForPushNotifications();
+    if (token) {
+      await checkPushStatus();
+    } else {
+      Alert.alert(
+        'Notifications Blocked',
+        'Push notifications are blocked. Please enable them in your device settings.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Settings', onPress: () => Linking.openSettings() },
+        ]
+      );
+    }
+  };
 
   const handleLogout = async () => {
     await removeToken();
@@ -64,6 +112,21 @@ export default function SettingsScreen() {
         left={(props) => <List.Icon {...props} icon="theme-light-dark" />}
         right={() => <Switch value={isDark} onValueChange={toggleTheme} />}
       />
+
+      {isDevice && (
+        <>
+          <List.Item
+            title="Push Notifications"
+            description={pushDenied ? 'Blocked — tap to open settings' : undefined}
+            left={(props) => <List.Icon {...props} icon="bell-outline" />}
+            right={() => (
+              <Switch value={pushEnabled} onValueChange={handlePushToggle} disabled={pushDenied} />
+            )}
+            onPress={pushDenied ? () => Linking.openSettings() : undefined}
+          />
+          <Divider />
+        </>
+      )}
 
       <Divider />
 

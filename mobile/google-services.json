@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "266294533736",
+    "project_id": "care-18853",
+    "storage_bucket": "care-18853.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:266294533736:android:3fc09117045c66486865dd",
+        "android_client_info": {
+          "package_name": "com.cyberviper.care"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBY1IlNrDMs5mtDKVL_ShWnqRDFkRS50Gg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

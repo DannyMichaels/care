@@ -5,6 +5,7 @@ import LoginScreen from '../../screens/auth/LoginScreen';
 
 jest.mock('@care/shared', () => ({
   loginUser: jest.fn(),
+  getApiError: jest.fn((err) => err?.message || 'Something went wrong'),
 }));
 
 jest.mock('../../context/CurrentUserContext', () => ({

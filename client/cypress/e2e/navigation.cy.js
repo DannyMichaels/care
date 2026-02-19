@@ -2,7 +2,7 @@ describe('Navigation', () => {
   beforeEach(() => {
     cy.intercept('GET', '**/auth/verify', {
       statusCode: 200,
-      body: { id: 1, name: 'Test User', email: 'test@example.com', gender: 'Male', birthday: '1995-01-01' },
+      body: { id: 1, name: 'Test User', email: 'test@example.com', gender: 'Male', birthday: '1995-01-01', email_verified: true },
     }).as('verify');
 
     cy.intercept('GET', '**/medications', { statusCode: 200, body: [] });
@@ -10,12 +10,16 @@ describe('Navigation', () => {
     cy.intercept('GET', '**/foods', { statusCode: 200, body: [] });
     cy.intercept('GET', '**/symptoms', { statusCode: 200, body: [] });
     cy.intercept('GET', '**/affirmations', { statusCode: 200, body: [] });
-    cy.intercept('GET', '**/insights', { statusCode: 200, body: [] });
+    cy.intercept('GET', /localhost:3005\/insights/, { statusCode: 200, body: [] });
     cy.intercept('GET', '**/users', { statusCode: 200, body: [] });
   });
 
   it('navigates to settings page', () => {
-    cy.visit('/settings');
+    cy.visit('/settings', {
+      onBeforeLoad(win) {
+        win.localStorage.setItem('authToken', 'fake-jwt-token');
+      },
+    });
     cy.wait('@verify');
     cy.url().should('include', '/settings');
   });
@@ -28,7 +32,11 @@ describe('Navigation', () => {
   });
 
   it('navigates to insights page', () => {
-    cy.visit('/insights');
+    cy.visit('/insights', {
+      onBeforeLoad(win) {
+        win.localStorage.setItem('authToken', 'fake-jwt-token');
+      },
+    });
     cy.wait('@verify');
     cy.url().should('include', '/insights');
   });

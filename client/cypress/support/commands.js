@@ -8,6 +8,7 @@ Cypress.Commands.add('login', (email = 'test@example.com', password = 'password1
         email,
         gender: 'Male',
         birthday: '1995-01-01',
+        email_verified: true,
       },
       token: 'fake-jwt-token',
     },
@@ -21,6 +22,7 @@ Cypress.Commands.add('login', (email = 'test@example.com', password = 'password1
       email,
       gender: 'Male',
       birthday: '1995-01-01',
+      email_verified: true,
     },
   }).as('verifyRequest');
 

@@ -74,6 +74,7 @@ describe('Authentication', () => {
       cy.get('input[name="passwordConfirm"]').type('password123');
       cy.get('#date').type('1995-01-01');
       cy.get('select[name="gender"]').select('Male');
+      cy.get('input[type="checkbox"]').check();
       cy.get('button[type="submit"]').click();
 
       cy.wait('@registerRequest');
@@ -123,7 +124,7 @@ describe('Authentication', () => {
 
       cy.contains('Verify Email').click();
       cy.wait('@verifyCode');
-      cy.contains('Email verified');
+      cy.url().should('include', '/login');
     });
   });
 });

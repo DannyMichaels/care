@@ -2,7 +2,7 @@ describe('Medications', () => {
   beforeEach(() => {
     cy.intercept('GET', '**/auth/verify', {
       statusCode: 200,
-      body: { id: 1, name: 'Test User', email: 'test@example.com', gender: 'Male', birthday: '1995-01-01' },
+      body: { id: 1, name: 'Test User', email: 'test@example.com', gender: 'Male', birthday: '1995-01-01', email_verified: true },
     }).as('verify');
 
     cy.intercept('GET', '**/medications', {
@@ -19,7 +19,11 @@ describe('Medications', () => {
   });
 
   it('displays medications on home page', () => {
-    cy.visit('/');
+    cy.visit('/', {
+      onBeforeLoad(win) {
+        win.localStorage.setItem('authToken', 'fake-jwt-token');
+      },
+    });
     cy.wait('@verify');
     cy.wait('@getMeds');
     cy.contains('Aspirin');
@@ -31,7 +35,11 @@ describe('Medications', () => {
       body: { id: 2, name: 'Ibuprofen', time: new Date().toISOString(), reason: 'Pain', user_id: 1 },
     }).as('createMed');
 
-    cy.visit('/');
+    cy.visit('/', {
+      onBeforeLoad(win) {
+        win.localStorage.setItem('authToken', 'fake-jwt-token');
+      },
+    });
     cy.wait('@verify');
   });
 });

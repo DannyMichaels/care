@@ -2,10 +2,10 @@ describe('Insights', () => {
   beforeEach(() => {
     cy.intercept('GET', '**/auth/verify', {
       statusCode: 200,
-      body: { id: 1, name: 'Test User', email: 'test@example.com', gender: 'Male', birthday: '1995-01-01' },
+      body: { id: 1, name: 'Test User', email: 'test@example.com', gender: 'Male', birthday: '1995-01-01', email_verified: true },
     }).as('verify');
 
-    cy.intercept('GET', '**/insights', {
+    cy.intercept('GET', /localhost:3005\/insights/, {
       statusCode: 200,
       body: [
         {
@@ -23,7 +23,11 @@ describe('Insights', () => {
   });
 
   it('displays community insights', () => {
-    cy.visit('/insights');
+    cy.visit('/insights', {
+      onBeforeLoad(win) {
+        win.localStorage.setItem('authToken', 'fake-jwt-token');
+      },
+    });
     cy.wait('@verify');
     cy.wait('@getInsights');
     cy.contains('Test Insight');
@@ -41,7 +45,11 @@ describe('Insights', () => {
       },
     }).as('createInsight');
 
-    cy.visit('/insights');
+    cy.visit('/insights', {
+      onBeforeLoad(win) {
+        win.localStorage.setItem('authToken', 'fake-jwt-token');
+      },
+    });
     cy.wait('@verify');
     cy.wait('@getInsights');
   });

@@ -2,12 +2,10 @@ import { useState, useEffect } from 'react';
 import {View, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import { TextInput, Button, Text, List } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import dayjs from 'dayjs';
 import { useTheme } from 'react-native-paper';
 import {
   postMed,
   getRXGuideMeds,
-  selectedDateToLocal,
   MED_ICONS,
   MED_COLORS,
   DEFAULT_ICON,
@@ -23,21 +21,18 @@ const ICON_MAP = { tablet: 'circle', pill: 'pill', droplet: 'water' };
 
 export default function MedCreateScreen({ navigation }) {
   const theme = useTheme();
-  const { selectedDate, showAllDates } = useDate();
+  const { getSelectedDateWithTime } = useDate();
   const [name, setName] = useState('');
   const [reason, setReason] = useState('');
   const [medClass, setMedClass] = useState('');
   const [icon, setIcon] = useState(DEFAULT_ICON);
   const [iconColor, setIconColor] = useState(DEFAULT_COLOR);
   const [time, setTime] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [rxGuide, setRxGuide] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-
-  const needsDatePicker = showAllDates;
 
   useEffect(() => {
     getRXGuideMeds().then(setRxGuide).catch(() => {});
@@ -67,9 +62,7 @@ export default function MedCreateScreen({ navigation }) {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const medTime = needsDatePicker
-        ? time.toISOString()
-        : dayjs(selectedDate).hour(time.getHours()).minute(time.getMinutes()).second(0).toISOString();
+      const medTime = getSelectedDateWithTime(time);
 
       const newMed = await postMed({
         name,
@@ -149,23 +142,9 @@ export default function MedCreateScreen({ navigation }) {
         ))}
       </View>
 
-      {needsDatePicker && (
-        <Button mode="outlined" onPress={() => setShowDatePicker(true)} style={styles.input}>
-          Date: {time.toLocaleDateString()}
-        </Button>
-      )}
-
       <Button mode="outlined" onPress={() => setShowTimePicker(true)} style={styles.input}>
         Time: {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </Button>
-
-      <DatePickerModal
-        visible={showDatePicker}
-        value={time}
-        mode="date"
-        onConfirm={(d) => { setShowDatePicker(false); setTime(d); }}
-        onDismiss={() => setShowDatePicker(false)}
-      />
 
       <DatePickerModal
         visible={showTimePicker}

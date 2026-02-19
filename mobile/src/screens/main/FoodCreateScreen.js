@@ -2,14 +2,13 @@ import { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import dayjs from 'dayjs';
 import { postFood, getApiError } from '@care/shared';
 import { useDate } from '../../context/DateContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 
 export default function FoodCreateScreen({ navigation }) {
-  const { selectedDate } = useDate();
+  const { getSelectedDateWithTime } = useDate();
   const [name, setName] = useState('');
   const [factors, setFactors] = useState('');
   const [rating, setRating] = useState(3);
@@ -20,8 +19,7 @@ export default function FoodCreateScreen({ navigation }) {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const dt = dayjs(selectedDate).hour(time.getHours()).minute(time.getMinutes()).second(0);
-      await postFood({ name, factors, rating, time: dt.toISOString() });
+      await postFood({ name, factors, rating, time: getSelectedDateWithTime(time) });
       navigation.goBack();
     } catch (err) {
       Alert.alert('Error', getApiError(err));

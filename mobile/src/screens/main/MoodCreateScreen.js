@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text, RadioButton } from 'react-native-paper';
-import dayjs from 'dayjs';
 import { postMood, getApiError } from '@care/shared';
 import { useDate } from '../../context/DateContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 
 export default function MoodCreateScreen({ navigation }) {
-  const { selectedDate } = useDate();
+  const { getSelectedDateWithTime } = useDate();
   const [status, setStatus] = useState('Good');
   const [reason, setReason] = useState('');
   const [time, setTime] = useState(new Date());
@@ -18,8 +17,7 @@ export default function MoodCreateScreen({ navigation }) {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const dt = dayjs(selectedDate).hour(time.getHours()).minute(time.getMinutes()).second(0);
-      await postMood({ status, reason, time: dt.toISOString() });
+      await postMood({ status, reason, time: getSelectedDateWithTime(time) });
       navigation.goBack();
     } catch (err) {
       Alert.alert('Error', getApiError(err));

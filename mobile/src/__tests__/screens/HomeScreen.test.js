@@ -19,9 +19,8 @@ jest.mock('../../context/CurrentUserContext', () => ({
 jest.mock('../../context/DateContext', () => ({
   useDate: () => ({
     selectedDate: '2026-02-17',
-    showAllDates: false,
     setSelectedDate: jest.fn(),
-    toggleShowAll: jest.fn(),
+    getSelectedDateWithTime: jest.fn(),
   }),
 }));
 

@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
-import dayjs from 'dayjs';
 import { postSymptom, getApiError } from '@care/shared';
 import { useDate } from '../../context/DateContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 
 export default function SymptomCreateScreen({ navigation }) {
-  const { selectedDate } = useDate();
+  const { getSelectedDateWithTime } = useDate();
   const [name, setName] = useState('');
   const [time, setTime] = useState(new Date());
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -17,8 +16,7 @@ export default function SymptomCreateScreen({ navigation }) {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const dt = dayjs(selectedDate).hour(time.getHours()).minute(time.getMinutes()).second(0);
-      await postSymptom({ name, time: dt.toISOString() });
+      await postSymptom({ name, time: getSelectedDateWithTime(time) });
       navigation.goBack();
     } catch (err) {
       Alert.alert('Error', getApiError(err));

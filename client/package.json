@@ -14,7 +14,6 @@
     "@testing-library/user-event": "^12.1.10",
     "axios": "^0.21.0",
     "cross-env": "^10.1.0",
-    "material-ui-password-field": "^2.1.2",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.32",
     "react": "^17.0.1",

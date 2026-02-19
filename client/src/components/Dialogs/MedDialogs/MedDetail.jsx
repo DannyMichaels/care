@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
+import MuiDialogTitle from "@material-ui/core/DialogTitle";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
 import Typography from "@material-ui/core/Typography";
 import Moment from "react-moment";
 import "moment-timezone";
 import { compareDateWithCurrentTime } from "@care/shared";
 import {
-  DialogTitle,
   DialogContent,
   DialogActions,
 } from "../../Form/DialogComponents";
@@ -25,11 +27,10 @@ export default function MedDetail({
 
   useEffect(() => {
     const getMedData = () => {
-      const { name, medication_class, image, reason, time } = med;
+      const { name, medication_class, reason, time } = med;
       setMedData({
         name,
         medication_class,
-        image,
         time,
         reason,
         is_taken: true,
@@ -43,29 +44,33 @@ export default function MedDetail({
 
   return (
     <Dialog onClose={handleDetailClose} open={openDetail}>
-      <DialogTitle onClose={handleDetailClose}>
-        <Typography
-          style={{
-            display: "flex",
-            alignItems: "center",
-            fontSize: "1.3rem",
-            fontFamily: "Montserrat, sans-serif",
-            padding: "5px",
-          }}
-        >
+      <MuiDialogTitle disableTypography style={{ position: "relative", padding: "16px", paddingRight: "48px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <MedImage
-            image={med.image}
             icon={med.icon}
             iconColor={med.icon_color}
             alt={med.name}
-            style={{ height: "30px", width: "50px", objectFit: "contain" }}
+            style={{ height: "30px", width: "30px" }}
           />
-          <>{med.name}</>
-        </Typography>
-        <Typography style={{ textAlign: "left", marginLeft: "10px" }}>
-          {med.medication_class}
-        </Typography>
-      </DialogTitle>
+          <div>
+            <Typography style={{ fontSize: "1.3rem", fontFamily: "Montserrat, sans-serif", fontWeight: 600 }}>
+              {med.name}
+            </Typography>
+            {med.medication_class && (
+              <Typography variant="body2" color="textSecondary">
+                {med.medication_class}
+              </Typography>
+            )}
+          </div>
+        </div>
+        <IconButton
+          aria-label="close"
+          onClick={handleDetailClose}
+          style={{ position: "absolute", right: 8, top: 8, color: "#9e9e9e" }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </MuiDialogTitle>
       <DialogContent
         dividers
         style={{
@@ -84,7 +89,7 @@ export default function MedDetail({
           <small>{med.reason}</small>
         </Typography>
       </DialogContent>
-      <DialogTitle>
+      <div style={{ padding: "8px 16px" }}>
         {compareDateWithCurrentTime(med?.time) < 0 && !med.is_taken ? (
           <Typography>
             You have to take {med?.name}&nbsp;
@@ -103,7 +108,7 @@ export default function MedDetail({
             <Moment from={currentTime?.toISOString()}>{med?.time}</Moment>
           </Typography>
         )}
-      </DialogTitle>
+      </div>
       <DialogActions>
         {compareDateWithCurrentTime(med?.time) === 1 &&
         med.is_taken === false ? (

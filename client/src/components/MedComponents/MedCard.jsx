@@ -96,14 +96,12 @@ export default function MedCard({
             <div style={{ padding: '20px' }}>
               <MedImage
                 onClick={handleDetailOpen}
-                image={med.image}
                 icon={med.icon}
                 iconColor={med.icon_color}
                 alt={med.name}
                 style={{
                   width: '50px',
                   height: '50px',
-                  objectFit: 'contain',
                 }}
               />
             </div>

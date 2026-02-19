@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_18_120000) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_19_144956) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -145,16 +145,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_18_120000) do
     t.index ["user_id"], name: "index_web_push_subscriptions_on_user_id"
   end
 
-  add_foreign_key "affirmations", "users"
-  add_foreign_key "comments", "insights"
-  add_foreign_key "comments", "users"
-  add_foreign_key "foods", "users"
-  add_foreign_key "insights", "users"
-  add_foreign_key "likes", "insights"
-  add_foreign_key "likes", "users"
-  add_foreign_key "medications", "users"
-  add_foreign_key "moods", "users"
-  add_foreign_key "push_tokens", "users"
-  add_foreign_key "symptoms", "users"
-  add_foreign_key "web_push_subscriptions", "users"
+  add_foreign_key "affirmations", "users", on_delete: :cascade
+  add_foreign_key "comments", "insights", on_delete: :cascade
+  add_foreign_key "comments", "users", on_delete: :cascade
+  add_foreign_key "foods", "users", on_delete: :cascade
+  add_foreign_key "insights", "users", on_delete: :cascade
+  add_foreign_key "likes", "insights", on_delete: :cascade
+  add_foreign_key "likes", "users", on_delete: :cascade
+  add_foreign_key "medications", "users", on_delete: :cascade
+  add_foreign_key "moods", "users", on_delete: :cascade
+  add_foreign_key "push_tokens", "users", on_delete: :cascade
+  add_foreign_key "symptoms", "users", on_delete: :cascade
+  add_foreign_key "web_push_subscriptions", "users", on_delete: :cascade
 end

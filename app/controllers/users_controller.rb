@@ -10,14 +10,14 @@ class UsersController < ApplicationController
     # render the users but down show password digest and updated at (even if hashed)                        # Mapping through the user to get the likes, mapping through the likes to get the insight name.                                                                     
     render json: @users.map {|user| user.attributes.except('password_digest', 'updated_at').merge(
       {insights_count: user.insights.size},
-      {liked_insights: user.likes.order('created_at DESC').map {|like| like.attributes.slice().merge({ :title => like.insight.title, :insight_id => like.insight_id, :like_id => like.id, :liked_at => like.created_at})}},
+      {liked_insights: user.liked_insights.order('likes.created_at DESC')},
       {comments: user.comments.order('created_at DESC').map {|comment| comment.attributes.merge({:insight_title => comment.insight.title})}}
       )}
   end
 
   def show
     # getting the user, and his insights, except the insight's user_id, because we already get that when we render the user.
-    render json: @user.attributes.except('password_digest', 'updated_at').merge( {liked_insights: @user.likes.map {|like| like.attributes.slice().merge({ :title => like.insight.title, :insight_id => like.insight_id, :like_id => like.id})}}, {insights: @user.insights.map {|insight| insight.attributes.except('updated_at', 'user_id')}})
+    render json: @user.attributes.except('password_digest', 'updated_at').merge({liked_insights: @user.liked_insights}, {insights: @user.insights.map {|insight| insight.attributes.except('updated_at', 'user_id')}})
   end
 
   # POST /users

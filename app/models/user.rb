@@ -17,7 +17,7 @@ class User < ApplicationRecord
   has_many :likes, dependent: :destroy
   has_many :push_tokens, dependent: :destroy
   has_many :web_push_subscriptions, dependent: :destroy
-  has_many :liked_insights, :through => :likes
+  has_many :liked_insights, through: :likes, source: :insight
   has_many :comments, dependent: :destroy
   
   def downcase_email

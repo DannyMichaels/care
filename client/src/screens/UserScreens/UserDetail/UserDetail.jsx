@@ -43,7 +43,7 @@ export default function UserDetail({ getOneUser }) {
     user?.liked_insights?.map((likedInsight) => (
       <Link
         className="insights-link"
-        to={`./../insights/${likedInsight.insight_id}`}>
+        to={`./../insights/${likedInsight.id}`}>
         {likedInsight?.title}
       </Link>
     ))

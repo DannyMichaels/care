@@ -60,7 +60,7 @@ const Feed = ({
                   </span>
                   <Link
                     className="link-2"
-                    to={`/insights/${item[attribute][0].insight_id}`}
+                    to={`/insights/${item[attribute][0].id}`}
                   >
                     {item[attribute][0].insight_title}
                   </Link>
@@ -99,7 +99,7 @@ const Feed = ({
                   </span>
                   <Link
                     className="link-2"
-                    to={`/insights/${item[attribute][0].insight_id}`}
+                    to={`/insights/${item[attribute][0].id}`}
                   >
                     {item[attribute][0].title}
                   </Link>

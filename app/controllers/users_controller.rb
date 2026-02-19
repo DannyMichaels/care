@@ -42,8 +42,13 @@ class UsersController < ApplicationController
     if @user.save
       @token = encode({id: @user.id})
       UserMailer.with(user: @user).sign_up_email.deliver_later
+
+      # Send verification code automatically on registration
+      verification = EmailVerification.create(email: @user.email.downcase)
+      VerificationMailer.verification_code_email(verification).deliver_later if verification.persisted?
+
       render json: {
-        user: @user.attributes.except('password_digest', 'updated_at'), 
+        user: @user.attributes.except('password_digest', 'updated_at'),
         token: @token
         }, status: :created
     else

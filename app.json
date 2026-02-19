@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "a13333cb-e8e2-4332-bd31-59872200f72c"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.cyberviper.care",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    }
+  }
+}

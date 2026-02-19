@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { TextInput, Button, Text, HelperText, Checkbox } from 'react-native-paper';
-import { registerUser, sendVerificationCode, getApiError } from '@care/shared';
+import { registerUser, getApiError } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
@@ -48,8 +48,7 @@ export default function RegisterScreen({ navigation }) {
       const user = await registerUser(formData);
       dispatch({ type: 'SET_USER', currentUser: user });
 
-      // Send verification code after registration
-      await sendVerificationCode(formData.email);
+      // Verification code is sent automatically by the backend on registration
       navigation.navigate('EmailVerification', { email: formData.email });
     } catch (err) {
       setError(getApiError(err));

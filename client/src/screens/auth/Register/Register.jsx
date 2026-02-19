@@ -9,7 +9,7 @@ import {
 } from "../../../context/AllUsersContext";
 
 // Services and Utils
-import { toTitleCase, registerUser, checkEmailValidity, checkPasswordLength, sendVerificationCode } from '@care/shared';
+import { toTitleCase, registerUser, checkEmailValidity, checkPasswordLength } from '@care/shared';
 import moment from "moment";
 
 // Components
@@ -40,6 +40,7 @@ import CameraIcon from "@material-ui/icons/CameraAlt";
 // Styles
 import { useStyles } from "./registerStyles";
 import Logo from "../../../components/Logo/Logo.jsx";
+import LegalModal from "../../legal/LegalModal";
 
 export default function Register() {
   const [{ currentUser }, dispatch] = useStateValue();
@@ -54,6 +55,7 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [legalModal, setLegalModal] = useState(null);
   const { allUsers } = useContext(AllUsersStateContext);
   const dispatchAllUsers = useContext(AllUsersDispatchContext);
 
@@ -76,13 +78,7 @@ export default function Register() {
 
       dispatchAllUsers({ type: "USER_CREATED", payload: userData });
 
-      // Send verification code and redirect to verify email
-      try {
-        await sendVerificationCode(registerData.email);
-      } catch {
-        // Non-blocking — user can resend from verification screen
-      }
-
+      // Verification code is sent automatically by the backend on registration
       setIsLoading(false);
       history.push(`/verify-email?email=${encodeURIComponent(registerData.email)}`);
     } catch (error) {
@@ -430,19 +426,21 @@ export default function Register() {
                 label={
                   <Typography style={{ fontSize: '14px' }}>
                     I agree to the{' '}
-                    <Link
+                    <span
                       className={classes.loginLink}
-                      to="/terms"
+                      style={{ cursor: 'pointer' }}
+                      onClick={(e) => { e.preventDefault(); setLegalModal('terms'); }}
                     >
                       Terms of Service
-                    </Link>
+                    </span>
                     {' '}and{' '}
-                    <Link
+                    <span
                       className={classes.loginLink}
-                      to="/privacy"
+                      style={{ cursor: 'pointer' }}
+                      onClick={(e) => { e.preventDefault(); setLegalModal('privacy'); }}
                     >
                       Privacy Policy
-                    </Link>
+                    </span>
                   </Typography>
                 }
               />
@@ -470,19 +468,21 @@ export default function Register() {
             className={classes.login}
             style={{ fontSize: '14px', marginTop: '12px' }}
           >
-            <Link
+            <span
               className={classes.loginLink}
-              to="/privacy"
+              style={{ cursor: 'pointer' }}
+              onClick={() => setLegalModal('privacy')}
             >
               Privacy Policy
-            </Link>
+            </span>
             &nbsp;|&nbsp;
-            <Link
+            <span
               className={classes.loginLink}
-              to="/terms"
+              style={{ cursor: 'pointer' }}
+              onClick={() => setLegalModal('terms')}
             >
               Terms of Service
-            </Link>
+            </span>
           </Typography>
           <br />
           <Typography className={classes.user}>
@@ -497,6 +497,11 @@ export default function Register() {
           </Typography>
         </div>
       </div>
+      <LegalModal
+        open={!!legalModal}
+        onClose={() => setLegalModal(null)}
+        type={legalModal}
+      />
     </>
   );
 }

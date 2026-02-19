@@ -178,7 +178,7 @@ export default function Login() {
             className={classes.link}
             target="_blank"
             rel="noreferrer"
-            href="http://www.github.com/dannymichaels/care"
+            href="https://daniel-michael.com"
           >
             Daniel Michael &copy; {new Date().getFullYear()}
           </a>

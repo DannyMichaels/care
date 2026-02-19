@@ -7,7 +7,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "axios": "^0.21.0"
+    "axios": "^1.13.5"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",

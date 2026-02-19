@@ -25,6 +25,12 @@ if (ajvVersion.startsWith('8.')) {
 // Install ajv@8 nested under each package that needs it.
 const packages = ['ajv-keywords', 'ajv-formats'];
 
+// Skip if ajv-keywords isn't installed (e.g. EAS builds where react-scripts isn't present)
+if (!fs.existsSync(path.join(nm, 'ajv-keywords'))) {
+  console.log('fix-ajv: ajv-keywords not found, skipping (not a web build)');
+  process.exit(0);
+}
+
 for (const pkg of packages) {
   const pkgNm = path.join(nm, pkg, 'node_modules');
   const nestedAjv = path.join(pkgNm, 'ajv', 'package.json');

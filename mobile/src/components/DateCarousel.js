@@ -55,20 +55,16 @@ const DayCard = memo(function DayCard({ day, isSelected, colors, onSelect }) {
       </Text>
     </TouchableOpacity>
   );
-});
+}, (prev, next) => (
+  prev.day.dateStr === next.day.dateStr
+  && prev.isSelected === next.isSelected
+));
 
 export default function DateCarousel() {
   const { selectedDate, setSelectedDate } = useDate();
   const { colors } = useTheme();
   const scrollRef = useRef(null);
-  // Only rebuild days when the selected date extends beyond the default 365-day window.
-  // For taps within the normal range, the array is identical — only isSelected styling changes.
-  const rangeKey = useMemo(() => {
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - 365);
-    return new Date(selectedDate + 'T00:00:00') < cutoff ? selectedDate : 'default';
-  }, [selectedDate]);
-  const days = useMemo(() => buildCalendarDays(selectedDate), [rangeKey]);
+  const days = useMemo(() => buildCalendarDays(selectedDate), [selectedDate]);
   const [showPicker, setShowPicker] = useState(false);
   const [visibleYear, setVisibleYear] = useState(
     () => parseInt(selectedDate.substring(0, 4), 10)

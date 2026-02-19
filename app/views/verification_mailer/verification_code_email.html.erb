@@ -1,13 +1,21 @@
-<h1>Your Verification Code</h1>
+<h1 style="margin: 0 0 16px; font-size: 22px; color: #333;">Your Verification Code</h1>
 
-<p>Hello!</p>
+<p style="font-size: 15px; color: #555; line-height: 1.6; margin: 0 0 20px;">
+  Use the code below to verify your email address.
+</p>
 
-<p>Your Care verification code is:</p>
+<div style="text-align: center; margin: 0 0 20px;">
+  <div style="display: inline-block; letter-spacing: 8px; font-size: 32px; font-weight: 700; color: #333; padding: 16px 24px; background-color: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 8px;">
+    <%= @code %>
+  </div>
+</div>
 
-<h2 style="letter-spacing: 8px; font-size: 32px; text-align: center; padding: 20px; background: #f5f5f5; border-radius: 8px;">
-  <%= @code %>
-</h2>
+<div style="background-color: #fff8e1; border-left: 4px solid #fbc02d; padding: 14px 18px; border-radius: 4px; margin: 0 0 20px;">
+  <p style="margin: 0; font-size: 14px; color: #555; line-height: 1.5;">
+    This code will expire in <strong>10 minutes</strong>.
+  </p>
+</div>
 
-<p>This code will expire in 10 minutes.</p>
-
-<p>If you didn't request this code, you can safely ignore this email.</p>
+<p style="font-size: 14px; color: #999; line-height: 1.6; margin: 0;">
+  If you didn't request this code, you can safely ignore this email.
+</p>

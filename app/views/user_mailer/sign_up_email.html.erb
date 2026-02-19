@@ -1,15 +1,34 @@
-<h1>Welcome to Care, <%= @user.name %>! <br/>
-  <img src="<%=@user.image %>" alt="<%=@user.name %>"/> <br/>
-  <p>hope you enjoy your stay, here is a little bit more about the app</p>
-<h2>What is Care?</h2>
-<p>Care is a self tracking app where a user can track his mood, symptoms, food, medications, and share insights with the community</p> <br/>
-<h2>What inspired you?</h2>
-<p>Making a "utility belt/self tracking" app was my dream ever since I started programming, I personally have IBD, so I want to track my mood, symptoms, medicine, etc all the time. This app allows me to do that and also share posts with the community at the same time. Before Care I used an app called "Gali Health" to track my symptoms, however Gali didn't allow me to track food, and also it was specific to IBD, whereas this app allows you to track all kinds of symptoms and share all kinds of posts.</p> <br/>
-<h2>What is this RXGuide thing in the home page?</h2>
-<p>RXGuide is my second ever project, it's a front-end react-app that uses an airtable back end to do full crud, I use my airtable API from RXGuide on this project to Create, read, update, and delete a medication and associate it to a user.</p> <br/>
+<h1 style="margin: 0 0 16px; font-size: 22px; color: #333;">Welcome to Care, <%= @user.name %>!</h1>
 
-<h3>Anyways...</h3>
-<p>I appreciate you for trying out my app <%= @user.name %>, it means a-lot to me, this is a project that I'm very passionate about, if you have any questions or concerns please feel free to reach out!</p>
-<p>Thanks and Regards,</p>
-<p>Daniel Michael</p>
-<img src="https://i.imgur.com/1QePclv.png" alt="logo" />
+<p style="font-size: 15px; color: #555; line-height: 1.6; margin: 0 0 20px;">
+  Thanks for signing up. Care is your personal wellness companion — a place to track how you feel, what you eat, your symptoms, medications, and more, all in one place.
+</p>
+
+<h2 style="margin: 0 0 12px; font-size: 16px; color: #333;">Here's what you can do:</h2>
+
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 0 20px;">
+  <tr>
+    <td style="padding: 6px 12px 6px 0; vertical-align: top; color: #fbc02d; font-size: 18px;">&#9679;</td>
+    <td style="padding: 6px 0; font-size: 14px; color: #555; line-height: 1.5;"><strong>Track your mood</strong> — log how you're feeling each day</td>
+  </tr>
+  <tr>
+    <td style="padding: 6px 12px 6px 0; vertical-align: top; color: #fbc02d; font-size: 18px;">&#9679;</td>
+    <td style="padding: 6px 0; font-size: 14px; color: #555; line-height: 1.5;"><strong>Log symptoms & food</strong> — keep a record of what matters to your health</td>
+  </tr>
+  <tr>
+    <td style="padding: 6px 12px 6px 0; vertical-align: top; color: #fbc02d; font-size: 18px;">&#9679;</td>
+    <td style="padding: 6px 0; font-size: 14px; color: #555; line-height: 1.5;"><strong>Manage medications</strong> — stay on top of your prescriptions</td>
+  </tr>
+  <tr>
+    <td style="padding: 6px 12px 6px 0; vertical-align: top; color: #fbc02d; font-size: 18px;">&#9679;</td>
+    <td style="padding: 6px 0; font-size: 14px; color: #555; line-height: 1.5;"><strong>Write affirmations</strong> — start each day with a positive mindset</td>
+  </tr>
+  <tr>
+    <td style="padding: 6px 12px 6px 0; vertical-align: top; color: #fbc02d; font-size: 18px;">&#9679;</td>
+    <td style="padding: 6px 0; font-size: 14px; color: #555; line-height: 1.5;"><strong>Share insights</strong> — post to the community and connect with others</td>
+  </tr>
+</table>
+
+<p style="font-size: 14px; color: #555; line-height: 1.6; margin: 0;">
+  We're glad to have you here. Take care of yourself!
+</p>

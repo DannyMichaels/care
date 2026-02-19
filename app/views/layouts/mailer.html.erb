@@ -2,12 +2,38 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <style>
-      /* Email styles need to be inline */
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
-
-  <body>
-    <%= yield %>
+  <body style="margin: 0; padding: 0; background-color: #f4f6f8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f6f8;">
+      <tr>
+        <td align="center" style="padding: 32px 16px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px;">
+            <!-- Header -->
+            <tr>
+              <td style="background-color: #424242; border-radius: 12px 12px 0 0; padding: 24px 32px; text-align: center;">
+                <img src="https://i.imgur.com/1QePclv.png" alt="Care" width="48" height="48" style="display: inline-block; vertical-align: middle;" />
+                <span style="color: #fbc02d; font-size: 24px; font-weight: 600; vertical-align: middle; margin-left: 8px;">Care</span>
+              </td>
+            </tr>
+            <!-- Body -->
+            <tr>
+              <td style="background-color: #ffffff; padding: 32px; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0;">
+                <%= yield %>
+              </td>
+            </tr>
+            <!-- Footer -->
+            <tr>
+              <td style="background-color: #fafafa; border-radius: 0 0 12px 12px; padding: 20px 32px; text-align: center; border: 1px solid #e0e0e0; border-top: none;">
+                <p style="margin: 0; font-size: 12px; color: #9e9e9e; line-height: 1.6;">
+                  This email was sent by Care. If you have any questions, contact us at
+                  <a href="mailto:<%= support_email %>" style="color: #fbc02d; text-decoration: none;"><%= support_email %></a>
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>

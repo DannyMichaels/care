@@ -40,6 +40,7 @@ Rails.application.configure do
   # telling action mailer to set the delivery method to letter_opener
   config.action_mailer.delivery_method = :letter_opener
   config.action_mailer.perform_deliveries = true
+  config.action_mailer.preview_paths << Rails.root.join('spec/mailers/previews')
   # Raises error for missing translations.
   # config.action_view.raise_on_missing_translations = true
 

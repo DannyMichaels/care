@@ -1,5 +1,12 @@
-<p>
-  <%= @user.name %>, you recently changed your account, not you? please contact
-  us at care.app.info@gmail.com
+<h1 style="margin: 0 0 16px; font-size: 22px; color: #333;">Account Updated</h1>
+
+<p style="font-size: 15px; color: #555; line-height: 1.6; margin: 0 0 20px;">
+  Hi <%= @user.name %>, your Care account was recently updated. If this was you, no action is needed.
 </p>
-<img src="https://i.imgur.com/1QePclv.png" alt="logo" />
+
+<div style="background-color: #fff8e1; border-left: 4px solid #fbc02d; padding: 14px 18px; border-radius: 4px; margin: 0 0 20px;">
+  <p style="margin: 0; font-size: 14px; color: #555; line-height: 1.5;">
+    If you didn't make this change, please contact us immediately at
+    <a href="mailto:<%= support_email %>" style="color: #fbc02d; text-decoration: none; font-weight: 600;"><%= support_email %></a>
+  </p>
+</div>

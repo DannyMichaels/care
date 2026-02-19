@@ -1,8 +1,7 @@
-import { useState, useRef, useImperativeHandle, forwardRef } from 'react';
+import { useRef, useImperativeHandle, forwardRef } from 'react';
 import { makeStyles } from '@material-ui/styles';
-import { yellow } from '@material-ui/core/colors';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   codeRow: {
     display: 'flex',
     justifyContent: 'center',
@@ -12,24 +11,22 @@ const useStyles = makeStyles({
   codeInput: {
     width: '48px',
     height: '56px',
-    border: ({ themeState }) =>
-      themeState === 'dark' ? '2px solid #888' : '2px solid #ccc',
+    border: theme.palette.type === 'dark' ? '2px solid #888' : '2px solid #ccc',
     borderRadius: '8px',
     fontSize: '24px',
     fontWeight: 'bold',
     textAlign: 'center',
     outline: 'none',
     backgroundColor: 'transparent',
-    color: ({ themeState }) => (themeState === 'dark' ? '#fff' : '#000'),
+    color: theme.palette.text.primary,
     '&:focus': {
-      borderColor: ({ themeState }) =>
-        themeState === 'dark' ? yellow[700] : '#62B5D9',
+      borderColor: theme.palette.primary.main,
     },
   },
-});
+}));
 
-const CodeInput = forwardRef(({ value, onChange, themeState }, ref) => {
-  const classes = useStyles({ themeState });
+const CodeInput = forwardRef(({ value, onChange }, ref) => {
+  const classes = useStyles();
   const inputs = useRef([]);
 
   useImperativeHandle(ref, () => ({

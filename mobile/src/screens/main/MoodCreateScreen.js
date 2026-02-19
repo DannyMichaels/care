@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text, RadioButton } from 'react-native-paper';
 import dayjs from 'dayjs';
 import { postMood } from '@care/shared';
@@ -21,7 +21,9 @@ export default function MoodCreateScreen({ navigation }) {
       const dt = dayjs(selectedDate).hour(time.getHours()).minute(time.getMinutes()).second(0);
       await postMood({ status, reason, time: dt.toISOString() });
       navigation.goBack();
-    } catch {} finally {
+    } catch (err) {
+      Alert.alert('Error', err?.message || 'Failed to save mood');
+    } finally {
       setLoading(false);
     }
   };

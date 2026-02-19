@@ -1,22 +1,23 @@
-import TextField from "@material-ui/core/TextField";
-import SearchIcon from "@material-ui/icons/Search";
-import styled from "styled-components";
-import Card from "@material-ui/core/Card";
-import ClearIcon from "@material-ui/icons/Clear";
-import { yellow } from "@material-ui/core/colors";
-import { useEffect, useState } from "react";
+import TextField from '@material-ui/core/TextField';
+import SearchIcon from '@material-ui/icons/Search';
+import styled from 'styled-components';
+import Card from '@material-ui/core/Card';
+import ClearIcon from '@material-ui/icons/Clear';
+import { useEffect, useState } from 'react';
 
 let Search = styled.div`
   position: relative;
   z-index: 9999999999;
   input {
-    font-family: "Montserrat", sans-serif;
-    color: ${({ themeState }) => (themeState === "dark" ? "black" : "white")};
+    font-family: 'Montserrat', sans-serif;
+    color: ${({ theme }) =>
+      theme.palette.type === 'dark' ? 'black' : 'white'};
     padding-left: 5px;
   }
 
   .icon {
-    color: ${({ themeState }) => (themeState === "dark" ? "black" : "white")};
+    color: ${({ theme }) =>
+      theme.palette.type === 'dark' ? 'black' : 'white'};
   }
 
   .icon.clear {
@@ -34,18 +35,18 @@ let Search = styled.div`
 const StyledTextField = styled(TextField)`
   /* default */
   .MuiInput-underline:before {
-    border-bottom: ${({ themeState }) =>
-      themeState === "dark" ? "1px solid black" : "1px solid white"};
+    border-bottom: ${({ theme }) =>
+      theme.palette.type === 'dark' ? '1px solid black' : '1px solid white'};
   }
   /* hover (double-ampersand needed for specificity reasons. */
   && .MuiInput-underline:hover:before {
-    border-bottom: ${({ themeState }) =>
-      themeState === "dark" ? "1px solid black" : "1px solid white"};
+    border-bottom: ${({ theme }) =>
+      theme.palette.type === 'dark' ? '1px solid black' : '1px solid white'};
   }
   /* focused */
   .MuiInput-underline:after {
-    border-bottom: ${({ themeState }) =>
-      themeState === "dark" ? "1px solid black" : "1px solid white"};
+    border-bottom: ${({ theme }) =>
+      theme.palette.type === 'dark' ? '1px solid black' : '1px solid white'};
   }
 `;
 
@@ -55,35 +56,33 @@ const Dropdown = styled(Card)`
   top: 45px;
   z-index: 999999;
 
-  background: ${({ themeState }) =>
-    themeState === "dark" ? yellow[700] : "#3788E5"};
+  background: ${({ theme }) => theme.palette.primary.main};
   box-shadow: -3px 5px 17px 1px #000;
 `;
 
-function HeaderSearch({ search, setSearch, themeState, usersJSX, open }) {
-  const [placeholder, setPlaceholder] = useState("Search Care");
+function HeaderSearch({ search, setSearch, usersJSX, open }) {
+  const [placeholder, setPlaceholder] = useState('Search Care');
 
   useEffect(() => {
     const handleSearchResize = () => {
       const width = window?.innerWidth;
       if (width <= 468) {
-        setPlaceholder("Search");
+        setPlaceholder('Search');
       } else {
-        setPlaceholder("Search Care");
+        setPlaceholder('Search Care');
       }
     };
     handleSearchResize();
-    window.addEventListener("resize", handleSearchResize);
+    window.addEventListener('resize', handleSearchResize);
     return () => {
-      window.removeEventListener("resize", handleSearchResize);
+      window.removeEventListener('resize', handleSearchResize);
     };
   }, []);
 
   return (
     <>
-      <Search open={open} themeState={themeState}>
+      <Search open={open}>
         <StyledTextField
-          themeState={themeState}
           type="text"
           placeholder={placeholder}
           value={search}
@@ -92,13 +91,13 @@ function HeaderSearch({ search, setSearch, themeState, usersJSX, open }) {
             startAdornment: !search ? (
               <SearchIcon className="icon" />
             ) : (
-              <ClearIcon onClick={() => setSearch("")} className="icon clear" />
+              <ClearIcon onClick={() => setSearch('')} className="icon clear" />
             ),
           }}
         />
         {/* the other dropdown when it's open is moved to OpenNavBar.jsx */}
         {!open && (
-          <Dropdown themeState={themeState}>
+          <Dropdown>
             <div className="dropdown-items">{search && usersJSX}</div>
           </Dropdown>
         )}

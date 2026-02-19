@@ -1,17 +1,14 @@
-import { useContext } from "react";
-import styled from "styled-components";
-import { ThemeStateContext } from "../../../context/ThemeStateContext";
-import CurrentUserContainer from "./CurrentUserContainer";
-import HeaderSearch from "./HeaderSearch";
-import { yellow, blue } from "@material-ui/core/colors";
-import Card from "@material-ui/core/Card";
+import styled from 'styled-components';
+import CurrentUserContainer from './CurrentUserContainer';
+import HeaderSearch from './HeaderSearch';
+import Card from '@material-ui/core/Card';
 
 const Ul = styled.ul`
   margin: 0;
   flex-flow: column nowrap;
-  background-color: ${({ isLight }) => (isLight ? blue[600] : yellow[700])};
+  background-color: ${({ theme }) => theme.palette.primary.main};
   position: fixed;
-  transform: ${({ open }) => (open ? "translateX(0)" : "translateX(100%)")};
+  transform: ${({ open }) => (open ? 'translateX(0)' : 'translateX(100%)')};
   top: 0;
   right: 0;
   height: 100vh;
@@ -42,16 +39,15 @@ const Ul = styled.ul`
   }
 `;
 
-const Dropdown = styled(({ isSearching, themeState, ...rest }) => <Card {...rest} />)`
+const Dropdown = styled(({ isSearching, ...rest }) => <Card {...rest} />)`
   position: absolute;
   min-width: 250px;
   top: 110px;
   z-index: 999999;
 
-  background: ${({ themeState }) =>
-    themeState === "dark" ? yellow[700] : "#3788E5"};
+  background: ${({ theme }) => theme.palette.primary.main};
   box-shadow: ${({ isSearching }) =>
-    isSearching ? "-3px 5px 17px 1px #000" : ""};
+    isSearching ? '-3px 5px 17px 1px #000' : ''};
   .dropdown-items {
     display: flex;
     flex-direction: column;
@@ -60,17 +56,15 @@ const Dropdown = styled(({ isSearching, themeState, ...rest }) => <Card {...rest
 `;
 
 function OpenNavBar({ open, search, setSearch, usersJSX }) {
-  const [themeState] = useContext(ThemeStateContext);
   return (
-    <Ul open={open} isLight={themeState === "light"}>
+    <Ul open={open}>
       <li>
         <HeaderSearch
-          themeState={themeState}
           search={search}
           setSearch={setSearch}
           open={open}
         />
-        <Dropdown isSearching={search} themeState={themeState}>
+        <Dropdown isSearching={search}>
           <div className="dropdown-items">{search && usersJSX}</div>
         </Dropdown>
       </li>

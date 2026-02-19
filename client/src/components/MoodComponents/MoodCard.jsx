@@ -1,15 +1,15 @@
-import React, { useContext, useState } from "react";
-import Button from "@material-ui/core/Button";
-import Card from "@material-ui/core/Card";
-import { Link, Route, Switch } from "react-router-dom";
-import Moment from "react-moment";
-import "moment-timezone";
-import { ThemeStateContext } from "../../context/ThemeStateContext";
-import { indigo } from "@material-ui/core/colors/";
-import { emojiLogic } from "../../utils/emojiLogic";
-import MoodEdit from "../Dialogs/MoodDialogs/MoodEdit";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import MoodDetail from "../Dialogs/MoodDialogs/MoodDetail";
+import React, { useState } from 'react';
+import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import { Link, Route, Switch } from 'react-router-dom';
+import Moment from 'react-moment';
+import 'moment-timezone';
+import { useTheme } from '@material-ui/core/styles';
+import { indigo } from '@material-ui/core/colors/';
+import { emojiLogic } from '../../utils/emojiLogic';
+import MoodEdit from '../Dialogs/MoodDialogs/MoodEdit';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import MoodDetail from '../Dialogs/MoodDialogs/MoodDetail';
 
 export default function MoodCard({
   mood,
@@ -20,7 +20,7 @@ export default function MoodCard({
   moods,
   setMoods,
 }) {
-  const [themeState] = useContext(ThemeStateContext);
+  const theme = useTheme();
   const [openEdit, setOpenEdit] = useState(false);
   const [isRefreshed, setIsRefreshed] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
@@ -50,15 +50,13 @@ export default function MoodCard({
     }
   };
 
+  const cardStyle = theme.palette.type === 'light'
+    ? { boxShadow: 'default' }
+    : { boxShadow: `0px 0px 4px 1.2px ${indigo[50]}` };
+
   return (
     <>
-      <Card
-        style={
-          themeState === "light"
-            ? { boxShadow: "default" }
-            : { boxShadow: `0px 0px 4px 1.2px ${indigo[50]}` }
-        }
-        className="mood-card">
+      <Card style={cardStyle} className="mood-card">
         <div className="mood-container">
           <div className="hover-container" onClick={() => setOpenDetail(true)}>
             <div className="status">
@@ -75,7 +73,7 @@ export default function MoodCard({
           </div>
           <div
             className="buttons"
-            style={openOptions ? { display: "flex" } : { display: "none" }}>
+            style={openOptions ? { display: 'flex' } : { display: 'none' }}>
             <Button
               component={Link}
               to={`/moods/${mood.id}/edit`}

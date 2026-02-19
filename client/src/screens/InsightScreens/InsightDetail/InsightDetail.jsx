@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
 import Moment from "react-moment";
 
@@ -16,7 +16,6 @@ import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 
 // Context
 import { useStateValue } from "../../../context/CurrentUserContext";
-import { ThemeStateContext } from "../../../context/ThemeStateContext";
 
 // services
 import { destroyComment, postComment, putComment } from '@care/shared';
@@ -35,7 +34,6 @@ export default function InsightDetail({
 }) {
   const [insight, setInsight] = useState(null);
   const [{ currentUser }] = useStateValue();
-  const [themeState] = useContext(ThemeStateContext);
   const [loaded, setLoaded] = useState(false);
   const [openInsightDelete, setOpenInsightDelete] = useState(false);
   const [openCommentDelete, setOpenCommentDelete] = useState(false);
@@ -77,7 +75,7 @@ export default function InsightDetail({
   }, [getOneInsight, id]);
 
   if (!loaded) {
-    return <LinearProgressLoading themeState={themeState} />;
+    return <LinearProgressLoading />;
   }
 
   const COMMENTS = insight.comments.map((comment) => {
@@ -180,7 +178,7 @@ export default function InsightDetail({
 
   return (
     <>
-      <Wrapper themeState={themeState}>
+      <Wrapper>
         <div className="content-container">
           <div className="title-container">
             <div className="arrow-container">

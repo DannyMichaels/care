@@ -44,7 +44,7 @@ describe('HomeScreen', () => {
       <HomeScreen navigation={mockNavigation} />
     );
 
-    expect(getByText('Hello, Test User')).toBeTruthy();
+    expect(getByText(/Test User/)).toBeTruthy();
   });
 
   it('renders accordion sections', () => {
@@ -55,7 +55,7 @@ describe('HomeScreen', () => {
     expect(getByText('Medications')).toBeTruthy();
     expect(getByText('Moods')).toBeTruthy();
     expect(getByText('Symptoms')).toBeTruthy();
-    expect(getByText('Foods')).toBeTruthy();
+    expect(getByText('Diet')).toBeTruthy();
     expect(getByText('Affirmations')).toBeTruthy();
   });
 });

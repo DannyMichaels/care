@@ -1,15 +1,11 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import { ThemeStateContext } from "../../context/ThemeStateContext";
 
 const Users = ({ allUsers }) => {
-  const [themeState] = useContext(ThemeStateContext);
-
   const usersJSX = allUsers.map((user) => (
     <Link
       key={user.id}
-      themeState={themeState}
       to={`/users/${user.id}`}
       className="link"
     >

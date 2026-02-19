@@ -1,28 +1,16 @@
-import React, { useContext } from "react";
-import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
-import { ThemeStateContext } from "../../../context/ThemeStateContext";
-function GreatEmoji() {
-  const [themeState] = useContext(ThemeStateContext);
+import React from 'react';
+import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
 
+function GreatEmoji() {
   return (
-    <>
-      <InsertEmoticonIcon
-        style={
-          !themeState
-            ? {
-                border: "1px solid black",
-                background: "#00FF00",
-                fontSize: "36px",
-              }
-            : {
-                border: "1px solid black",
-                color: "black",
-                background: "#00FF00",
-                fontSize: "36px",
-              }
-        }
-      />
-    </>
+    <InsertEmoticonIcon
+      style={{
+        border: '1px solid black',
+        color: 'black',
+        background: '#00FF00',
+        fontSize: '36px',
+      }}
+    />
   );
 }
 

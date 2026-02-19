@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const Form = styled.form`
   .input-container {
@@ -38,8 +38,7 @@ const Form = styled.form`
     width: 100px;
     align-self: center;
     margin-bottom: 5px;
-    border: ${({ themeState }) =>
-      themeState === "dark" ? "1px solid white" : "1px solid black"};
+    border: 1px solid ${({ theme }) => theme.palette.text.primary};
     border-radius: 50%;
     object-fit: cover;
   }
@@ -50,13 +49,13 @@ const Form = styled.form`
     margin-bottom: 5px;
   }
   .icon-button {
-    color: ${({ themeState }) => (themeState === "dark" ? "white" : "black")};
+    color: ${({ theme }) => theme.palette.text.primary};
   }
   .icon-button.clear {
-    display: ${({ image }) => (!image ? "none" : "auto")};
+    display: ${({ image }) => (!image ? 'none' : 'auto')};
   }
   .visibility {
-    color: ${({ themeState }) => (themeState === "dark" ? "white" : "black")};
+    color: ${({ theme }) => theme.palette.text.primary};
   }
   .alert {
     color: red;

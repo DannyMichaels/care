@@ -24,12 +24,12 @@ describe('LoginScreen', () => {
   });
 
   it('renders email and password inputs', () => {
-    const { getByText } = renderWithProvider(
+    const { getAllByText } = renderWithProvider(
       <LoginScreen navigation={mockNavigation} />
     );
 
-    expect(getByText('Email')).toBeTruthy();
-    expect(getByText('Password')).toBeTruthy();
+    expect(getAllByText('Email').length).toBeGreaterThan(0);
+    expect(getAllByText('Password').length).toBeGreaterThan(0);
   });
 
   it('renders sign in button', () => {

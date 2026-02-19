@@ -1,15 +1,16 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import styled from "styled-components";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import styled from 'styled-components';
 
 const StyledLink = styled(Link)`
-  color: ${({ themeState }) => (themeState === "dark" ? "black " : "white")};
+  color: ${({ theme }) =>
+    theme.palette.type === 'dark' ? 'black' : 'white'};
   text-decoration: none;
   overflow-wrap: break-word;
   font-size: 0.6rem;
   padding: 8px;
-  font-family: "montserrat", sans-serif;
+  font-family: 'montserrat', sans-serif;
   transition: transform 300ms ease-in-out;
   display: inline-flex;
   align-items: center;
@@ -22,7 +23,8 @@ const StyledLink = styled(Link)`
   }
 
   .user-icon {
-    color: ${({ themeState }) => (themeState === "dark" ? "black" : "#fff")};
+    color: ${({ theme }) =>
+      theme.palette.type === 'dark' ? 'black' : '#fff'};
     margin-right: 8px;
     font-size: 30px;
   }
@@ -36,11 +38,10 @@ const StyledLink = styled(Link)`
   }
 `;
 
-function QueriedUser({ user, themeState }) {
+function QueriedUser({ user }) {
   return (
     <StyledLink
       key={user.id}
-      themeState={themeState}
       to={`/users/${user.id}`}
       className="link">
       {!user?.image ? (

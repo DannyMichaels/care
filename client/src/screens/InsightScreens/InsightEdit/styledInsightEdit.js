@@ -1,12 +1,10 @@
-import { grey } from "@material-ui/core/colors";
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const Div = styled.div`
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: ${({ themeState }) =>
-    themeState === "light" ? "#fff" : grey[800]};
+  background: ${({ theme }) => theme.palette.background.paper};
 
   .title-container {
     display: flex;
@@ -17,7 +15,7 @@ const Div = styled.div`
   }
   .title {
     font-size: 1.2rem;
-    color: ${({ themeState }) => (themeState === "dark" ? grey[100] : "#000")};
+    color: ${({ theme }) => theme.palette.text.primary};
   }
   @media screen and (min-width: 1000px) {
     .title {

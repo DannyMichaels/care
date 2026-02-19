@@ -1,16 +1,16 @@
-import React, { useContext, useState } from "react";
-import Button from "@material-ui/core/Button";
-import Card from "@material-ui/core/Card";
-import { Link, Route, Switch } from "react-router-dom";
-import Moment from "react-moment";
-import "moment-timezone";
-import { ThemeStateContext } from "../../context/ThemeStateContext";
-import { indigo } from "@material-ui/core/colors/";
-import getRating from "../../utils/getRating";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import FoodEdit from "../Dialogs/FoodDialogs/FoodEdit";
-import FoodDetail from "../Dialogs/FoodDialogs/FoodDetail";
-import { foodNameJSX } from "../../utils/foodUtils";
+import React, { useState } from 'react';
+import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import { Link, Route, Switch } from 'react-router-dom';
+import Moment from 'react-moment';
+import 'moment-timezone';
+import { useTheme } from '@material-ui/core/styles';
+import { indigo } from '@material-ui/core/colors/';
+import getRating from '../../utils/getRating';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import FoodEdit from '../Dialogs/FoodDialogs/FoodEdit';
+import FoodDetail from '../Dialogs/FoodDialogs/FoodDetail';
+import { foodNameJSX } from '../../utils/foodUtils';
 
 export default function FoodCard({
   foods,
@@ -20,7 +20,7 @@ export default function FoodCard({
   openOptions,
   handleDelete,
 }) {
-  const [themeState] = useContext(ThemeStateContext);
+  const theme = useTheme();
   const [isRefreshed, setIsRefreshed] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
@@ -42,16 +42,13 @@ export default function FoodCard({
     }
   };
 
+  const cardStyle = theme.palette.type === 'light'
+    ? { boxShadow: 'default' }
+    : { boxShadow: `0px 0px 4px 1.2px ${indigo[50]}` };
+
   return (
     <>
-      <Card
-        style={
-          themeState === "light"
-            ? { boxShadow: "default" }
-            : { boxShadow: `0px 0px 4px 1.2px ${indigo[50]}` }
-        }
-        className="food-card"
-      >
+      <Card style={cardStyle} className="food-card">
         <div className="food-container">
           <div className="hover-container" onClick={() => setOpenDetail(true)}>
             {!isRefreshed ? foodNameJSX(food) : <CircularProgress />}
@@ -64,7 +61,7 @@ export default function FoodCard({
           </div>
           <div
             className="buttons"
-            style={openOptions ? { display: "flex" } : { display: "none" }}
+            style={openOptions ? { display: 'flex' } : { display: 'none' }}
           >
             <Button
               component={Link}

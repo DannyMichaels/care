@@ -1,7 +1,6 @@
-import { useState, useRef, useContext } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { resetPassword, sendVerificationCode } from '@care/shared';
-import { ThemeStateContext } from '../../../context/ThemeStateContext';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
@@ -17,7 +16,6 @@ import CodeInput from '../../../components/CodeInput/CodeInput';
 import { useStyles } from './resetPasswordStyles';
 
 export default function ResetPassword() {
-  const [themeState] = useContext(ThemeStateContext);
   const history = useHistory();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -31,7 +29,7 @@ export default function ResetPassword() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const codeRef = useRef();
-  const classes = useStyles({ themeState });
+  const classes = useStyles();
 
   const handleReset = async () => {
     const fullCode = code.join('');
@@ -85,7 +83,6 @@ export default function ResetPassword() {
         ref={codeRef}
         value={code}
         onChange={setCode}
-        themeState={themeState}
       />
 
       <div className={classes.inputContainer}>

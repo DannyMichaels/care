@@ -22,6 +22,7 @@ import {
   unsubscribeFromPush,
   registerServiceWorker,
 } from '../../../utils/pushNotifications';
+import { Link } from "react-router-dom";
 import ScrollToTopOnMount from "../../../components/Helpers/ScrollToTopOnMount";
 
 // Views
@@ -35,6 +36,8 @@ import Button from "@material-ui/core/Button";
 import Snackbar from "@material-ui/core/Snackbar";
 import Brightness4Icon from "@material-ui/icons/Brightness4";
 import NotificationsIcon from "@material-ui/icons/Notifications";
+import SecurityIcon from "@material-ui/icons/Security";
+import DescriptionIcon from "@material-ui/icons/Description";
 
 // Styles
 import { useStyles } from "./settingStyles";
@@ -61,7 +64,7 @@ export default function Settings() {
     setOpenEdit(false);
   };
 
-  const classes = useStyles({ themeState });
+  const classes = useStyles();
 
   // useState assigns a default value for a variable, an annonymous function is used to set the default value,
   // we have to use an annonymous funciton because the initial value is decided based on the logic for lines 63-68
@@ -230,6 +233,31 @@ export default function Settings() {
               </CardActions>
             </Card>
           )}
+        </div>
+      </div>
+      <div className={classes.root}>
+        <Typography className={classes.categories}>Legal</Typography>
+        <div className="card-actions">
+          <Card className={classes.card}>
+            <CardActions className={classes.actionsContainer}>
+              <Link to="/privacy" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}>
+                <Typography className={classes.themeStateContainer}>
+                  <SecurityIcon className={classes.themeStateIcon} />
+                  &nbsp;Privacy Policy
+                </Typography>
+              </Link>
+            </CardActions>
+          </Card>
+          <Card className={classes.card}>
+            <CardActions className={classes.actionsContainer}>
+              <Link to="/terms" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}>
+                <Typography className={classes.themeStateContainer}>
+                  <DescriptionIcon className={classes.themeStateIcon} />
+                  &nbsp;Terms of Service
+                </Typography>
+              </Link>
+            </CardActions>
+          </Card>
         </div>
       </div>
       {openEdit && (

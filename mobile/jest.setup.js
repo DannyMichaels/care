@@ -1,3 +1,8 @@
+jest.mock('./src/context/ThemeContext', () => ({
+  ThemeProvider: ({ children }) => children,
+  useTheme: () => ({ isDark: false, toggleTheme: jest.fn() }),
+}));
+
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn().mockResolvedValue(null),
   setItemAsync: jest.fn().mockResolvedValue(undefined),

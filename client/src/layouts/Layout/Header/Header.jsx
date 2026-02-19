@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "@material-ui/core/styles";
 import { Box, useMediaQuery } from "@material-ui/core";
@@ -11,9 +11,6 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import HeaderSearch from "./HeaderSearch";
 import CurrentUserContainer from "./CurrentUserContainer";
-
-// Context
-import { ThemeStateContext } from "../../../context/ThemeStateContext";
 
 // Icons
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
@@ -29,11 +26,9 @@ export default function Header({ title, allUsers }) {
   const [search, setSearch] = useState("");
   const [isMenuShowing, setIsMenuShowing] = useState(false);
 
-  const [themeState] = useContext(ThemeStateContext);
-
   const { breakpoints } = useTheme();
   let location = useLocation();
-  const classes = useStyles({ themeState, isMenuShowing });
+  const classes = useStyles();
 
   useEffect(() => {
     const interval = setInterval(() => setCurrentTime(Date.now()), 1000);
@@ -50,7 +45,7 @@ export default function Header({ title, allUsers }) {
   const usersJSX = getQueriedUsers()
     .slice(0, 6)
     .map((user) => (
-      <QueriedUser key={user.id} themeState={themeState} user={user} />
+      <QueriedUser key={user.id} user={user} />
     ));
 
   return (
@@ -69,7 +64,6 @@ export default function Header({ title, allUsers }) {
                 <Box mx={2}>
                   <HeaderSearch
                     usersJSX={usersJSX}
-                    themeState={themeState}
                     search={search}
                     setSearch={setSearch}
                   />
@@ -88,7 +82,6 @@ export default function Header({ title, allUsers }) {
                 <CurrentUserContainer
                   Typography={Typography}
                   Link={Link}
-                  themeState={themeState}
                   classes={classes}
                   AccountCircleIcon={AccountCircleIcon}
                 />

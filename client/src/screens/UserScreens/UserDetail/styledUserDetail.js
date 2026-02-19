@@ -1,5 +1,4 @@
-import styled from "styled-components";
-import { grey, yellow, blue } from "@material-ui/core/colors";
+import styled from 'styled-components';
 
 const Wrapper = styled.div`
   .content-container {
@@ -17,7 +16,7 @@ const Wrapper = styled.div`
   .title-container {
     align-self: center;
     margin-top: 40px;
-    color: ${({ themeState }) => (themeState === "dark" ? grey[100] : "#000")};
+    color: ${({ theme }) => theme.palette.text.primary};
   }
   .title {
     font-size: 1.6rem;
@@ -47,8 +46,7 @@ const Wrapper = styled.div`
     height: clamp(50px, 100px, 150px);
     align-self: center;
     margin: 10px;
-    border: ${({ themeState }) =>
-      themeState === "dark" ? "1px solid white" : "1px solid black"};
+    border: 1px solid ${({ theme }) => theme.palette.text.primary};
     border-radius: 50%;
     object-fit: cover;
   }
@@ -57,7 +55,7 @@ const Wrapper = styled.div`
     margin-top: 20px;
     padding: 20px;
     min-height: 400px;
-    color: ${({ themeState }) => (themeState === "dark" ? grey[100] : "#000")};
+    color: ${({ theme }) => theme.palette.text.primary};
   }
   .insights-container {
     display: flex;
@@ -101,8 +99,7 @@ const Wrapper = styled.div`
     font-size: clamp(0.9rem, 2vw, 2vh);
   }
   a {
-    color: ${({ themeState }) =>
-      themeState === "dark" ? yellow[700] : blue[600]};
+    color: ${({ theme }) => theme.palette.primary.main};
     text-decoration: none;
     overflow-wrap: break-word;
     font-size: 1.5rem;

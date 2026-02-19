@@ -32,5 +32,8 @@ export * from './utils/medConstants';
 export { default as currentUserReducer, initialState } from './reducers/currentUserReducer';
 export { usersReducer } from './reducers/allUsersReducer';
 
+// Content
+export { PRIVACY_POLICY, TERMS_OF_SERVICE } from './content/legal';
+
 // Hooks
 export { default as useAsyncReducer } from './hooks/useAsyncReducer';

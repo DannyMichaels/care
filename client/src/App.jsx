@@ -18,7 +18,8 @@ function App() {
       pathname.match(/^\/register$/i) ||
       pathname.match(/^\/verify-email/i) ||
       pathname.match(/^\/forgot-password/i) ||
-      pathname.match(/^\/reset-password/i);
+      pathname.match(/^\/reset-password/i) ||
+      pathname.match(/^\/(privacy|terms)$/i);
 
     try {
       const userData = await verifyUser();

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Text, Chip, List } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTheme } from 'react-native-paper';
 import { putMed, destroyMed, getRXGuideMeds, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR } from '@care/shared';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
@@ -9,6 +10,7 @@ import DatePickerModal from '../../components/DatePickerModal';
 const ICON_MAP = { tablet: 'circle', pill: 'pill', droplet: 'water' };
 
 export default function MedEditScreen({ route, navigation }) {
+  const theme = useTheme();
   const { id, item } = route.params;
   const [name, setName] = useState(item.name || '');
   const [reason, setReason] = useState(item.reason || '');
@@ -61,7 +63,9 @@ export default function MedEditScreen({ route, navigation }) {
         icon_color: iconColor,
       });
       navigation.goBack();
-    } catch {} finally {
+    } catch (err) {
+      Alert.alert('Error', err?.message || 'Failed to update medication');
+    } finally {
       setLoading(false);
     }
   };
@@ -80,7 +84,9 @@ export default function MedEditScreen({ route, navigation }) {
               await putMed(id, { is_taken: true, taken_date: new Date().toISOString() });
               setIsTaken(true);
               navigation.goBack();
-            } catch {} finally {
+            } catch (err) {
+              Alert.alert('Error', err?.message || 'Failed to mark as taken');
+            } finally {
               setLoading(false);
             }
           },
@@ -102,7 +108,9 @@ export default function MedEditScreen({ route, navigation }) {
             try {
               await putMed(id, { is_taken: false, taken_date: null });
               setIsTaken(false);
-            } catch {} finally {
+            } catch (err) {
+              Alert.alert('Error', err?.message || 'Failed to undo taken');
+            } finally {
               setLoading(false);
             }
           },
@@ -147,7 +155,7 @@ export default function MedEditScreen({ route, navigation }) {
           style={styles.input}
         />
         {showSuggestions && (
-          <View style={styles.suggestionsContainer}>
+          <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline }]}>
             {suggestions.slice(0, 5).map((med) => (
               <List.Item
                 key={med.id}

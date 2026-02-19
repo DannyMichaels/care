@@ -24,7 +24,6 @@ import FoodsContainer from "../../../containers/FoodsContainer";
 import NotFound from "../../Error/NotFound";
 
 // Context
-import { ThemeStateContext } from "../../../context/ThemeStateContext";
 import { CurrentUserContext } from "../../../context/CurrentUserContext";
 import { DateContext } from "../../../context/DateContext";
 
@@ -35,7 +34,6 @@ import DateCarousel from "../../../components/DateCarousel/DateCarousel";
 import NotificationBanner from "../../../components/NotificationBanner/NotificationBanner";
 
 export default function Home() {
-  const [themeState] = useContext(ThemeStateContext);
   const [{ currentUser }] = useContext(CurrentUserContext);
   const { selectedDate, showAllDates } = useContext(DateContext);
   const [affirmations, setAffirmations] = useState([]);
@@ -57,7 +55,7 @@ export default function Home() {
     fetchAffirmations();
   }, [currentUser]);
 
-  const classes = useStyles({ themeState });
+  const classes = useStyles();
   const filteredAffirmations = useMemo(
     () => filterByDate(affirmations, selectedDate, showAllDates, "affirmation_date"),
     [affirmations, selectedDate, showAllDates]
@@ -69,7 +67,7 @@ export default function Home() {
   const handleMedCount = useCallback((c) => setMedCount(c), []);
 
   if (!loadedAffirmation) {
-    return <LinearProgressLoading themeState={themeState} />;
+    return <LinearProgressLoading />;
   }
 
   return checkValidity(location.pathname) ? (

@@ -1,7 +1,6 @@
-import { yellow } from '@material-ui/core/colors';
 import { makeStyles } from '@material-ui/styles';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -21,52 +20,51 @@ const useStyles = makeStyles({
     padding: '15px',
     marginTop: '10px',
     textShadow: '0.5px 4px 10px #999',
-    color: ({ themeState }) => themeState === 'dark' && yellow[700],
+    color: theme.palette.type === 'dark' ? theme.palette.primary.main : undefined,
   },
   logo: {
     width: '100%',
     maxHeight: '80px',
     objectFit: 'cover',
-    filter: ({ themeState }) =>
-      themeState === 'dark' ? 'drop-shadow(0 0 2px #fff)' : 'none',
+    filter: theme.palette.type === 'dark' ? 'drop-shadow(0 0 2px #fff)' : 'none',
   },
   subtitle: {
     fontFamily: ['Montserrat', 'sans-serif'].join(','),
     fontSize: '16px',
     textAlign: 'center',
     marginBottom: '24px',
-    color: ({ themeState }) => themeState === 'dark' && '#fff',
+    color: theme.palette.text.primary,
   },
   inputContainer: {
     display: 'flex',
     alignItems: 'center',
-    color: ({ themeState }) => (themeState === 'light' ? 'black' : 'white'),
+    color: theme.palette.text.primary,
     marginBottom: '12px',
   },
   passwordField: {
-    color: ({ themeState }) => (themeState === 'light' ? 'black' : 'white'),
+    color: theme.palette.text.primary,
     width: '300px',
   },
   passwordLabel: {
-    color: ({ themeState }) => (themeState === 'light' ? '#000' : '#fff'),
+    color: theme.palette.text.primary,
   },
   lockIcon: {
     marginRight: '10px',
   },
   visibility: {
-    color: ({ themeState }) => (themeState === 'dark' ? '#fff' : '#000'),
+    color: theme.palette.text.primary,
   },
   button: {
     margin: '8px auto',
     padding: '12px 40px',
-    color: ({ themeState }) => (themeState === 'light' ? '#62B5D9' : yellow[700]),
+    color: theme.palette.primary.main,
     fontSize: '18px',
     fontFamily: ['Montserrat', 'sans-serif'].join(','),
     textTransform: 'capitalize',
   },
   resendLink: {
     marginTop: '8px',
-    color: ({ themeState }) => (themeState === 'light' ? '#62B5D9' : yellow[700]),
+    color: theme.palette.primary.main,
     textTransform: 'capitalize',
   },
   error: {
@@ -85,12 +83,12 @@ const useStyles = makeStyles({
     fontFamily: ['Montserrat', 'sans-serif'].join(','),
     fontSize: '16px',
     marginTop: '16px',
-    color: ({ themeState }) => themeState === 'dark' && '#fff',
+    color: theme.palette.text.primary,
   },
   link: {
     textDecoration: 'none',
-    color: ({ themeState }) => (themeState === 'light' ? '#62B5D9' : yellow[700]),
+    color: theme.palette.primary.main,
   },
-});
+}));
 
 export { useStyles };

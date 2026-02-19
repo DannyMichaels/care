@@ -1,15 +1,14 @@
-import { useContext } from "react";
-import Card from "@material-ui/core/Card";
-import { useStateValue } from "../../context/CurrentUserContext";
-import { ThemeStateContext } from "../../context/ThemeStateContext";
-import Button from "@material-ui/core/Button";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import Typography from "@material-ui/core/Typography";
-import { Link } from "react-router-dom";
-import Moment from "react-moment";
-import "moment-timezone";
-import { insightCardStyles, commentCardStyles } from "./careCardStyles";
-import { Box, Grid } from "@material-ui/core";
+import { useContext } from 'react';
+import Card from '@material-ui/core/Card';
+import { useStateValue } from '../../context/CurrentUserContext';
+import Button from '@material-ui/core/Button';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import Typography from '@material-ui/core/Typography';
+import { Link } from 'react-router-dom';
+import Moment from 'react-moment';
+import 'moment-timezone';
+import { insightCardStyles, commentCardStyles } from './careCardStyles';
+import { Box, Grid } from '@material-ui/core';
 
 export default function CareCard({
   postPath,
@@ -25,12 +24,9 @@ export default function CareCard({
   editIsLink,
   openEditModal,
 }) {
-  const [themeState] = useContext(ThemeStateContext);
-  const styleProps = { isLight: themeState === "light" };
-
   const classes = commentStyles
-    ? commentCardStyles(styleProps)
-    : insightCardStyles(styleProps);
+    ? commentCardStyles()
+    : insightCardStyles();
 
   const [{ currentUser }] = useStateValue();
 

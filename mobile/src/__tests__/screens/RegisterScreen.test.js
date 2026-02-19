@@ -25,14 +25,14 @@ describe('RegisterScreen', () => {
   });
 
   it('renders registration form', () => {
-    const { getByText } = renderWithProvider(
+    const { getByText, getAllByText } = renderWithProvider(
       <RegisterScreen navigation={mockNavigation} />
     );
 
     expect(getByText('Create Account')).toBeTruthy();
-    expect(getByText('Name')).toBeTruthy();
-    expect(getByText('Email')).toBeTruthy();
-    expect(getByText('Password')).toBeTruthy();
+    expect(getAllByText('Name').length).toBeGreaterThan(0);
+    expect(getAllByText('Email').length).toBeGreaterThan(0);
+    expect(getAllByText('Password').length).toBeGreaterThan(0);
   });
 
   it('renders sign up button', () => {

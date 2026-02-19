@@ -27,6 +27,7 @@
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "~2.28.0",
+    "react-native-markdown-display": "^7.0.2",
     "react-native-paper": "^5.15.0",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
@@ -45,6 +46,10 @@
     ],
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|react-native-paper|react-native-vector-icons|@care/shared)"
+    ],
+    "moduleDirectories": [
+      "<rootDir>/node_modules",
+      "node_modules"
     ]
   },
   "private": true

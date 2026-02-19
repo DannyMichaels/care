@@ -1,29 +1,16 @@
-import React, { useContext } from "react";
-import SentimentSatisfiedIcon from "@material-ui/icons/SentimentSatisfied";
-import { ThemeStateContext } from "../../../context/ThemeStateContext";
+import React from 'react';
+import SentimentSatisfiedIcon from '@material-ui/icons/SentimentSatisfied';
 
 function OkayEmoji() {
-  const [themeState] = useContext(ThemeStateContext);
-
   return (
-    <>
-      <SentimentSatisfiedIcon
-        style={
-          !themeState
-            ? {
-                border: "1px solid black",
-                background: "yellow",
-                fontSize: "36px",
-              }
-            : {
-                border: "1px solid black",
-                background: "yellow",
-                fontSize: "36px",
-                color: "black",
-              }
-        }
-      />
-    </>
+    <SentimentSatisfiedIcon
+      style={{
+        border: '1px solid black',
+        background: 'yellow',
+        fontSize: '36px',
+        color: 'black',
+      }}
+    />
   );
 }
 

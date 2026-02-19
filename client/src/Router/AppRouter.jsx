@@ -9,6 +9,7 @@ import ResetPassword from "../screens/auth/ResetPassword/ResetPassword";
 import NotFound from "../screens/Error/NotFound";
 import Home from "../screens/main/Home/Home";
 import Settings from "../screens/main/Settings/Settings";
+import LegalPage from "../screens/legal/LegalPage";
 import PrivateRoute from "./PrivateRoute";
 
 const AppRouter = () => (
@@ -18,6 +19,8 @@ const AppRouter = () => (
     <Route path="/verify-email" component={EmailVerification} />
     <Route path="/forgot-password" component={ForgotPassword} />
     <Route path="/reset-password" component={ResetPassword} />
+    <Route path="/privacy" component={LegalPage} />
+    <Route path="/terms" component={LegalPage} />
     <PrivateRoute path="/insights" component={InsightsContainer} />
     <PrivateRoute path="/settings" component={Settings} />
     <PrivateRoute path="/users" component={UsersContainer} />

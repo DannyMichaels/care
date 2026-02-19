@@ -4,6 +4,8 @@
 
 [Live Rails API](https://heroku-care-api.herokuapp.com/insights)
 
+[Privacy Policy](https://care-app.netlify.app/privacy) | [Terms of Service](https://care-app.netlify.app/terms)
+
 <br />
 
 - [Overview](#Overview)
@@ -398,7 +400,7 @@ if the user's input DOESN"T match one of the names in the foodRegex, it will ret
 - upgrade to rails 7
 - rx guide meds fetched from rails server rather than client
 - fixed security gaps, backend validations, rate limiting.
-- performance improvements of N+1 queries 
+- performance improvements of N+1 queries
 - added a date carousel picker and now data in home page is filtered based on date (with a toggle switch for "All")
 - added a new 3d logo based off of the 2d logo
 - added email verification and forgot password flow
@@ -406,3 +408,4 @@ if the user's input DOESN"T match one of the names in the foodRegex, it will ret
 - added cypress front-end tests
 - added mobile app version
 - added web browser push notifications ([docs](docs/web-push-diagram.html))
+- added [Privacy Policy](https://care-app.netlify.app/privacy) and [Terms of Service](https://care-app.netlify.app/terms) pages

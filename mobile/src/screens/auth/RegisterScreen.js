@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { TextInput, Button, Text, HelperText } from 'react-native-paper';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { TextInput, Button, Text, HelperText, Checkbox } from 'react-native-paper';
 import { registerUser, sendVerificationCode } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
@@ -28,6 +28,7 @@ export default function RegisterScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -139,11 +140,38 @@ export default function RegisterScreen({ navigation }) {
 
       {error ? <HelperText type="error">{error}</HelperText> : null}
 
+      <View style={styles.termsRow}>
+        <Checkbox
+          status={agreedToTerms ? 'checked' : 'unchecked'}
+          onPress={() => setAgreedToTerms(!agreedToTerms)}
+        />
+        <View style={styles.termsText}>
+          <Text variant="bodySmall">
+            I agree to the{' '}
+          </Text>
+          <Text
+            variant="bodySmall"
+            style={styles.termsLink}
+            onPress={() => navigation.getParent().navigate('TermsOfService')}
+          >
+            Terms of Service
+          </Text>
+          <Text variant="bodySmall"> and </Text>
+          <Text
+            variant="bodySmall"
+            style={styles.termsLink}
+            onPress={() => navigation.getParent().navigate('PrivacyPolicy')}
+          >
+            Privacy Policy
+          </Text>
+        </View>
+      </View>
+
       <Button
         mode="contained"
         onPress={handleRegister}
         loading={loading}
-        disabled={!formData.name || !formData.email || !formData.password || loading}
+        disabled={!formData.name || !formData.email || !formData.password || !agreedToTerms || loading}
         style={styles.button}
       >
         Sign Up
@@ -156,6 +184,26 @@ export default function RegisterScreen({ navigation }) {
       >
         Already have an account? Sign In
       </Button>
+
+      <View style={styles.legalRow}>
+        <Button
+          mode="text"
+          compact
+          labelStyle={styles.legalLabel}
+          onPress={() => navigation.getParent().navigate('PrivacyPolicy')}
+        >
+          Privacy Policy
+        </Button>
+        <Text style={styles.legalDivider}>|</Text>
+        <Button
+          mode="text"
+          compact
+          labelStyle={styles.legalLabel}
+          onPress={() => navigation.getParent().navigate('TermsOfService')}
+        >
+          Terms of Service
+        </Button>
+      </View>
     </ScreenWrapper>
   );
 }
@@ -165,6 +213,12 @@ const styles = StyleSheet.create({
   logo: { width: 100, height: 100, alignSelf: 'center', marginBottom: 12 },
   title: { textAlign: 'center', marginBottom: 24 },
   input: { marginBottom: 12 },
+  termsRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },
+  termsText: { flexDirection: 'row', flexWrap: 'wrap', flex: 1 },
+  termsLink: { textDecorationLine: 'underline' },
   button: { marginTop: 8, paddingVertical: 4 },
   link: { marginTop: 8 },
+  legalRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 16 },
+  legalLabel: { fontSize: 12 },
+  legalDivider: { opacity: 0.5 },
 });

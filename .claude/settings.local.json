@@ -45,7 +45,8 @@
       "WebFetch(domain:github.com)",
       "Bash(bundle exec rspec:*)",
       "Bash(RAILS_ENV=test bundle exec rails db:migrate:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(test:*)"
     ]
   }
 }

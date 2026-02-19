@@ -1,6 +1,7 @@
 import { StyleSheet, Alert } from 'react-native';
 import { View } from 'react-native';
 import { Text, Avatar, Button, Switch, List, Divider } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 import { removeToken, getAge, toTitleCase, destroyUser } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -9,6 +10,7 @@ import ScreenWrapper from '../../components/ScreenWrapper';
 export default function SettingsScreen() {
   const [{ currentUser }, dispatch] = useCurrentUser();
   const { isDark, toggleTheme } = useTheme();
+  const navigation = useNavigation();
 
   const handleLogout = async () => {
     await removeToken();
@@ -61,6 +63,19 @@ export default function SettingsScreen() {
         title="Dark Mode"
         left={(props) => <List.Icon {...props} icon="theme-light-dark" />}
         right={() => <Switch value={isDark} onValueChange={toggleTheme} />}
+      />
+
+      <Divider />
+
+      <List.Item
+        title="Privacy Policy"
+        left={(props) => <List.Icon {...props} icon="shield-lock-outline" />}
+        onPress={() => navigation.getParent().navigate('PrivacyPolicy')}
+      />
+      <List.Item
+        title="Terms of Service"
+        left={(props) => <List.Icon {...props} icon="file-document-outline" />}
+        onPress={() => navigation.getParent().navigate('TermsOfService')}
       />
 
       <Divider />

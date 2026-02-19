@@ -19,7 +19,18 @@ class MedicationsController < ApplicationController
 
   # GET /medications/1
   def show
-    render json: @medication, include: :user
+    begin
+      @medication = Medication.find_by(id: params[:id], user_id: @current_user.id)
+
+      if @medication
+        render json: @medication
+      else
+        render json: { error: "Medication not found" }, status: :not_found
+      end
+    rescue => e
+      Rails.logger.error("Medication#show failed: #{e.message}")
+      render json: { error: e.message }, status: :internal_server_error
+    end
   end
 
   # POST /medications

@@ -1,5 +1,4 @@
-import { blue, yellow } from "@material-ui/core/colors";
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const Form = styled.form`
   padding: 20px;
@@ -8,14 +7,12 @@ const Form = styled.form`
   justify-content: center;
   align-items: center;
   &::placeholder {
-    color: ${({ themeState }) => (themeState === "dark" ? "#fff" : `inherit`)};
+    color: ${({ theme }) =>
+      theme.palette.type === 'dark' ? '#fff' : 'inherit'};
   }
 
   .vl {
-    border-left: ${({ themeState }) =>
-      themeState === "dark"
-        ? `1px solid ${yellow[700]}`
-        : `1px solid ${blue[500]}`};
+    border-left: 1px solid ${({ theme }) => theme.palette.primary.main};
     height: 40px;
     margin-right: 10px;
   }
@@ -23,8 +20,7 @@ const Form = styled.form`
   .icon {
     position: absolute;
     right: 10px;
-    background: ${({ themeState }) =>
-      themeState === "dark" ? "#424242" : "#fff"};
+    background: ${({ theme }) => theme.palette.background.paper};
     height: 100%;
   }
 
@@ -33,18 +29,11 @@ const Form = styled.form`
     font-size: 18px;
     letter-spacing: 0.1px;
     padding: 12px;
-    border: ${({ themeState }) =>
-      themeState === "dark"
-        ? `1px solid ${yellow[700]}`
-        : `1px solid ${blue[500]}`};
-
+    border: 1px solid ${({ theme }) => theme.palette.primary.main};
     text-align: left;
-    box-shadow: 5px 5px peachpuff;
-
-    box-shadow: ${({ themeState }) =>
-      themeState === "dark" ? `5px 5px${yellow[700]}` : `5px 5px ${blue[500]}`};
-
-    background: ${({ themeState }) => themeState === "light" && "#fff"};
+    box-shadow: 5px 5px ${({ theme }) => theme.palette.primary.main};
+    background: ${({ theme }) =>
+      theme.palette.type === 'light' ? '#fff' : undefined};
   }
 
   @media screen and (min-width: 1200px) {

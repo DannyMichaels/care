@@ -1,5 +1,4 @@
-import { grey, yellow } from "@material-ui/core/colors";
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const Wrapper = styled.div`
   .content-container {
@@ -22,20 +21,20 @@ const Wrapper = styled.div`
     align-self: center;
     margin-top: 40px;
     text-align: center;
-    color: ${({ themeState }) => (themeState === "dark" ? grey[100] : "#000")};
+    color: ${({ theme }) => theme.palette.text.primary};
   }
 
   .insight-page {
     margin: 0 auto;
     margin-top: 20px;
-    color: ${({ themeState }) => (themeState === "dark" ? grey[100] : "#000")};
+    color: ${({ theme }) => theme.palette.text.primary};
     text-align: left;
   }
 
   .insight-comments {
     display: "block";
     margin-top: 20px;
-    color: ${({ themeState }) => (themeState === "dark" ? grey[100] : "#000")};
+    color: ${({ theme }) => theme.palette.text.primary};
     text-align: left;
   }
 
@@ -80,8 +79,7 @@ const Wrapper = styled.div`
 
   .user-name:hover {
     text-decoration: underline;
-    text-decoration-color: ${({ themeState }) =>
-      themeState === "dark" ? yellow[700] : "#000"};
+    text-decoration-color: ${({ theme }) => theme.palette.primary.main};
     cursor: pointer;
     transition: transform 250ms ease-in-out;
     cursor: pointer;
@@ -98,7 +96,7 @@ const Wrapper = styled.div`
 
   .link {
     text-decoration: none;
-    color: ${({ themeState }) => (themeState === "dark" ? "#fff" : "#000")};
+    color: ${({ theme }) => theme.palette.text.primary};
     cursor: pointer;
   }
 
@@ -125,7 +123,7 @@ const Wrapper = styled.div`
     min-height: 20px;
     display: flex;
     justify-content: center;
-    align-items: center; 
+    align-items: center;
     margin: 0 auto;
   }
 

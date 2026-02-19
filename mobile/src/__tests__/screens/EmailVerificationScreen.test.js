@@ -8,6 +8,10 @@ jest.mock('@care/shared', () => ({
   sendVerificationCode: jest.fn(),
 }));
 
+jest.mock('../../context/CurrentUserContext', () => ({
+  useCurrentUser: () => [{ currentUser: { id: 1, email: 'test@example.com' } }, jest.fn()],
+}));
+
 const mockNavigation = {
   navigate: jest.fn(),
 };

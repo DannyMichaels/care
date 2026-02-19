@@ -20,7 +20,9 @@ export default function FoodEditScreen({ route, navigation }) {
     try {
       await putFood(id, { name, factors, rating, time: time.toISOString() });
       navigation.goBack();
-    } catch {} finally {
+    } catch (err) {
+      Alert.alert('Error', err?.message || 'Failed to update food');
+    } finally {
       setLoading(false);
     }
   };

@@ -1,11 +1,9 @@
-import { grey } from "@material-ui/core/colors";
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const Div = styled.div`
   display: flex;
   flex-direction: column;
-  background: ${({ themeState }) =>
-    themeState === "dark" ? grey[800] : "#fff"};
+  background: ${({ theme }) => theme.palette.background.paper};
   .title-container {
     display: flex;
     flex-direction: column;
@@ -16,7 +14,7 @@ const Div = styled.div`
   }
   .title {
     font-size: 1.2rem;
-    color: ${({ themeState }) => (themeState === "dark" ? grey[100] : "#000")};
+    color: ${({ theme }) => theme.palette.text.primary};
     display: flex;
     align-items: center;
   }
@@ -29,7 +27,7 @@ const Div = styled.div`
   .about-container {
     font-size: 1.2rem;
     padding: 10px;
-    color: ${({ themeState }) => (themeState === "dark" ? grey[100] : "#000")};
+    color: ${({ theme }) => theme.palette.text.primary};
   }
   .about-icon {
     font-size: 40px;

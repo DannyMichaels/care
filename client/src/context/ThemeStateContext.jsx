@@ -3,6 +3,7 @@ import {
   ThemeProvider,
   unstable_createMuiStrictModeTheme as createMuiTheme,
 } from "@material-ui/core/styles";
+import { ThemeProvider as SCThemeProvider } from "styled-components";
 import { yellow, red, blue } from "@material-ui/core/colors";
 
 const ThemeStateContext = createContext();
@@ -55,9 +56,11 @@ function ThemeStateProvider({ children }) {
 
   return (
     <ThemeProvider theme={handleTheme}>
-      <ThemeStateContext.Provider value={[themeState, setThemeState]}>
-        {children}
-      </ThemeStateContext.Provider>
+      <SCThemeProvider theme={handleTheme}>
+        <ThemeStateContext.Provider value={[themeState, setThemeState]}>
+          {children}
+        </ThemeStateContext.Provider>
+      </SCThemeProvider>
     </ThemeProvider>
   );
 }

@@ -17,7 +17,9 @@ export default function SymptomEditScreen({ route, navigation }) {
     try {
       await putSymptom(id, { name, time: time.toISOString() });
       navigation.goBack();
-    } catch {} finally {
+    } catch (err) {
+      Alert.alert('Error', err?.message || 'Failed to update symptom');
+    } finally {
       setLoading(false);
     }
   };

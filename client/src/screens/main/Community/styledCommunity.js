@@ -1,5 +1,4 @@
-import { blue, yellow, indigo } from "@material-ui/core/colors";
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const Div = styled.div`
   display: flex;
@@ -8,8 +7,8 @@ const Div = styled.div`
 
   .separator {
     width: 1px;
-    color: ${({ isDark }) => (isDark ? "inherit " : "inherit")};
-    background-color: ${({ isDark }) => (isDark ? indigo[50] : blue[600])};
+    color: inherit;
+    background-color: ${({ theme }) => theme.palette.primary.main};
     min-height: 100vh;
   }
 
@@ -67,7 +66,7 @@ const Div = styled.div`
   }
 
   .link {
-    color: ${({ isDark }) => (isDark ? "inherit " : "inherit")};
+    color: inherit;
     text-decoration: none;
     overflow-wrap: break-word;
     display: flex;
@@ -88,7 +87,7 @@ const Div = styled.div`
   }
 
   .link-2 {
-    color: ${({ isDark }) => (isDark ? yellow[700] : blue[500])};
+    color: ${({ theme }) => theme.palette.primary.main};
     text-decoration: none;
     overflow-wrap: break-word;
     display: flex;

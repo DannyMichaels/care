@@ -3,7 +3,6 @@ import { Link, useHistory } from "react-router-dom";
 
 // Context
 import { useStateValue } from "../../../context/CurrentUserContext";
-import { ThemeStateContext } from "../../../context/ThemeStateContext";
 import {
   AllUsersDispatchContext,
   AllUsersStateContext,
@@ -24,6 +23,8 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import NativeSelect from "@material-ui/core/NativeSelect";
 import FormHelperText from "@material-ui/core/FormHelperText";
+import Checkbox from "@material-ui/core/Checkbox";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 import LinearProgressLoading from "../../../components/Loading/LinearProgressLoading.jsx";
 
 // Icons
@@ -52,7 +53,7 @@ export default function Register() {
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [themeState] = useContext(ThemeStateContext);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const { allUsers } = useContext(AllUsersStateContext);
   const dispatchAllUsers = useContext(AllUsersDispatchContext);
 
@@ -165,10 +166,10 @@ export default function Register() {
     setImagePreview(false);
   };
 
-  const classes = useStyles({ themeState, currentUser, imagePreview });
+  const classes = useStyles({ currentUser, imagePreview });
 
   if (isLoading) {
-    return <LinearProgressLoading themeState={themeState} />;
+    return <LinearProgressLoading />;
   }
 
   return (
@@ -181,11 +182,7 @@ export default function Register() {
           </div>
           {currentUser && token && (
             <>
-              <Typography
-                className={
-                  themeState === "light" ? classes.user : classes.userDark
-                }
-              >
+              <Typography className={classes.user}>
                 You already have an account, is this you?
                 <br />
                 Name: {currentUser?.name}
@@ -246,20 +243,14 @@ export default function Register() {
               )}
               <FormControl>
                 <InputLabel
-                  className={
-                    themeState === "light" ? classes.label : classes.darkLabel
-                  }
+                  className={classes.label}
                   htmlFor="name"
                 >
                   Name
                 </InputLabel>
                 <Input
                   required
-                  className={
-                    themeState === "light"
-                      ? classes.inputField
-                      : classes.inputFieldDark
-                  }
+                  className={classes.inputField}
                   type="text"
                   inputProps={{ maxLength: 20 }}
                   name="name"
@@ -272,9 +263,7 @@ export default function Register() {
               <EmailIcon />
               <FormControl>
                 <InputLabel
-                  className={
-                    themeState === "light" ? classes.label : classes.darkLabel
-                  }
+                  className={classes.label}
                   htmlFor="email"
                 >
                   Email Address
@@ -283,11 +272,7 @@ export default function Register() {
                   required
                   id="email"
                   type="text"
-                  className={
-                    themeState === "light"
-                      ? classes.inputField
-                      : classes.inputFieldDark
-                  }
+                  className={classes.inputField}
                   name="email"
                   value={email}
                   onChange={handleChange}
@@ -314,22 +299,14 @@ export default function Register() {
               <LockIcon className={classes.lockIcon} />
               <FormControl>
                 <InputLabel
-                  className={
-                    themeState === "light"
-                      ? classes.passwordLabel
-                      : classes.darkPasswordLabel
-                  }
+                  className={classes.passwordLabel}
                   htmlFor="password"
                 >
                   Password
                 </InputLabel>
                 <Input
                   required
-                  className={
-                    themeState === "light"
-                      ? classes.passwordField
-                      : classes.passwordFieldDark
-                  }
+                  className={classes.passwordField}
                   name="password"
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -368,22 +345,14 @@ export default function Register() {
               <LockIcon className={classes.lockIcon} />
               <FormControl>
                 <InputLabel
-                  className={
-                    themeState === "light"
-                      ? classes.passwordLabel
-                      : classes.darkPasswordLabel
-                  }
+                  className={classes.passwordLabel}
                   htmlFor="passwordConfirm"
                 >
                   Confirm Password
                 </InputLabel>
                 <Input
                   required
-                  className={
-                    themeState === "light"
-                      ? classes.passwordField
-                      : classes.passwordFieldDark
-                  }
+                  className={classes.passwordField}
                   name="passwordConfirm"
                   id="passwordConfirm"
                   type={showPasswordConfirm ? "text" : "password"}
@@ -469,39 +438,74 @@ export default function Register() {
                 </NativeSelect>
               </FormControl>
             </div>
-            <br />
+            <div className={classes.genderContainer} style={{ marginTop: '8px' }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    color="primary"
+                  />
+                }
+                label={
+                  <Typography style={{ fontSize: '14px' }}>
+                    I agree to the{' '}
+                    <Link
+                      className={classes.loginLink}
+                      to="/terms"
+                    >
+                      Terms of Service
+                    </Link>
+                    {' '}and{' '}
+                    <Link
+                      className={classes.loginLink}
+                      to="/privacy"
+                    >
+                      Privacy Policy
+                    </Link>
+                  </Typography>
+                }
+              />
+            </div>
             <Button
               type="submit"
-              className={
-                themeState === "light"
-                  ? classes.registerButton
-                  : classes.registerButtonDark
-              }
+              disabled={!agreedToTerms}
+              className={classes.registerButton}
             >
               Register
             </Button>
           </form>
           <Typography
-            className={
-              themeState === "light" ? classes.login : classes.loginDark
-            }
+            className={classes.login}
           >
             Already have an account? &nbsp;
             <Link
-              className={
-                themeState === "light"
-                  ? classes.loginLink
-                  : classes.loginLinkDark
-              }
+              className={classes.loginLink}
               to="/login"
             >
               Login
             </Link>
           </Typography>
-          <br />
           <Typography
-            className={themeState === "light" ? classes.user : classes.userDark}
+            className={classes.login}
+            style={{ fontSize: '14px', marginTop: '12px' }}
           >
+            <Link
+              className={classes.loginLink}
+              to="/privacy"
+            >
+              Privacy Policy
+            </Link>
+            &nbsp;|&nbsp;
+            <Link
+              className={classes.loginLink}
+              to="/terms"
+            >
+              Terms of Service
+            </Link>
+          </Typography>
+          <br />
+          <Typography className={classes.user}>
             <a
               className={classes.link}
               target="_blank"

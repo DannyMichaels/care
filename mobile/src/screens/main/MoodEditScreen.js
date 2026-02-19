@@ -18,7 +18,9 @@ export default function MoodEditScreen({ route, navigation }) {
     try {
       await putMood(id, { status, reason, time: time.toISOString() });
       navigation.goBack();
-    } catch {} finally {
+    } catch (err) {
+      Alert.alert('Error', err?.message || 'Failed to update mood');
+    } finally {
       setLoading(false);
     }
   };

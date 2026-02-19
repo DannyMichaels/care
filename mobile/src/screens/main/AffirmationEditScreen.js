@@ -14,7 +14,9 @@ export default function AffirmationEditScreen({ route, navigation }) {
     try {
       await putAffirmation(id, { content });
       navigation.goBack();
-    } catch {} finally {
+    } catch (err) {
+      Alert.alert('Error', err?.message || 'Failed to update affirmation');
+    } finally {
       setLoading(false);
     }
   };

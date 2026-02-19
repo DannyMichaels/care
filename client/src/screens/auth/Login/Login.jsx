@@ -1,9 +1,8 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 
 // Context
 import { useStateValue } from "../../../context/CurrentUserContext";
-import { ThemeStateContext } from "../../../context/ThemeStateContext";
 
 // Services and Utilities
 import { loginUser, getAge } from '@care/shared';
@@ -30,12 +29,11 @@ import Logo from "../../../components/Logo/Logo.jsx";
 
 export default function Login() {
   const [{ currentUser }, dispatch] = useStateValue();
-  const [themeState] = useContext(ThemeStateContext);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
-  const classes = useStyles({ themeState, currentUser });
+  const classes = useStyles({ currentUser });
   const token = localStorage.getItem("authToken");
 
   const handleClickShowPassword = () => {
@@ -79,7 +77,7 @@ export default function Login() {
   };
 
   if (isLoading) {
-    return <LinearProgressLoading themeState={themeState} />;
+    return <LinearProgressLoading />;
   }
 
   return (
@@ -184,6 +182,15 @@ export default function Login() {
         <Typography className={classes.register} style={{ fontSize: '16px', marginTop: '8px' }}>
           <Link className={classes.registerLink} to="/forgot-password">
             Forgot your password?
+          </Link>
+        </Typography>
+        <Typography className={classes.register} style={{ fontSize: '14px', marginTop: '12px' }}>
+          <Link className={classes.registerLink} to="/privacy">
+            Privacy Policy
+          </Link>
+          &nbsp;|&nbsp;
+          <Link className={classes.registerLink} to="/terms">
+            Terms of Service
           </Link>
         </Typography>
         <br />

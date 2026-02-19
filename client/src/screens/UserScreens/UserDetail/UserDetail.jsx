@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import Moment from "react-moment";
 import Typography from "@material-ui/core/Typography";
-import { ThemeStateContext } from "../../../context/ThemeStateContext";
 import {
   checkInsights,
   checkLikedInsights,
@@ -17,7 +16,6 @@ import IconButton from "@material-ui/core/IconButton";
 
 export default function UserDetail({ getOneUser }) {
   const [user, setUser] = useState(null);
-  const [themeState] = useContext(ThemeStateContext);
   const [loaded, setLoaded] = useState(false);
   const { id } = useParams();
 
@@ -52,13 +50,13 @@ export default function UserDetail({ getOneUser }) {
   );
 
   if (!loaded) {
-    return <LinearProgressLoading themeState={themeState} />;
+    return <LinearProgressLoading />;
   }
 
   const userDate = user?.created_at?.toLocaleString();
 
   return (
-    <Wrapper themeState={themeState}>
+    <Wrapper>
       <div className="content-container">
         <div className="title-container">
           <div className="arrow-container">

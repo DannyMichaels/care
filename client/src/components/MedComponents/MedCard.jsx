@@ -1,17 +1,17 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
-import Button from "@material-ui/core/Button";
-import Card from "@material-ui/core/Card";
-import { Switch, Route, Link } from "react-router-dom";
-import Moment from "react-moment";
-import "moment-timezone";
-import { ThemeStateContext } from "../../context/ThemeStateContext";
-import { indigo } from "@material-ui/core/colors/";
-import MedEdit from "../Dialogs/MedDialogs/MedEdit";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import MedDetail from "../Dialogs/MedDialogs/MedDetail";
-import Typography from "@material-ui/core/Typography";
+import React, { useEffect, useState, useRef } from 'react';
+import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import { Switch, Route, Link } from 'react-router-dom';
+import Moment from 'react-moment';
+import 'moment-timezone';
+import { useTheme } from '@material-ui/core/styles';
+import { indigo } from '@material-ui/core/colors/';
+import MedEdit from '../Dialogs/MedDialogs/MedEdit';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import MedDetail from '../Dialogs/MedDialogs/MedDetail';
+import Typography from '@material-ui/core/Typography';
 import { compareDateWithCurrentTime } from '@care/shared';
-import MedImage from "./MedImage";
+import MedImage from './MedImage';
 
 export default function MedCard({
   meds,
@@ -22,7 +22,7 @@ export default function MedCard({
   handleDelete,
   RXGuideMeds,
 }) {
-  const [themeState] = useContext(ThemeStateContext);
+  const theme = useTheme();
   const [isRefreshed, setIsRefreshed] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
@@ -79,26 +79,21 @@ export default function MedCard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [med?.time]);
 
+  const cardStyle = theme.palette.type === 'light'
+    ? { boxShadow: 'default', cursor: 'pointer' }
+    : { boxShadow: `0px 0px 4px 1.2px ${indigo[50]}`, cursor: 'pointer' };
+
   return (
     <>
-      <Card
-        style={
-          themeState === "light"
-            ? { boxShadow: "default", cursor: "pointer" }
-            : {
-                boxShadow: `0px 0px 4px 1.2px ${indigo[50]} `,
-                cursor: "pointer",
-              }
-        }
-        className="med-card">
+      <Card style={cardStyle} className="med-card">
         <div className="med-container">
           <Typography
-            style={{ fontFamily: "Montserrat", fontSize: "1.1rem" }}
+            style={{ fontFamily: 'Montserrat', fontSize: '1.1rem' }}
             onClick={handleDetailOpen}>
             {med.name}
           </Typography>
           {!isRefreshed ? (
-            <div style={{ padding: "20px" }}>
+            <div style={{ padding: '20px' }}>
               <MedImage
                 onClick={handleDetailOpen}
                 image={med.image}
@@ -106,15 +101,15 @@ export default function MedCard({
                 iconColor={med.icon_color}
                 alt={med.name}
                 style={{
-                  width: "50px",
-                  height: "50px",
-                  objectFit: "contain",
+                  width: '50px',
+                  height: '50px',
+                  objectFit: 'contain',
                 }}
               />
             </div>
           ) : (
             <div className="med-container">
-              <CircularProgress style={{ height: "80px", width: "80px" }} />
+              <CircularProgress style={{ height: '80px', width: '80px' }} />
             </div>
           )}
           {!med.is_taken && compareDateWithCurrentTime(med.time) < 0 ? (
@@ -142,7 +137,7 @@ export default function MedCard({
 
           <div
             className="buttons"
-            style={openOptions ? { display: "flex" } : { display: "none" }}>
+            style={openOptions ? { display: 'flex' } : { display: 'none' }}>
             <Button
               component={Link}
               onClick={handleOpen}

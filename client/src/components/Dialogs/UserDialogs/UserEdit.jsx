@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 // Components
@@ -34,8 +34,6 @@ import ClearIcon from "@material-ui/icons/Clear";
 // Services and Utils
 import { getOneUser, putUser, toTitleCase, checkEmailUniqueuess, checkEmailValidity, checkPasswordLength } from '@care/shared';
 
-// Context
-import { ThemeStateContext } from "../../../context/ThemeStateContext";
 
 export default function UserEdit({
   handleOpen,
@@ -63,8 +61,6 @@ export default function UserEdit({
   const [emailValidityAlert, setEmailValidityAlert] = useState(false);
   const [passwordAlert, setPasswordAlert] = useState(false);
   const [allConditionsAreNotMet, setAllConditionsAreNotMet] = useState(true);
-
-  const [themeState] = useContext(ThemeStateContext);
 
   const handleImageClear = () => {
     setFormData((prevState) => ({
@@ -189,7 +185,7 @@ export default function UserEdit({
         <Typography className="title">Edit Account</Typography>
       </DialogTitle>
 
-      <Form themeState={themeState} image={image} onSubmit={handleSubmit}>
+      <Form image={image} onSubmit={handleSubmit}>
         <DialogContent dividers>
           <div className="user-image-container">
             {image ? (

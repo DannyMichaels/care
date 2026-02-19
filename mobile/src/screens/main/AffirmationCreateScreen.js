@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { postAffirmation } from '@care/shared';
 import { useDate } from '../../context/DateContext';
@@ -15,7 +15,9 @@ export default function AffirmationCreateScreen({ navigation }) {
     try {
       await postAffirmation({ content, affirmation_date: selectedDate });
       navigation.goBack();
-    } catch {} finally {
+    } catch (err) {
+      Alert.alert('Error', err?.message || 'Failed to save affirmation');
+    } finally {
       setLoading(false);
     }
   };

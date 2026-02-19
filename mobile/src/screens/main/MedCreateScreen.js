@@ -3,15 +3,17 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Text, List } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import dayjs from 'dayjs';
+import { useTheme } from 'react-native-paper';
 import { postMed, getRXGuideMeds, selectedDateToLocal, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR } from '@care/shared';
 import { useDate } from '../../context/DateContext';
-import { scheduleLocalMedReminder } from '../../services/notifications';
+
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 
 const ICON_MAP = { tablet: 'circle', pill: 'pill', droplet: 'water' };
 
 export default function MedCreateScreen({ navigation }) {
+  const theme = useTheme();
   const { selectedDate, showAllDates } = useDate();
   const [name, setName] = useState('');
   const [reason, setReason] = useState('');
@@ -68,9 +70,10 @@ export default function MedCreateScreen({ navigation }) {
         icon,
         icon_color: iconColor,
       });
-      await scheduleLocalMedReminder(newMed);
       navigation.goBack();
-    } catch {} finally {
+    } catch (err) {
+      console.log('Med create failed:', err);
+    } finally {
       setLoading(false);
     }
   };
@@ -88,7 +91,7 @@ export default function MedCreateScreen({ navigation }) {
           style={styles.input}
         />
         {showSuggestions && (
-          <View style={styles.suggestionsContainer}>
+          <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline }]}>
             {suggestions.slice(0, 5).map((med) => (
               <List.Item
                 key={med.id}

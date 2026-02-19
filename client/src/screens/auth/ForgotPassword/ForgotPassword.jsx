@@ -1,7 +1,6 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { sendVerificationCode } from '@care/shared';
-import { ThemeStateContext } from '../../../context/ThemeStateContext';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
@@ -12,12 +11,11 @@ import Logo from '../../../components/Logo/Logo.jsx';
 import { useStyles } from './forgotPasswordStyles';
 
 export default function ForgotPassword() {
-  const [themeState] = useContext(ThemeStateContext);
   const history = useHistory();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const classes = useStyles({ themeState });
+  const classes = useStyles();
 
   const handleSubmit = async (e) => {
     e.preventDefault();

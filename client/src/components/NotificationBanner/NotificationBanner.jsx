@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
@@ -9,20 +9,20 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import CloseIcon from '@material-ui/icons/Close';
 import { makeStyles } from '@material-ui/core/styles';
 import { indigo } from '@material-ui/core/colors';
-import { ThemeStateContext } from '../../context/ThemeStateContext';
 import { isPushSupported, getPermissionState, subscribeToPush, registerServiceWorker } from '../../utils/pushNotifications';
 
 const DISMISSED_KEY = 'notificationBannerDismissed';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   card: {
     display: 'flex',
     alignItems: 'center',
     marginBottom: '16px',
-    boxShadow: ({ themeState }) =>
-      themeState === 'light' ? 'default' : `0px 0px 4px 1.2px ${indigo[50]}`,
-    background: ({ themeState }) => themeState === 'light' && '#fff',
-    border: ({ themeState }) => themeState === 'light' && '1px solid #DBDBDB',
+    boxShadow: theme.palette.type === 'light'
+      ? 'default'
+      : `0px 0px 4px 1.2px ${indigo[50]}`,
+    background: theme.palette.type === 'light' ? '#fff' : undefined,
+    border: theme.palette.type === 'light' ? '1px solid #DBDBDB' : undefined,
   },
   content: {
     display: 'flex',
@@ -48,11 +48,10 @@ const useStyles = makeStyles(() => ({
 }));
 
 export default function NotificationBanner() {
-  const [themeState] = useContext(ThemeStateContext);
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
-  const classes = useStyles({ themeState });
+  const classes = useStyles();
 
   useEffect(() => {
     if (!isPushSupported()) return;

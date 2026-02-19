@@ -1,14 +1,12 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
-import { ThemeStateContext } from "../../../context/ThemeStateContext";
 import HelpIcon from "@material-ui/icons/Help";
 import { Div, Form } from "./styledInsightCreate.js";
 
 export default function InsightCreate(props) {
-  const [themeState] = useContext(ThemeStateContext);
   const [openAbout, setOpenAbout] = useState(false);
 
   const handleOpen = () => {
@@ -35,7 +33,7 @@ export default function InsightCreate(props) {
   };
 
   return (
-    <Div themeState={themeState}>
+    <Div>
       <div className="title-container">
         <Typography className="title">
           Help the community by sharing an insight!

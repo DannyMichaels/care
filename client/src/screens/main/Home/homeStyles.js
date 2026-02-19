@@ -1,22 +1,23 @@
-import { makeStyles } from "@material-ui/core/styles";
-import { indigo } from "@material-ui/core/colors";
+import { indigo } from '@material-ui/core/colors';
+import { makeStyles } from '@material-ui/core/styles';
+
 const useStyles = makeStyles((theme) => ({
   root: {
-    margin: "4% auto",
-    [theme.breakpoints.down("xs")]: {
-      maxWidth: "90vw",
+    margin: '4% auto',
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: '90vw',
     },
-    [theme.breakpoints.up("sm")]: {
-      maxWidth: "90vw",
+    [theme.breakpoints.up('sm')]: {
+      maxWidth: '90vw',
     },
-    [theme.breakpoints.up("md")]: {
-      maxWidth: "900px",
+    [theme.breakpoints.up('md')]: {
+      maxWidth: '900px',
     },
-    [theme.breakpoints.up("lg")]: {
-      maxWidth: "1000px",
+    [theme.breakpoints.up('lg')]: {
+      maxWidth: '1000px',
     },
-    [theme.breakpoints.up("xl")]: {
-      maxWidth: "60vw",
+    [theme.breakpoints.up('xl')]: {
+      maxWidth: '60vw',
     },
   },
   heading: {
@@ -24,12 +25,13 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: theme.typography.fontWeightRegular,
   },
   accordion: {
-    boxShadow: ({ themeState }) =>
-      themeState === "light" ? "default" : `0px 0px 4px 1.2px ${indigo[50]}`,
-    marginTop: "20px",
-    marginBottom: "30px",
-    background: ({ themeState }) => themeState === "light" && "#fff",
-    border: ({ themeState }) => themeState === "light" && "1px solid #DBDBDB",
+    boxShadow: theme.palette.type === 'light'
+      ? 'default'
+      : `0px 0px 4px 1.2px ${indigo[50]}`,
+    marginTop: '20px',
+    marginBottom: '30px',
+    background: theme.palette.type === 'light' ? '#fff' : undefined,
+    border: theme.palette.type === 'light' ? '1px solid #DBDBDB' : undefined,
   },
 }));
 export { useStyles };

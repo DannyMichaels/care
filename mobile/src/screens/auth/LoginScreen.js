@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Image, StyleSheet } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { TextInput, Button, Text, HelperText } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 import { loginUser } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
@@ -87,6 +88,26 @@ export default function LoginScreen({ navigation }) {
       >
         Don't have an account? Sign Up
       </Button>
+
+      <View style={styles.legalRow}>
+        <Button
+          mode="text"
+          compact
+          labelStyle={styles.legalLabel}
+          onPress={() => navigation.getParent().navigate('PrivacyPolicy')}
+        >
+          Privacy Policy
+        </Button>
+        <Text style={styles.legalDivider}>|</Text>
+        <Button
+          mode="text"
+          compact
+          labelStyle={styles.legalLabel}
+          onPress={() => navigation.getParent().navigate('TermsOfService')}
+        >
+          Terms of Service
+        </Button>
+      </View>
     </ScreenWrapper>
   );
 }
@@ -99,4 +120,7 @@ const styles = StyleSheet.create({
   input: { marginBottom: 12 },
   button: { marginTop: 8, paddingVertical: 4 },
   link: { marginTop: 8 },
+  legalRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 16 },
+  legalLabel: { fontSize: 12 },
+  legalDivider: { opacity: 0.5 },
 });

@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { useHistory } from "react-router-dom";
-import { useStyles } from "./insightCardStyles.js";
-import { useStateValue } from "../../context/CurrentUserContext";
+import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useStyles } from './insightCardStyles.js';
+import { useStateValue } from '../../context/CurrentUserContext';
 import { destroyLike, postLike } from '@care/shared';
-import DeleteInsight from "../Modals/DeleteInsight";
-import UnlikedIcon from "@material-ui/icons/FavoriteBorder";
-import LikedIcon from "@material-ui/icons/Favorite";
-import IconButton from "@material-ui/core/IconButton";
-import CareCard from "../../components/Card/CareCard";
-import ForumIcon from "@material-ui/icons/Forum";
+import DeleteInsight from '../Modals/DeleteInsight';
+import UnlikedIcon from '@material-ui/icons/FavoriteBorder';
+import LikedIcon from '@material-ui/icons/Favorite';
+import IconButton from '@material-ui/core/IconButton';
+import CareCard from '../../components/Card/CareCard';
+import ForumIcon from '@material-ui/icons/Forum';
 
 function InsightCard({
   insight,
@@ -17,11 +17,10 @@ function InsightCard({
   handleClose,
   openDelete,
   onDelete,
-  themeState,
   setLoaded,
 }) {
   const [{ currentUser }] = useStateValue();
-  const classes = useStyles({ themeState });
+  const classes = useStyles();
   const [allLikes, setAllLikes] = useState(insight.likes);
   const [liked, setLiked] = useState(false);
   const [likeDisabled, setLikeDisabled] = useState(true);
@@ -74,8 +73,8 @@ function InsightCard({
   };
 
   let likePointerEvents = likeDisabled
-    ? { pointerEvents: "none" }
-    : { pointerEvents: "inherit" };
+    ? { pointerEvents: 'none' }
+    : { pointerEvents: 'inherit' };
 
   const likesJSX = (
     <>

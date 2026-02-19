@@ -7,6 +7,8 @@ import { registerForPushNotifications } from '../services/notifications';
 import AuthStack from './AuthStack';
 import MainTabs from './MainTabs';
 import EmailVerificationScreen from '../screens/auth/EmailVerificationScreen';
+import PrivacyPolicyScreen from '../screens/legal/PrivacyPolicyScreen';
+import TermsOfServiceScreen from '../screens/legal/TermsOfServiceScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -41,31 +43,34 @@ export default function RootNavigator({ navigationRef }) {
 
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener(async (response) => {
+      console.log('notification response', JSON.stringify(response.notification.request.content));
       const data = response.notification.request.content.data;
+      console.log('notification data', data);
       if (!data?.medication_id) return;
 
       const tryNavigate = async (retries = 5) => {
         for (let i = 0; i < retries; i++) {
           if (navigationRef?.current?.isReady()) {
-            try {
-              const med = await getOneMed(data.medication_id);
-              navigationRef.current.navigate('Main', {
-                screen: 'Home',
-                params: {
-                  screen: 'MedEdit',
-                  params: { id: med.id, item: med },
-                },
-              });
-              return;
-            } catch {
-              return; // Med might have been deleted
-            }
+            const med = await getOneMed(data.medication_id);
+            navigationRef.current.navigate('Main', {
+              screen: 'Home',
+              params: {
+                screen: 'MedEdit',
+                params: { id: med.id, item: med },
+              },
+            });
+            return;
           }
           await new Promise((r) => setTimeout(r, 500));
         }
+        console.warn('Navigation not ready after retries');
       };
-      tryNavigate();
+
+      tryNavigate().catch((err) => {
+        console.log('Notification navigate failed:', err);
+      });
     });
+
     return () => subscription.remove();
   }, [navigationRef]);
 
@@ -88,6 +93,16 @@ export default function RootNavigator({ navigationRef }) {
       ) : (
         <Stack.Screen name="Auth" component={AuthStack} />
       )}
+      <Stack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicyScreen}
+        options={{ headerShown: true, title: 'Privacy Policy' }}
+      />
+      <Stack.Screen
+        name="TermsOfService"
+        component={TermsOfServiceScreen}
+        options={{ headerShown: true, title: 'Terms of Service' }}
+      />
     </Stack.Navigator>
   );
 }

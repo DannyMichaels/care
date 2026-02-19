@@ -1,5 +1,5 @@
 // hooks
-import { useContext, useState, useMemo } from "react";
+import { useState } from "react";
 import { useMediaQuery } from "@material-ui/core";
 import { useTheme } from "@material-ui/core/styles";
 
@@ -12,15 +12,10 @@ import Grid from "@material-ui/core/Grid";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Feed from "../../../components/CommunityComponents/Feed";
 
-// context
-import { ThemeStateContext } from "../../../context/ThemeStateContext";
-
 export default function Community({ usersAreLoading, allUsers }) {
-  const [themeState] = useContext(ThemeStateContext);
   const [viewMode, setViewMode] = useState("comments");
-  const { breakpoints } = useTheme();
-
-  let isDark = useMemo(() => themeState === "dark", [themeState]);
+  const theme = useTheme();
+  const { breakpoints } = theme;
 
   const isLargeScreen = useMediaQuery(breakpoints.up("lg"));
 
@@ -28,7 +23,7 @@ export default function Community({ usersAreLoading, allUsers }) {
     <Layout title="Community">
       <ScrollToTopOnMount />
 
-      <Div isDark={isDark}>
+      <Div>
         {!isLargeScreen && (
           <div className="top-view-btns">
             {viewMode === "comments" ? (

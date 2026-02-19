@@ -1,26 +1,24 @@
-import { useContext } from "react";
-import { Typography } from "@material-ui/core";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import { useHistory, useLocation, Link } from "react-router-dom";
-import { useStateValue } from "../../../context/CurrentUserContext";
-import { ThemeStateContext } from "../../../context/ThemeStateContext";
-import { useStyles } from "./headerStyles";
+import { useContext } from 'react';
+import { Typography } from '@material-ui/core';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import { useHistory, useLocation, Link } from 'react-router-dom';
+import { useStateValue } from '../../../context/CurrentUserContext';
+import { useStyles } from './headerStyles';
 import { removeToken } from '@care/shared';
-import LogoutIcon from "@material-ui/icons/ExitToApp";
+import LogoutIcon from '@material-ui/icons/ExitToApp';
 
 function CurrentUserContainer({ isMenuShowing }) {
   const [{ currentUser }, dispatch] = useStateValue();
-  const [themeState] = useContext(ThemeStateContext);
   const classes = useStyles();
 
   const { pathname } = useLocation();
   const history = useHistory();
 
   const handleLogout = () => {
-    dispatch({ type: "REMOVE_USER" });
-    localStorage.removeItem("authToken");
+    dispatch({ type: 'REMOVE_USER' });
+    localStorage.removeItem('authToken');
     removeToken();
-    history.push("/login");
+    history.push('/login');
   };
 
   return (
@@ -29,11 +27,7 @@ function CurrentUserContainer({ isMenuShowing }) {
         <>
           <Typography
             component={Link}
-            style={
-              themeState === "light"
-                ? { textDecoration: "none", color: "#fff" }
-                : { textDecoration: "none", color: "#000" }
-            }
+            style={{ textDecoration: 'none', color: 'inherit' }}
             to={`/users/${currentUser?.id}`}
             className={classes.userName}>
             {!currentUser?.image ? (
@@ -53,7 +47,7 @@ function CurrentUserContainer({ isMenuShowing }) {
           <Typography className={classes.text}>Login/Register</Typography>
         </Link>
       )}
-      {pathname === "/settings" && !isMenuShowing && (
+      {pathname === '/settings' && !isMenuShowing && (
         <Typography className={classes.logOut} onClick={handleLogout}>
           Log out
         </Typography>

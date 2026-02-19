@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import dayjs from 'dayjs';
@@ -23,7 +23,9 @@ export default function FoodCreateScreen({ navigation }) {
       const dt = dayjs(selectedDate).hour(time.getHours()).minute(time.getMinutes()).second(0);
       await postFood({ name, factors, rating, time: dt.toISOString() });
       navigation.goBack();
-    } catch {} finally {
+    } catch (err) {
+      Alert.alert('Error', err?.message || 'Failed to save food');
+    } finally {
       setLoading(false);
     }
   };

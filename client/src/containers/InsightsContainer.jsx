@@ -6,7 +6,7 @@ import InsightCreate from "../screens/InsightScreens/InsightCreate/InsightCreate
 import InsightEdit from "../screens/InsightScreens/InsightEdit/InsightEdit";
 import InsightDetail from "../screens/InsightScreens/InsightDetail/InsightDetail";
 
-export default function InsightsContainer({ themeState }) {
+export default function InsightsContainer() {
   const [insights, setInsights] = useState([]);
   const [updated, setUpdated] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -92,7 +92,6 @@ export default function InsightsContainer({ themeState }) {
             handleDeleteClose={handleDeleteClose}
             handleDeleteOpen={handleDeleteOpen}
             loaded={loaded}
-            themeState={themeState}
             updated={updated}
             insights={insights}
             handleDelete={handleDelete}

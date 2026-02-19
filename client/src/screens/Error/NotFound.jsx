@@ -1,17 +1,15 @@
-import { useContext } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation } from 'react-router-dom';
 import { checkValidity } from '@care/shared';
-import Typography from "@material-ui/core/Typography";
-import styled from "styled-components";
-import Button from "@material-ui/core/Button";
-import { ThemeStateContext } from "../../context/ThemeStateContext";
-import { yellow, grey, blue } from "@material-ui/core/colors";
-import { NavLink } from "react-router-dom";
+import Typography from '@material-ui/core/Typography';
+import styled from 'styled-components';
+import Button from '@material-ui/core/Button';
+import { grey } from '@material-ui/core/colors';
+import { NavLink } from 'react-router-dom';
 
 const ErrorWrapper = styled.div`
   min-height: 100vh;
-  background: ${({ themeState }) =>
-    themeState === "light" ? grey[250] : grey[800]};
+  background: ${({ theme }) =>
+    theme.palette.type === 'light' ? grey[250] : grey[800]};
 
   .button {
     padding: 10px;
@@ -27,7 +25,7 @@ const ErrorWrapper = styled.div`
     display: flex;
     align-items: center;
     flex-direction: column;
-    color: ${({ themeState }) => (themeState === "light" ? "#000" : "#fff")};
+    color: ${({ theme }) => theme.palette.text.primary};
     padding: 20px;
     overflow-wrap: break-word;
   }
@@ -35,17 +33,18 @@ const ErrorWrapper = styled.div`
   .title {
     margin-top: 10%;
     font-size: 2rem;
-    font-family: "montserrat", sans-serif;
-    color: ${({ themeState }) =>
-      themeState === "light" ? "red" : yellow[700]};
+    font-family: 'montserrat', sans-serif;
+    color: ${({ theme }) =>
+      theme.palette.type === 'light' ? 'red' : theme.palette.primary.main};
   }
 
   .paragraph {
     font-size: 1.5rem;
-    padding: "10px";
-    margin-bottom: "20px";
+    padding: '10px';
+    margin-bottom: '20px';
     text-align: center;
-    color: ${({ themeState }) => (themeState === "light" ? blue[600] : "#fff")};
+    color: ${({ theme }) =>
+      theme.palette.type === 'light' ? '#1E88E5' : '#fff'};
   }
 
   @media screen and (min-width: 1000px) {
@@ -74,16 +73,15 @@ const ErrorWrapper = styled.div`
 `;
 
 function NotFound() {
-  const [themeState] = useContext(ThemeStateContext);
   let location = useLocation();
 
   return (
     !checkValidity(location.pathname) && (
-      <ErrorWrapper themeState={themeState}>
+      <ErrorWrapper>
         <div className="text-container">
           <Typography className="title">ERROR 404,</Typography>
           <Typography className="paragraph">
-            Sorry, {location.pathname.replace("/", "")} doesn't exist!
+            Sorry, {location.pathname.replace('/', '')} doesn't exist!
           </Typography>
           <Button
             className="button"

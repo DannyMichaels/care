@@ -2,7 +2,6 @@ import { useState, useRef, useContext, useEffect } from 'react';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { verifyCode, sendVerificationCode, verifyUser } from '@care/shared';
 import { useStateValue } from '../../../context/CurrentUserContext';
-import { ThemeStateContext } from '../../../context/ThemeStateContext';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Logo from '../../../components/Logo/Logo.jsx';
@@ -11,7 +10,6 @@ import { useStyles } from './emailVerificationStyles';
 
 export default function EmailVerification() {
   const [{ currentUser }, dispatch] = useStateValue();
-  const [themeState] = useContext(ThemeStateContext);
   const history = useHistory();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -22,7 +20,7 @@ export default function EmailVerification() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const codeRef = useRef();
-  const classes = useStyles({ themeState });
+  const classes = useStyles();
 
   const handleVerify = async () => {
     const fullCode = code.join('');
@@ -83,7 +81,6 @@ export default function EmailVerification() {
         ref={codeRef}
         value={code}
         onChange={setCode}
-        themeState={themeState}
       />
 
       {error && <Typography className={classes.error}>{error}</Typography>}

@@ -20,11 +20,13 @@ const getCountdown = (timeStr, now) => {
   const target = new Date(timeStr);
   if (isNaN(target)) return null;
   const diff = target - now;
-  if (diff <= 0) return { text: 'Overdue', overdue: true };
+  if (diff <= 0) return { text: 'Overdue', overdue: true, urgent: false };
   const hours = Math.floor(diff / 3600000);
   const mins = Math.floor((diff % 3600000) / 60000);
-  if (hours > 0) return { text: `${hours}h ${mins}m`, overdue: false };
-  return { text: `${mins}m`, overdue: false };
+  const secs = Math.floor((diff % 60000) / 1000);
+  if (hours > 0) return { text: `${hours}h ${mins}m`, overdue: false, urgent: false };
+  if (mins > 0) return { text: `${mins}m ${secs}s`, overdue: false, urgent: mins < 1 };
+  return { text: `${secs}s`, overdue: false, urgent: true };
 };
 
 const MOOD_ICON_MAP = {
@@ -89,16 +91,24 @@ export default function HomeScreen({ navigation }) {
     }
   }, [navigation, fetchAll]);
 
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 60000);
-    return () => clearInterval(id);
-  }, []);
-
   const filteredMeds = useMemo(() => filterByDate(meds, selectedDate, false, 'time'), [meds, selectedDate]);
   const filteredMoods = useMemo(() => filterByDate(moods, selectedDate, false, 'time'), [moods, selectedDate]);
   const filteredFoods = useMemo(() => filterByDate(foods, selectedDate, false, 'time'), [foods, selectedDate]);
   const filteredSymptoms = useMemo(() => filterByDate(symptoms, selectedDate, false, 'time'), [symptoms, selectedDate]);
   const filteredAffirmations = useMemo(() => filterByDate(affirmations, selectedDate, false, 'affirmation_date'), [affirmations, selectedDate]);
+
+  const hasUrgentMed = useMemo(() => {
+    return filteredMeds?.some?.((med) => {
+      if (med.is_taken || !med.time) return false;
+      const diff = new Date(med.time) - now;
+      return diff > 0 && diff < 60000;
+    });
+  }, [filteredMeds, now]);
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), hasUrgentMed ? 1000 : 60000);
+    return () => clearInterval(id);
+  }, [hasUrgentMed]);
 
   const MED_ICON_MAP_LOCAL = { tablet: 'circle', pill: 'pill', droplet: 'water' };
 

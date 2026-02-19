@@ -1,5 +1,4 @@
-import { yellow, blue } from "@material-ui/core/colors";
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const Wrapper = styled.div`
   display: flex;
@@ -24,8 +23,7 @@ const Wrapper = styled.div`
     text-decoration: none;
   }
   .span {
-    color: ${({ themeState }) =>
-      themeState === "light" ? blue[500] : yellow[700]};
+    color: ${({ theme }) => theme.palette.primary.main};
   }
 
   @media screen and (min-width: 600px) {

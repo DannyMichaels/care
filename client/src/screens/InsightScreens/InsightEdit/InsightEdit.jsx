@@ -1,13 +1,11 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
-import { ThemeStateContext } from "../../../context/ThemeStateContext";
 import { Div, Form } from "./styledInsightEdit";
 
 export default function InsightEdit({ handleUpdate, insights }) {
-  const [themeState] = useContext(ThemeStateContext);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -45,7 +43,7 @@ export default function InsightEdit({ handleUpdate, insights }) {
   };
 
   return (
-    <Div themeState={themeState}>
+    <Div>
       <div className="title-container">
         <Typography className="title">Edit Insight</Typography>
       </div>

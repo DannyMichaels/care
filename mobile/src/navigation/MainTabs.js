@@ -21,11 +21,13 @@ import InsightEditScreen from '../screens/insights/InsightEditScreen';
 import CommunityScreen from '../screens/community/CommunityScreen';
 import UserDetailScreen from '../screens/community/UserDetailScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
+import BlockedUsersScreen from '../screens/settings/BlockedUsersScreen';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createNativeStackNavigator();
 const InsightsStack = createNativeStackNavigator();
 const CommunityStack = createNativeStackNavigator();
+const SettingsStack = createNativeStackNavigator();
 
 function HomeStackScreen() {
   return (
@@ -65,6 +67,15 @@ function CommunityStackScreen() {
   );
 }
 
+function SettingsStackScreen() {
+  return (
+    <SettingsStack.Navigator screenOptions={{ headerShown: false }}>
+      <SettingsStack.Screen name="SettingsMain" component={SettingsScreen} />
+      <SettingsStack.Screen name="BlockedUsers" component={BlockedUsersScreen} />
+    </SettingsStack.Navigator>
+  );
+}
+
 export default function MainTabs() {
   const theme = usePaperTheme();
 
@@ -88,7 +99,7 @@ export default function MainTabs() {
       <Tab.Screen name="Home" component={HomeStackScreen} />
       <Tab.Screen name="Insights" component={InsightsStackScreen} />
       <Tab.Screen name="Community" component={CommunityStackScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen name="Settings" component={SettingsStackScreen} />
     </Tab.Navigator>
   );
 }

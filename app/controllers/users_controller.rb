@@ -1,13 +1,17 @@
 class UsersController < ApplicationController
   before_action :authorize_request, except: [:create, :index, :show]
+  before_action :set_current_user_if_present, only: [:index, :show]
   before_action :set_user, except: [:create, :index]
   before_action :can_modify?, only:[:update, :destroy]
 
   def index
-    # show all users, but order by created_at ascending
-    # another example:  @users = User.order('name ASC'), order by name ascending.
     @users = User.order('created_at ASC')
-    # render the users but down show password digest and updated at (even if hashed)                        # Mapping through the user to get the likes, mapping through the likes to get the insight name.                                                                     
+
+    if @current_user
+      blocked_ids = @current_user.blocked_users.pluck(:id)
+      @users = @users.where.not(id: blocked_ids) if blocked_ids.any?
+    end
+
     render json: @users.map {|user| user.attributes.except('password_digest', 'updated_at').merge(
       {insights_count: user.insights.size},
       {liked_insights: user.liked_insights.order('likes.created_at DESC')},
@@ -16,8 +20,10 @@ class UsersController < ApplicationController
   end
 
   def show
-    # getting the user, and his insights, except the insight's user_id, because we already get that when we render the user.
-    render json: @user.attributes.except('password_digest', 'updated_at').merge({liked_insights: @user.liked_insights}, {insights: @user.insights.map {|insight| insight.attributes.except('updated_at', 'user_id')}})
+    user_attrs = @user.attributes.except('password_digest', 'updated_at')
+    user_attrs = user_attrs.except('birthday') unless @user.show_age?
+
+    render json: user_attrs.merge({liked_insights: @user.liked_insights}, {insights: @user.insights.map {|insight| insight.attributes.except('updated_at', 'user_id')}})
   end
 
   # POST /users
@@ -79,7 +85,7 @@ class UsersController < ApplicationController
     end
 
     def user_params
-      params.require(:user).permit(:name, :email, :birthday, :gender, :image, :password)
+      params.require(:user).permit(:name, :email, :birthday, :gender, :image, :password, :show_age)
     end
 
 end

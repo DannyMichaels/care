@@ -5,7 +5,7 @@ import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import { Div, Form } from "./styledInsightEdit";
 
-export default function InsightEdit({ handleUpdate, insights }) {
+export default function InsightEdit({ handleUpdate, insights, moderationError }) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -47,6 +47,11 @@ export default function InsightEdit({ handleUpdate, insights }) {
       <div className="title-container">
         <Typography className="title">Edit Insight</Typography>
       </div>
+      {moderationError && (
+        <Typography style={{ color: 'red', marginBottom: 8 }}>
+          {moderationError}
+        </Typography>
+      )}
       <Form onSubmit={handleSubmit}>
         <br />
         <div className="input-container">

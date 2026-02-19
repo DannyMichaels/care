@@ -17,7 +17,7 @@ Mood.destroy_all
 Like.destroy_all 
 Comment.destroy_all
 
-@admin = User.create!(name: 'admin', email: 'admin@email.com', password: '12345678', gender: "Male", birthday: DateTime.strptime("10/20/1999 17:00", "%m/%d/%Y %H:%M"))
+@admin = User.create!(name: 'admin', email: 'admin@email.com', password: '12345678', gender: "Male", birthday: DateTime.strptime("10/20/1999 17:00", "%m/%d/%Y %H:%M"), is_admin: true, email_verified: true)
 @daniel = User.create!(name: 'daniel', email: 'daniel@email.com', password: '12345678', gender: "Male", birthday: DateTime.strptime("10/20/1999 17:00", "%m/%d/%Y %H:%M"))
 @no_insights = User.create!(name: "Ms.No-Insights", email: 'nope@email.com', password: '12345678', gender: "Female", birthday: DateTime.strptime("10/20/1999 17:00", "%m/%d/%Y %H:%M"))
 @bob = User.create!(name: "bob", email: 'bob@email.com', password: '12345678', gender: "Other", birthday: DateTime.strptime("10/20/1999 17:00", "%m/%d/%Y %H:%M"))

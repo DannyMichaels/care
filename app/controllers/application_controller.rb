@@ -27,4 +27,22 @@ class ApplicationController < ActionController::API
       render json: { errors: e.message }, status: :unauthorized
     end
   end
+
+  def authorize_admin
+    authorize_request
+    return if performed?
+    unless @current_user&.is_admin?
+      render json: { error: 'Forbidden' }, status: :forbidden
+    end
+  end
+
+  def set_current_user_if_present
+    header = request.headers['Authorization']
+    token = header.split(' ').last if header
+    return unless token
+    @decoded = decode(token)
+    @current_user = User.find(@decoded[:id])
+  rescue ActiveRecord::RecordNotFound, JWT::DecodeError
+    # silently ignore — optional auth
+  end
 end

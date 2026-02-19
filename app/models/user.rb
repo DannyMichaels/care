@@ -19,6 +19,10 @@ class User < ApplicationRecord
   has_many :web_push_subscriptions, dependent: :destroy
   has_many :liked_insights, through: :likes, source: :insight
   has_many :comments, dependent: :destroy
+  has_many :reports, dependent: :destroy
+  has_many :blocks_as_blocker, class_name: 'Block', foreign_key: :blocker_id, dependent: :destroy
+  has_many :blocks_as_blocked, class_name: 'Block', foreign_key: :blocked_id, dependent: :destroy
+  has_many :blocked_users, through: :blocks_as_blocker, source: :blocked
   
   def downcase_email
     self.email.downcase!

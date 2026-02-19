@@ -12,6 +12,7 @@ export default function InsightsContainer() {
   const [loaded, setLoaded] = useState(false);
   const [initialLoaded, setInitialLoaded] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
+  const [moderationError, setModerationError] = useState(null);
   const history = useHistory();
 
   const handleDelete = async (id) => {
@@ -51,32 +52,47 @@ export default function InsightsContainer() {
   }, [loaded]);
 
   const handleCreate = async (insightData) => {
-    const newInsight = await postInsight(insightData);
-    setInsights((prevState) => [newInsight, ...prevState]);
-    setLoaded(false);
-    history.push("/insights");
+    try {
+      setModerationError(null);
+      const newInsight = await postInsight(insightData);
+      setInsights((prevState) => [newInsight, ...prevState]);
+      history.push("/insights");
+    } catch (err) {
+      const msg = err?.response?.data?.error;
+      if (msg) {
+        setModerationError(msg);
+      }
+    }
   };
 
   const handleUpdate = async (id, insightData) => {
-    const updatedInsight = await putInsight(id, insightData);
-    setInsights((prevState) =>
-      prevState.map((insight) => {
-        return insight.id === Number(id) ? updatedInsight : insight;
-      })
-    );
-    setLoaded(false);
-    setUpdated(true);
-    history.push("/insights");
+    try {
+      setModerationError(null);
+      const updatedInsight = await putInsight(id, insightData);
+      setInsights((prevState) =>
+        prevState.map((insight) => {
+          return insight.id === Number(id) ? updatedInsight : insight;
+        })
+      );
+      setLoaded(false);
+      setUpdated(true);
+      history.push("/insights");
+    } catch (err) {
+      const msg = err?.response?.data?.error;
+      if (msg) {
+        setModerationError(msg);
+      }
+    }
   };
 
   return (
     <>
       <Switch>
         <Route path="/insights/new">
-          <InsightCreate handleCreate={handleCreate} />
+          <InsightCreate handleCreate={handleCreate} moderationError={moderationError} />
         </Route>
         <Route path="/insights/:id/edit">
-          <InsightEdit insights={insights} handleUpdate={handleUpdate} />
+          <InsightEdit insights={insights} handleUpdate={handleUpdate} moderationError={moderationError} />
         </Route>
         <Route path="/insights/:id">
           <InsightDetail

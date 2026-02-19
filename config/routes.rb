@@ -32,6 +32,15 @@ Rails.application.routes.draw do
       post :verify
     end
   end
-  #routes only for create and index for users controller
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  resources :reports, only: [:index, :create, :update] do
+    member do
+      delete :remove_insight
+      patch :unhide_insight
+    end
+  end
+  resources :blocks, only: [:index, :create, :destroy] do
+    collection do
+      delete 'unblock/:user_id', action: :unblock, as: :unblock
+    end
+  end
 end

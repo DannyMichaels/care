@@ -6,7 +6,7 @@ import Typography from "@material-ui/core/Typography";
 import HelpIcon from "@material-ui/icons/Help";
 import { Div, Form } from "./styledInsightCreate.js";
 
-export default function InsightCreate(props) {
+export default function InsightCreate({ handleCreate, moderationError }) {
   const [openAbout, setOpenAbout] = useState(false);
 
   const handleOpen = () => {
@@ -29,7 +29,7 @@ export default function InsightCreate(props) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await props.handleCreate(formData);
+    await handleCreate(formData);
   };
 
   return (
@@ -51,6 +51,11 @@ export default function InsightCreate(props) {
           Write something appropriate! everybody will see it.
         </Typography>
       </div>
+      {moderationError && (
+        <Typography style={{ color: 'red', marginBottom: 8 }}>
+          {moderationError}
+        </Typography>
+      )}
       <Form onSubmit={handleSubmit}>
         <br />
         <div className="input-container">
@@ -59,7 +64,7 @@ export default function InsightCreate(props) {
             className="string-input"
             label="title"
             autoFocus
-            inputProps={{ maxLength: 50 }}
+            inputProps={{ maxLength: 90 }}
             type="text"
             name="title"
             value={formData.title}

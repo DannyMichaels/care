@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
-import { Text, Card, Button, TextInput, Divider, ActivityIndicator, IconButton } from 'react-native-paper';
-import { getOneInsight, destroyInsight, postComment, destroyComment, postLike, destroyLike } from '@care/shared';
+import { View, StyleSheet, Alert, Modal } from 'react-native';
+import { Text, Card, Button, TextInput, Divider, ActivityIndicator, IconButton, Portal } from 'react-native-paper';
+import { getOneInsight, destroyInsight, postComment, destroyComment, postLike, destroyLike, postReport } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 
@@ -11,6 +11,8 @@ export default function InsightDetailScreen({ route, navigation }) {
   const [insight, setInsight] = useState(null);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(true);
+  const [reportVisible, setReportVisible] = useState(false);
+  const [reportReason, setReportReason] = useState('');
 
   useEffect(() => {
     fetchInsight();
@@ -51,6 +53,15 @@ export default function InsightDetailScreen({ route, navigation }) {
     fetchInsight();
   };
 
+  const handleReport = async () => {
+    try {
+      const report = await postReport({ insight_id: id, reason: reportReason });
+      setInsight((prev) => ({ ...prev, my_report: report }));
+      setReportVisible(false);
+      setReportReason('');
+    } catch {}
+  };
+
   const handleLike = async () => {
     const existing = insight.likes?.find((l) => l.user_id === currentUser?.id);
     if (existing) {
@@ -86,6 +97,12 @@ export default function InsightDetailScreen({ route, navigation }) {
             <Button onPress={handleDelete} textColor="red">Delete</Button>
           </>
         )}
+        {!isOwner && !insight?.my_report && (
+          <Button icon="flag" onPress={() => setReportVisible(true)}>Report</Button>
+        )}
+        {insight?.my_report && (
+          <Text variant="bodySmall" style={{ opacity: 0.6 }}>Report {insight.my_report.status}</Text>
+        )}
       </View>
 
       <Divider style={styles.divider} />
@@ -115,6 +132,33 @@ export default function InsightDetailScreen({ route, navigation }) {
         />
         <IconButton icon="send" onPress={handleComment} />
       </View>
+
+      <Portal>
+        <Modal visible={reportVisible} transparent animationType="slide" onRequestClose={() => setReportVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text variant="titleLarge" style={{ marginBottom: 12 }}>Report Insight</Text>
+              <TextInput
+                label="Reason for reporting"
+                value={reportReason}
+                onChangeText={setReportReason}
+                mode="outlined"
+                multiline
+                numberOfLines={3}
+                style={{ marginBottom: 12 }}
+              />
+              <Button
+                mode="contained"
+                onPress={handleReport}
+                disabled={!reportReason.trim()}
+                style={{ marginBottom: 8 }}>
+                Submit Report
+              </Button>
+              <Button onPress={() => setReportVisible(false)}>Cancel</Button>
+            </View>
+          </View>
+        </Modal>
+      </Portal>
     </ScreenWrapper>
   );
 }
@@ -128,4 +172,6 @@ const styles = StyleSheet.create({
   commentCard: { marginTop: 8 },
   commentMeta: { opacity: 0.6, marginTop: 4 },
   commentInput: { flexDirection: 'row', alignItems: 'center', marginTop: 16, gap: 8 },
+  modalOverlay: { flex: 1, justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 24 },
+  modalContent: { backgroundColor: 'white', borderRadius: 12, padding: 24 },
 });

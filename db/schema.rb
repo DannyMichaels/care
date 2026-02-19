@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_19_144956) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_19_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -21,6 +21,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_19_144956) do
     t.datetime "updated_at", null: false
     t.date "affirmation_date"
     t.index ["user_id"], name: "index_affirmations_on_user_id"
+  end
+
+  create_table "blocks", force: :cascade do |t|
+    t.bigint "blocker_id", null: false
+    t.bigint "blocked_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["blocked_id"], name: "index_blocks_on_blocked_id"
+    t.index ["blocker_id", "blocked_id"], name: "index_blocks_on_blocker_id_and_blocked_id", unique: true
+    t.index ["blocker_id"], name: "index_blocks_on_blocker_id"
   end
 
   create_table "comments", force: :cascade do |t|
@@ -62,6 +72,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_19_144956) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "status", default: "active", null: false
     t.index ["user_id"], name: "index_insights_on_user_id"
   end
 
@@ -112,6 +123,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_19_144956) do
     t.index ["user_id"], name: "index_push_tokens_on_user_id"
   end
 
+  create_table "reports", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "insight_id", null: false
+    t.string "reason", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["insight_id"], name: "index_reports_on_insight_id"
+    t.index ["user_id", "insight_id"], name: "index_reports_on_user_id_and_insight_id", unique: true
+    t.index ["user_id"], name: "index_reports_on_user_id"
+  end
+
   create_table "symptoms", force: :cascade do |t|
     t.string "name", limit: 20
     t.datetime "time", precision: nil
@@ -131,6 +154,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_19_144956) do
     t.date "birthday"
     t.string "image"
     t.boolean "email_verified", default: false
+    t.boolean "is_admin", default: false, null: false
+    t.boolean "show_age", default: false, null: false
   end
 
   create_table "web_push_subscriptions", force: :cascade do |t|
@@ -146,6 +171,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_19_144956) do
   end
 
   add_foreign_key "affirmations", "users", on_delete: :cascade
+  add_foreign_key "blocks", "users", column: "blocked_id", on_delete: :cascade
+  add_foreign_key "blocks", "users", column: "blocker_id", on_delete: :cascade
   add_foreign_key "comments", "insights", on_delete: :cascade
   add_foreign_key "comments", "users", on_delete: :cascade
   add_foreign_key "foods", "users", on_delete: :cascade
@@ -155,6 +182,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_19_144956) do
   add_foreign_key "medications", "users", on_delete: :cascade
   add_foreign_key "moods", "users", on_delete: :cascade
   add_foreign_key "push_tokens", "users", on_delete: :cascade
+  add_foreign_key "reports", "insights", on_delete: :cascade
+  add_foreign_key "reports", "users", on_delete: :cascade
   add_foreign_key "symptoms", "users", on_delete: :cascade
   add_foreign_key "web_push_subscriptions", "users", on_delete: :cascade
 end

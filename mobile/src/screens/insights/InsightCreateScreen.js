@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
-import { postInsight } from '@care/shared';
+import { postInsight, getApiError } from '@care/shared';
 import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function InsightCreateScreen({ navigation }) {
@@ -15,7 +15,12 @@ export default function InsightCreateScreen({ navigation }) {
     try {
       await postInsight({ title, description, body });
       navigation.goBack();
-    } catch {} finally {
+    } catch (err) {
+      const msg = err?.response?.data?.error;
+      if (msg) {
+        Alert.alert('Content Moderation', msg);
+      }
+    } finally {
       setLoading(false);
     }
   };

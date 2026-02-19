@@ -14,7 +14,7 @@ import {
 } from "../../../context/AllUsersContext";
 
 // Services and Utils
-import { getAge } from '@care/shared';
+import { getAge, putUser, getAllBlocks, unblockUser } from '@care/shared';
 import {
   isPushSupported,
   getPermissionState,
@@ -38,6 +38,13 @@ import Brightness4Icon from "@material-ui/icons/Brightness4";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import SecurityIcon from "@material-ui/icons/Security";
 import DescriptionIcon from "@material-ui/icons/Description";
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import BlockIcon from "@material-ui/icons/Block";
+import SupervisorAccountIcon from "@material-ui/icons/SupervisorAccount";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 
 // Styles
 import { useStyles } from "./settingStyles";
@@ -52,6 +59,7 @@ export default function Settings() {
   const [pushSupported, setPushSupported] = useState(false);
   const [pushDenied, setPushDenied] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
+  const [blockedUsers, setBlockedUsers] = useState([]);
 
   const { allUsers } = useContext(AllUsersStateContext);
   const dispatchAllUsers = useContext(AllUsersDispatchContext);
@@ -113,6 +121,26 @@ export default function Settings() {
         }
       }
     }
+  };
+
+  useEffect(() => {
+    const fetchBlocks = async () => {
+      try {
+        const blocks = await getAllBlocks();
+        setBlockedUsers(blocks);
+      } catch {}
+    };
+    fetchBlocks();
+  }, []);
+
+  const handleShowAgeToggle = async () => {
+    const updated = await putUser(currentUser.id, { show_age: !currentUser.show_age });
+    dispatch({ type: 'EDIT_USER', currentUser: { ...currentUser, ...updated } });
+  };
+
+  const handleUnblock = async (userId) => {
+    await unblockUser(userId);
+    setBlockedUsers((prev) => prev.filter((b) => b.blocked.id !== userId));
   };
 
   useEffect(() => {
@@ -232,8 +260,59 @@ export default function Settings() {
               </CardActions>
             </Card>
           )}
+          <Card className={classes.card}>
+            <CardActions className={classes.actionsContainer}>
+              <Typography className={classes.themeStateContainer}>
+                <VisibilityIcon className={classes.themeStateIcon} />
+                &nbsp;Show Age on Profile
+              </Typography>
+              <Switch
+                className={classes.themeStateSwitch}
+                checked={!!currentUser?.show_age}
+                onChange={handleShowAgeToggle}
+              />
+            </CardActions>
+          </Card>
         </div>
       </div>
+      {currentUser?.is_admin && (
+        <div className={classes.root}>
+          <Typography className={classes.categories}>Admin</Typography>
+          <div className="card-actions">
+            <Card className={classes.card}>
+              <CardActions className={classes.actionsContainer}>
+                <Link to="/admin" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}>
+                  <Typography className={classes.themeStateContainer}>
+                    <SupervisorAccountIcon className={classes.themeStateIcon} />
+                    &nbsp;Admin Panel
+                  </Typography>
+                </Link>
+              </CardActions>
+            </Card>
+          </div>
+        </div>
+      )}
+      {blockedUsers.length > 0 && (
+        <div className={classes.root}>
+          <Typography className={classes.categories}>Blocked Users</Typography>
+          <List>
+            {blockedUsers.map((block) => (
+              <ListItem key={block.id}>
+                <BlockIcon style={{ marginRight: 8, opacity: 0.5 }} />
+                <ListItemText primary={block.blocked?.name} />
+                <ListItemSecondaryAction>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() => handleUnblock(block.blocked.id)}>
+                    Unblock
+                  </Button>
+                </ListItemSecondaryAction>
+              </ListItem>
+            ))}
+          </List>
+        </div>
+      )}
       <div className={classes.root}>
         <Typography className={classes.categories}>Legal</Typography>
         <div className="card-actions">

@@ -5,7 +5,7 @@ import { Text, Avatar, Button, Switch, List, Divider } from 'react-native-paper'
 import { useNavigation } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
-import { removeToken, getAge, toTitleCase, destroyUser } from '@care/shared';
+import { removeToken, getAge, toTitleCase, destroyUser, putUser } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import { useTheme } from '../../context/ThemeContext';
 import { registerForPushNotifications } from '../../services/notifications';
@@ -63,6 +63,13 @@ export default function SettingsScreen() {
   const handleLogout = async () => {
     await removeToken();
     dispatch({ type: 'REMOVE_USER' });
+  };
+
+  const handleShowAgeToggle = async () => {
+    try {
+      const updated = await putUser(currentUser.id, { show_age: !currentUser.show_age });
+      dispatch({ type: 'EDIT_USER', currentUser: { ...currentUser, ...updated } });
+    } catch {}
   };
 
   const handleDeleteAccount = () => {
@@ -127,6 +134,22 @@ export default function SettingsScreen() {
           <Divider />
         </>
       )}
+
+      <List.Item
+        title="Show Age on Profile"
+        left={(props) => <List.Icon {...props} icon="eye-outline" />}
+        right={() => (
+          <Switch value={!!currentUser?.show_age} onValueChange={handleShowAgeToggle} />
+        )}
+      />
+
+      <Divider />
+
+      <List.Item
+        title="Blocked Users"
+        left={(props) => <List.Icon {...props} icon="account-cancel-outline" />}
+        onPress={() => navigation.navigate('BlockedUsers')}
+      />
 
       <Divider />
 

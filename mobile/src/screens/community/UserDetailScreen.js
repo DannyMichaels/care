@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text, Avatar, Card, Paragraph, ActivityIndicator, Divider } from 'react-native-paper';
-import { getOneUser, toTitleCase, getAge } from '@care/shared';
+import { View, StyleSheet, Alert } from 'react-native';
+import { Text, Avatar, Card, Paragraph, ActivityIndicator, Divider, Button } from 'react-native-paper';
+import { getOneUser, toTitleCase, getAge, getAllBlocks, postBlock, unblockUser } from '@care/shared';
+import { useCurrentUser } from '../../context/CurrentUserContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function UserDetailScreen({ route, navigation }) {
   const { id } = route.params;
+  const [{ currentUser }] = useCurrentUser();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isBlocked, setIsBlocked] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -20,6 +23,37 @@ export default function UserDetailScreen({ route, navigation }) {
     };
     fetch();
   }, [id]);
+
+  useEffect(() => {
+    const checkBlocked = async () => {
+      try {
+        const blocks = await getAllBlocks();
+        setIsBlocked(blocks.some((b) => b.blocked_id === Number(id)));
+      } catch {}
+    };
+    if (currentUser && Number(id) !== currentUser.id) {
+      checkBlocked();
+    }
+  }, [id, currentUser]);
+
+  const handleBlock = () => {
+    Alert.alert('Block User', `Block ${user?.name}?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Block',
+        style: 'destructive',
+        onPress: async () => {
+          await postBlock(Number(id));
+          setIsBlocked(true);
+        },
+      },
+    ]);
+  };
+
+  const handleUnblock = async () => {
+    await unblockUser(Number(id));
+    setIsBlocked(false);
+  };
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} />;
   if (!user) return <Text style={{ padding: 24 }}>User not found</Text>;
@@ -43,6 +77,16 @@ export default function UserDetailScreen({ route, navigation }) {
       <Text variant="titleMedium" style={styles.sectionTitle}>
         {user.insights?.length || 0} Insight{user.insights?.length !== 1 ? 's' : ''}
       </Text>
+      {currentUser && Number(id) !== currentUser.id && (
+        <Button
+          mode={isBlocked ? 'contained' : 'outlined'}
+          icon={isBlocked ? 'account-check' : 'account-cancel'}
+          onPress={isBlocked ? handleUnblock : handleBlock}
+          style={styles.blockButton}>
+          {isBlocked ? 'Unblock User' : 'Block User'}
+        </Button>
+      )}
+
       {user.insights?.map((insight) => (
         <Card
           key={insight.id}
@@ -67,4 +111,5 @@ const styles = StyleSheet.create({
   divider: { marginVertical: 16 },
   sectionTitle: { marginBottom: 8 },
   card: { marginBottom: 8 },
+  blockButton: { marginBottom: 16 },
 });

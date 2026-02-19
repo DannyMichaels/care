@@ -18,6 +18,8 @@ export * from './services/likes';
 export * from './services/pushTokens';
 export * from './services/webPushSubscriptions';
 export * from './services/emailVerification';
+export * from './services/reports';
+export * from './services/blocks';
 
 // Utils
 export * from './utils/dateUtils';

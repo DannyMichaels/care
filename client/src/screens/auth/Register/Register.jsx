@@ -9,7 +9,7 @@ import {
 } from "../../../context/AllUsersContext";
 
 // Services and Utils
-import { toTitleCase, getAge, registerUser, checkEmailValidity, checkPasswordLength, sendVerificationCode } from '@care/shared';
+import { toTitleCase, registerUser, checkEmailValidity, checkPasswordLength, sendVerificationCode } from '@care/shared';
 import moment from "moment";
 
 // Components
@@ -57,7 +57,6 @@ export default function Register() {
   const { allUsers } = useContext(AllUsersStateContext);
   const dispatchAllUsers = useContext(AllUsersDispatchContext);
 
-  const token = localStorage.getItem("authToken");
   const history = useHistory();
 
   const handleClickShowPassword = () => {
@@ -166,7 +165,7 @@ export default function Register() {
     setImagePreview(false);
   };
 
-  const classes = useStyles({ currentUser, imagePreview });
+  const classes = useStyles({ imagePreview });
 
   if (isLoading) {
     return <LinearProgressLoading />;
@@ -180,24 +179,6 @@ export default function Register() {
             <Typography className={classes.title}>Care</Typography>
             <Logo className={classes.logo} />
           </div>
-          {currentUser && token && (
-            <>
-              <Typography className={classes.user}>
-                You already have an account, is this you?
-                <br />
-                Name: {currentUser?.name}
-                <br />
-                Email: {currentUser?.email}
-                <br />
-                Age: {getAge(currentUser?.birthday)}
-                <br />
-                Gender: {currentUser?.gender}
-                <br />
-              </Typography>
-              <br />
-            </>
-          )}
-
           {error && (
             <Typography className={classes.user} style={{ color: "red" }}>
               {error.data?.message ?? error?.statusText}

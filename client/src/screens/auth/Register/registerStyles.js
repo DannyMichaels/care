@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     padding: '20px',
-    marginBottom: (props) => (props.currentUser ? '-10px' : '0'),
+    marginBottom: '0',
     alignItems: 'center',
   },
   title: {
@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: ['Montserrat', 'sans-serif'].join(','),
     fontSize: '15px',
     textDecoration: 'none',
-    marginBottom: (props) => (props.currentUser ? '5px' : '20px'),
+    marginBottom: '20px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',

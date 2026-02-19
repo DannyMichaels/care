@@ -5,7 +5,7 @@ import { Link, useHistory } from "react-router-dom";
 import { useStateValue } from "../../../context/CurrentUserContext";
 
 // Services and Utilities
-import { loginUser, getAge } from '@care/shared';
+import { loginUser } from '@care/shared';
 
 // Components
 import Typography from "@material-ui/core/Typography";
@@ -33,8 +33,7 @@ export default function Login() {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
-  const classes = useStyles({ currentUser });
-  const token = localStorage.getItem("authToken");
+  const classes = useStyles();
 
   const handleClickShowPassword = () => {
     setShowPassword((prevState) => !prevState);
@@ -87,27 +86,6 @@ export default function Login() {
           <Typography className={classes.title}>Care</Typography>
           <Logo className={classes.logo} />
         </div>
-        {currentUser && token && (
-          <Typography className={classes.user}>
-            You're already logged in, is this you?
-            {currentUser?.image && (
-              <img
-                className={classes.userLoggedImage}
-                src={currentUser?.image}
-                alt={currentUser?.name}
-              />
-            )}
-            <br />
-            Name: {currentUser?.name}
-            <br />
-            Email: {currentUser?.email}
-            <br />
-            Age: {getAge(currentUser?.birthday)}
-            <br />
-            Gender: {currentUser?.gender}
-          </Typography>
-        )}
-
         {error && (
           <Typography className={classes.user} style={{ color: "red" }}>
             {error.data?.message ?? error?.statusText}

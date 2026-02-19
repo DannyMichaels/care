@@ -10,21 +10,22 @@ import NotFound from "../screens/Error/NotFound";
 import Home from "../screens/main/Home/Home";
 import Settings from "../screens/main/Settings/Settings";
 import LegalPage from "../screens/legal/LegalPage";
-import PrivateRoute from "./PrivateRoute";
+import AuthenticatedRoute from "./AuthenticatedRoute";
+import GuestRoute from "./GuestRoute";
 
 const AppRouter = () => (
   <Switch>
-    <Route path="/login" component={Login} />
-    <Route path="/register" component={Register} />
+    <GuestRoute path="/login" component={Login} />
+    <GuestRoute path="/register" component={Register} />
     <Route path="/verify-email" component={EmailVerification} />
-    <Route path="/forgot-password" component={ForgotPassword} />
-    <Route path="/reset-password" component={ResetPassword} />
+    <GuestRoute path="/forgot-password" component={ForgotPassword} />
+    <GuestRoute path="/reset-password" component={ResetPassword} />
     <Route path="/privacy" component={LegalPage} />
     <Route path="/terms" component={LegalPage} />
-    <PrivateRoute path="/insights" component={InsightsContainer} />
-    <PrivateRoute path="/settings" component={Settings} />
-    <PrivateRoute path="/users" component={UsersContainer} />
-    <PrivateRoute path="/" component={Home} />
+    <AuthenticatedRoute path="/insights" component={InsightsContainer} />
+    <AuthenticatedRoute path="/settings" component={Settings} />
+    <AuthenticatedRoute path="/users" component={UsersContainer} />
+    <AuthenticatedRoute path="/" component={Home} />
     <Route path="*" component={NotFound} />
   </Switch>
 );

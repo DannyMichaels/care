@@ -1,10 +1,10 @@
-import React from "react";
-import { Route, Redirect } from "react-router-dom";
-import { useStateValue } from "../context/CurrentUserContext";
+import React from 'react';
+import { Route, Redirect } from 'react-router-dom';
+import { useStateValue } from '../context/CurrentUserContext';
 
-export default function PrivateRoute({ component: Component, ...rest }) {
+export default function AuthenticatedRoute({ component: Component, ...rest }) {
   const [{ currentUser }] = useStateValue();
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem('authToken');
 
   return (
     <Route

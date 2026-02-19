@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     flexDirection: 'row',
     padding: '20px',
-    marginBottom: (props) => (props.currentUser ? '-10px' : '20px'),
+    marginBottom: '20px',
   },
   title: {
     fontFamily: ['Montserrat', 'sans-serif'].join(','),
@@ -89,15 +89,6 @@ const useStyles = makeStyles((theme) => ({
   },
   passwordLabel: {
     color: theme.palette.text.primary,
-  },
-  userLoggedImage: {
-    height: '130px',
-    width: '130px',
-    alignSelf: 'center',
-    marginBottom: '5px',
-    marginTop: '20px',
-    border: `1px solid ${theme.palette.text.primary}`,
-    borderRadius: '50%',
   },
   visibility: {
     color: theme.palette.text.primary,

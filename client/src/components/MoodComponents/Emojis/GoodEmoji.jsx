@@ -1,4 +1,3 @@
-import React from 'react';
 import SentimentSatisfiedSharpIcon from '@material-ui/icons/SentimentSatisfiedSharp';
 
 function GoodEmoji() {

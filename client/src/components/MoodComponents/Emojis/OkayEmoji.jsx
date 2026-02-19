@@ -1,4 +1,3 @@
-import React from 'react';
 import SentimentSatisfiedIcon from '@material-ui/icons/SentimentSatisfied';
 
 function OkayEmoji() {

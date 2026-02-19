@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import { useState, useContext } from "react";
 import { Link, useHistory } from "react-router-dom";
 
 // Context
@@ -88,7 +88,6 @@ export default function Register() {
     } catch (error) {
       setIsLoading(false);
       setError(error.response);
-      console.log(error);
     }
   };
 

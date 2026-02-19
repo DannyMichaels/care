@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
@@ -67,7 +67,6 @@ export default function NotificationBanner() {
       await subscribeToPush();
       setVisible(false);
     } catch (err) {
-      console.error('Push subscribe failed:', err);
       if (err?.message?.includes('push service')) {
         setToastMsg('Push service unavailable — enable Google push messaging in browser settings');
       } else if (err?.message?.includes('permission')) {

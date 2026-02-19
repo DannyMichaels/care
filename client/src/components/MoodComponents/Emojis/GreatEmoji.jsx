@@ -1,4 +1,3 @@
-import React from 'react';
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
 
 function GreatEmoji() {

@@ -103,7 +103,6 @@ export default function Settings() {
         setPushEnabled(true);
         setPushDenied(getPermissionState() === 'denied');
       } catch (err) {
-        console.error('Push subscribe failed:', err);
         setPushDenied(getPermissionState() === 'denied');
         if (getPermissionState() === 'denied') {
           setToastMsg('Notifications blocked — check browser settings');

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useStyles } from './linearLoadingStyles';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Paper from '@material-ui/core/Paper';

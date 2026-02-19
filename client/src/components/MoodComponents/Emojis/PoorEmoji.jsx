@@ -1,4 +1,3 @@
-import React from 'react';
 import SentimentVeryDissatisfiedIcon from '@material-ui/icons/SentimentVeryDissatisfied';
 
 function PoorEmoji() {

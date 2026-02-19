@@ -1,10 +1,8 @@
 # Care
 
-[Live Website](https://care-app.netlify.app)
+![Care Feature Graphic](shared/assets/care-feature-graphic.png)
 
-[Live Rails API](https://heroku-care-api.herokuapp.com/insights)
-
-[Privacy Policy](https://care-app.netlify.app/privacy) | [Terms of Service](https://care-app.netlify.app/terms)
+[Live Website](https://care-app.netlify.app) | [Live API](https://care-api-k1b8.onrender.com) | [Privacy Policy](https://care-app.netlify.app/privacy) | [Terms of Service](https://care-app.netlify.app/terms)
 
 <br />
 

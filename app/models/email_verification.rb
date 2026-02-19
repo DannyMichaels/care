@@ -1,4 +1,6 @@
 class EmailVerification < ApplicationRecord
+  CODE_EXPIRY_MINUTES = 10
+
   validates :email, presence: true
   validates :code, presence: true
   validates :expires_at, presence: true
@@ -17,6 +19,6 @@ class EmailVerification < ApplicationRecord
   end
 
   def set_expiry
-    self.expires_at = 10.minutes.from_now
+    self.expires_at = CODE_EXPIRY_MINUTES.minutes.from_now
   end
 end

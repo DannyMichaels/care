@@ -10,6 +10,9 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
+    },
+    "android": {
+      "package": "com.cyberviper.care"
     }
   }
 }

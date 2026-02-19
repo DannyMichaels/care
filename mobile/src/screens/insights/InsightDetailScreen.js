@@ -78,7 +78,7 @@ export default function InsightDetailScreen({ route, navigation }) {
 
       <View style={styles.actions}>
         <Button icon={isLiked ? 'heart' : 'heart-outline'} onPress={handleLike}>
-          {isLiked ? 'Liked' : 'Like'}
+          {isLiked ? 'Liked' : 'Like'} ({insight.likes?.length || 0})
         </Button>
         {isOwner && (
           <>

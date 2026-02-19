@@ -89,6 +89,28 @@ export default function MedEditScreen({ route, navigation }) {
     );
   };
 
+  const handleUntake = () => {
+    Alert.alert(
+      'Undo Taken',
+      `Mark ${name} as not taken?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Undo',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              await putMed(id, { is_taken: false, taken_date: null });
+              setIsTaken(false);
+            } catch {} finally {
+              setLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const handleDelete = () => {
     Alert.alert('Delete Medication', `Are you sure you want to delete ${name}?`, [
       { text: 'Cancel', style: 'cancel' },
@@ -108,7 +130,7 @@ export default function MedEditScreen({ route, navigation }) {
       <Text variant="headlineMedium" style={styles.title}>Edit Medication</Text>
 
       {isTaken
-        ? <Chip icon="check" style={styles.chip}>Taken</Chip>
+        ? <Chip icon="check" onPress={handleUntake} onClose={handleUntake} style={styles.chip}>Taken</Chip>
         : (
           <Button mode="contained" icon="check" onPress={handleMarkTaken} disabled={loading} style={styles.takenButton} buttonColor="#4CAF50">
             Mark as Taken

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
-import { Card, Text, FAB, Paragraph, useTheme, ActivityIndicator } from 'react-native-paper';
-import { getAllInsights } from '@care/shared';
+import { View, FlatList, StyleSheet } from 'react-native';
+import { Card, Text, FAB, Paragraph, IconButton, useTheme, ActivityIndicator } from 'react-native-paper';
+import { getAllInsights, postLike, destroyLike } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 
@@ -10,6 +10,18 @@ export default function InsightsListScreen({ navigation }) {
   const [insights, setInsights] = useState([]);
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
+
+  const handleLike = async (item) => {
+    const existing = item.likes?.find((l) => l.user_id === currentUser?.id);
+    try {
+      if (existing) {
+        await destroyLike(existing.id);
+      } else {
+        await postLike({ insight_id: item.id });
+      }
+      fetchInsights();
+    } catch {}
+  };
 
   const fetchInsights = useCallback(async () => {
     try {
@@ -43,13 +55,29 @@ export default function InsightsListScreen({ navigation }) {
             <Card.Content>
               <Paragraph numberOfLines={2}>{item.description}</Paragraph>
             </Card.Content>
+            <Card.Actions>
+              <View style={styles.likeRow}>
+                <IconButton
+                  icon={item.likes?.some((l) => l.user_id === currentUser?.id) ? 'heart' : 'heart-outline'}
+                  iconColor={item.likes?.some((l) => l.user_id === currentUser?.id) ? '#E91E63' : undefined}
+                  size={20}
+                  onPress={() => handleLike(item)}
+                />
+                <Text variant="bodySmall">{item.likes?.length || 0}</Text>
+              </View>
+              <View style={styles.likeRow}>
+                <IconButton icon="comment-outline" size={20} onPress={() => navigation.navigate('InsightDetail', { id: item.id })} />
+                <Text variant="bodySmall">{item.comments?.length || 0}</Text>
+              </View>
+            </Card.Actions>
           </Card>
         )}
         contentContainerStyle={styles.list}
       />
       <FAB
         icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        style={styles.fab}
+        color="#fff"
         onPress={() => navigation.navigate('InsightCreate')}
       />
     </ScreenWrapper>
@@ -61,5 +89,6 @@ const styles = StyleSheet.create({
   title: { padding: 16 },
   list: { padding: 12 },
   card: { marginBottom: 12 },
-  fab: { position: 'absolute', right: 16, bottom: 16 },
+  likeRow: { flexDirection: 'row', alignItems: 'center' },
+  fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#1E88E5' },
 });

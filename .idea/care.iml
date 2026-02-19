@@ -127,7 +127,6 @@
     <orderEntry type="library" scope="PROVIDED" name="tsort (v0.2.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="tzinfo (v2.0.6, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="tzinfo-data (v1.2025.3, ruby-3.4.8-p72) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="wdm (v0.2.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="web-push (v1.0.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="websocket-driver (v0.8.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="websocket-extensions (v0.1.5, ruby-3.4.8-p72) [gem]" level="application" />

@@ -19,7 +19,7 @@ gem 'web-push', '1.0.0'
 gem 'resend'
 
 # Please add the following to your Gemfile to avoid polling for changes
-gem 'wdm', '>= 0.1.0'
+# gem 'wdm', '>= 0.1.0' # this breaks render build tf?
 
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]

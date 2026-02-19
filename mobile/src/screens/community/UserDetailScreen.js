@@ -47,7 +47,7 @@ export default function UserDetailScreen({ route, navigation }) {
         <Card
           key={insight.id}
           style={styles.card}
-          onPress={() => navigation.navigate('InsightDetail', { id: insight.id })}
+          onPress={() => navigation.navigate('Insights', { screen: 'InsightDetail', params: { id: insight.id } })}
         >
           <Card.Title title={insight.title} />
           <Card.Content>

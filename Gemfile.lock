@@ -270,7 +270,6 @@ GEM
       concurrent-ruby (~> 1.0)
     tzinfo-data (1.2025.3)
       tzinfo (>= 1.0.0)
-    wdm (0.2.0)
     web-push (1.0.0)
       hkdf (~> 0.2)
       jwt (~> 2.0)
@@ -307,7 +306,6 @@ DEPENDENCIES
   rspec-rails (~> 7.0)
   shoulda-matchers (~> 6.0)
   tzinfo-data
-  wdm (>= 0.1.0)
   web-push (= 1.0.0)
 
 CHECKSUMS
@@ -412,7 +410,6 @@ CHECKSUMS
   tsort (0.2.0) sha256=9650a793f6859a43b6641671278f79cfead60ac714148aabe4e3f0060480089f
   tzinfo (2.0.6) sha256=8daf828cc77bcf7d63b0e3bdb6caa47e2272dcfaf4fbfe46f8c3a9df087a829b
   tzinfo-data (1.2025.3) sha256=b546e2f1e5e5c40a0c619aafb24e30d3d6a128c2f689278f721b7286dd499562
-  wdm (0.2.0) sha256=c46d9dcb6d375199ca07465bc67669ee8f041aeaa55dd7dafe6de4dd97b27647
   web-push (1.0.0) sha256=97df064572a9f5ba5e784779959a449b748d162f1da0f1e418bbf9efe788e08a
   websocket-driver (0.8.0) sha256=ed0dba4b943c22f17f9a734817e808bc84cdce6a7e22045f5315aa57676d4962
   websocket-extensions (0.1.5) sha256=1c6ba63092cda343eb53fc657110c71c754c56484aad42578495227d717a8241

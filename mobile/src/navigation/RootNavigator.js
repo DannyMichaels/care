@@ -42,20 +42,29 @@ export default function RootNavigator({ navigationRef }) {
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener(async (response) => {
       const data = response.notification.request.content.data;
-      if (data?.medication_id && navigationRef?.current) {
-        try {
-          const med = await getOneMed(data.medication_id);
-          navigationRef.current.navigate('Main', {
-            screen: 'Home',
-            params: {
-              screen: 'MedEdit',
-              params: { id: med.id, item: med },
-            },
-          });
-        } catch {
-          // Med might have been deleted
+      if (!data?.medication_id) return;
+
+      const tryNavigate = async (retries = 5) => {
+        for (let i = 0; i < retries; i++) {
+          if (navigationRef?.current?.isReady()) {
+            try {
+              const med = await getOneMed(data.medication_id);
+              navigationRef.current.navigate('Main', {
+                screen: 'Home',
+                params: {
+                  screen: 'MedEdit',
+                  params: { id: med.id, item: med },
+                },
+              });
+              return;
+            } catch {
+              return; // Med might have been deleted
+            }
+          }
+          await new Promise((r) => setTimeout(r, 500));
         }
-      }
+      };
+      tryNavigate();
     });
     return () => subscription.remove();
   }, [navigationRef]);

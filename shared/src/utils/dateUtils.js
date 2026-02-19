@@ -15,6 +15,51 @@ export function selectedDateToLocal(selectedDate) {
   return `${selectedDate}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
+const SHORT_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const SHORT_MONTHS = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+];
+
+export function buildCalendarDays(selectedDate, futureDays = 7) {
+  const now = new Date();
+  const defaultStart = new Date(now);
+  defaultStart.setDate(defaultStart.getDate() - 365);
+
+  const selectedStart = new Date(selectedDate + 'T00:00:00');
+  const earliest = selectedStart < defaultStart ? selectedStart : defaultStart;
+  const totalPast = daysBetween(earliest, now);
+
+  const days = [];
+  for (let i = totalPast; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    days.push({
+      dateStr: d.toLocaleDateString('en-CA'),
+      dayOfWeek: SHORT_DAYS[d.getDay()],
+      dayOfMonth: d.getDate(),
+      month: SHORT_MONTHS[d.getMonth()],
+      year: d.getFullYear(),
+      isToday: i === 0,
+      isFuture: false,
+    });
+  }
+  for (let i = 1; i <= futureDays; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() + i);
+    days.push({
+      dateStr: d.toLocaleDateString('en-CA'),
+      dayOfWeek: SHORT_DAYS[d.getDay()],
+      dayOfMonth: d.getDate(),
+      month: SHORT_MONTHS[d.getMonth()],
+      year: d.getFullYear(),
+      isToday: false,
+      isFuture: true,
+    });
+  }
+  return days;
+}
+
 export function filterByDate(items, selectedDate, showAllDates, dateField = 'time') {
   if (showAllDates) return items;
   return items.filter((item) => {

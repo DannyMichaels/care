@@ -2,63 +2,18 @@ import { useRef, useEffect, useMemo, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Text, IconButton, useTheme } from 'react-native-paper';
 import { useDate } from '../context/DateContext';
-import { daysBetween } from '@care/shared';
+import { buildCalendarDays } from '@care/shared';
 import DatePickerModal from './DatePickerModal';
 
-const SHORT_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const SHORT_MONTHS = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-];
 const CARD_W = 56;
 const CARD_MX = 4;
 const CARD_TOTAL = CARD_W + CARD_MX * 2;
-const FUTURE_DAYS = 7;
-
-function buildDays(selectedDate) {
-  const now = new Date();
-  const defaultStart = new Date(now);
-  defaultStart.setDate(defaultStart.getDate() - 365);
-
-  const selectedStart = new Date(selectedDate + 'T00:00:00');
-  const earliest = selectedStart < defaultStart ? selectedStart : defaultStart;
-  const totalPast = daysBetween(earliest, now);
-
-  const days = [];
-  for (let i = totalPast; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    days.push({
-      dateStr: d.toLocaleDateString('en-CA'),
-      dayOfWeek: SHORT_DAYS[d.getDay()],
-      dayOfMonth: d.getDate(),
-      month: SHORT_MONTHS[d.getMonth()],
-      year: d.getFullYear(),
-      isToday: i === 0,
-      isFuture: false,
-    });
-  }
-  for (let i = 1; i <= FUTURE_DAYS; i++) {
-    const d = new Date(now);
-    d.setDate(d.getDate() + i);
-    days.push({
-      dateStr: d.toLocaleDateString('en-CA'),
-      dayOfWeek: SHORT_DAYS[d.getDay()],
-      dayOfMonth: d.getDate(),
-      month: SHORT_MONTHS[d.getMonth()],
-      year: d.getFullYear(),
-      isToday: false,
-      isFuture: true,
-    });
-  }
-  return days;
-}
 
 export default function DateCarousel() {
   const { selectedDate, setSelectedDate } = useDate();
   const { colors } = useTheme();
   const scrollRef = useRef(null);
-  const days = useMemo(() => buildDays(selectedDate), [selectedDate]);
+  const days = useMemo(() => buildCalendarDays(selectedDate), [selectedDate]);
   const [showPicker, setShowPicker] = useState(false);
   const [visibleYear, setVisibleYear] = useState(
     () => parseInt(selectedDate.substring(0, 4), 10)

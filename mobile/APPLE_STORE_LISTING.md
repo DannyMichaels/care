@@ -31,7 +31,7 @@ mood,tracker,symptoms,food,medications,wellness,health,diary,affirmations,IBD,se
 https://care-app.netlify.app/support
 
 ## Marketing URL
-https://care-app.netlify.app/mobile
+https://care-app.netlify.app/mobile~~~~
 
 ## Copyright
 2026 Daniel Michael

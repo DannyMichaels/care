@@ -4,14 +4,8 @@ import Switch from '@material-ui/core/Switch';
 import EventIcon from '@material-ui/icons/Event';
 import { useTheme } from '@material-ui/core/styles';
 import { DateContext } from '../../context/DateContext';
-import { daysBetween } from '@care/shared';
+import { buildCalendarDays } from '@care/shared';
 import './DateCarousel.css';
-
-const SHORT_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const SHORT_MONTHS = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-];
 
 export default function DateCarousel() {
   const { selectedDate, setSelectedDate, showAllDates, setShowAllDates } =
@@ -25,46 +19,7 @@ export default function DateCarousel() {
   );
 
   const today = useMemo(() => new Date().toLocaleDateString('en-CA'), []);
-
-  // Extend range if selectedDate is older than 365 days back
-  const dates = useMemo(() => {
-    const now = new Date();
-    const defaultStart = new Date(now);
-    defaultStart.setDate(defaultStart.getDate() - 365);
-
-    const selectedStart = new Date(selectedDate + 'T00:00:00');
-    const earliest = selectedStart < defaultStart ? selectedStart : defaultStart;
-
-    const totalDays = daysBetween(earliest, now);
-    const result = [];
-    // Past days + today
-    for (let i = totalDays; i >= 0; i--) {
-      const d = new Date(now);
-      d.setDate(d.getDate() - i);
-      result.push({
-        key: d.toLocaleDateString('en-CA'),
-        day: SHORT_DAYS[d.getDay()],
-        num: d.getDate(),
-        month: SHORT_MONTHS[d.getMonth()],
-        year: d.getFullYear(),
-        future: false,
-      });
-    }
-    // Future days
-    for (let i = 1; i <= 7; i++) {
-      const d = new Date(now);
-      d.setDate(d.getDate() + i);
-      result.push({
-        key: d.toLocaleDateString('en-CA'),
-        day: SHORT_DAYS[d.getDay()],
-        num: d.getDate(),
-        month: SHORT_MONTHS[d.getMonth()],
-        year: d.getFullYear(),
-        future: true,
-      });
-    }
-    return result;
-  }, [selectedDate]);
+  const dates = useMemo(() => buildCalendarDays(selectedDate), [selectedDate]);
 
   // Scroll to selected date — instant on mount, smooth on subsequent changes
   const hasMounted = useRef(false);
@@ -171,21 +126,21 @@ export default function DateCarousel() {
       >
         {dates.map((d) => (
           <button
-            key={d.key}
-            ref={(el) => (chipRefs.current[d.key] = el)}
+            key={d.dateStr}
+            ref={(el) => (chipRefs.current[d.dateStr] = el)}
             className={`date-carousel__chip date-carousel__chip--${themeSuffix}${
-              d.key === selectedDate
+              d.dateStr === selectedDate
                 ? ' date-carousel__chip--selected'
                 : ''
-            }${d.future ? ' date-carousel__chip--future' : ''}`}
-            onClick={() => !d.future && handleChipClick(d.key)}
-            disabled={d.future}
+            }${d.isFuture ? ' date-carousel__chip--future' : ''}`}
+            onClick={() => !d.isFuture && handleChipClick(d.dateStr)}
+            disabled={d.isFuture}
           >
-            {d.key === today && (
+            {d.isToday && (
               <span className="date-carousel__chip-today">Today</span>
             )}
-            <span className="date-carousel__chip-day">{d.day}</span>
-            <span className="date-carousel__chip-num">{d.num}</span>
+            <span className="date-carousel__chip-day">{d.dayOfWeek}</span>
+            <span className="date-carousel__chip-num">{d.dayOfMonth}</span>
             <span className="date-carousel__chip-month">{d.month}</span>
           </button>
         ))}

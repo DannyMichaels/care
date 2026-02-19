@@ -5,11 +5,10 @@ import { Link, useHistory } from "react-router-dom";
 import { useStateValue } from "../../../context/CurrentUserContext";
 import {
   AllUsersDispatchContext,
-  AllUsersStateContext,
 } from "../../../context/AllUsersContext";
 
 // Services and Utils
-import { toTitleCase, registerUser, checkEmailValidity, checkPasswordLength } from '@care/shared';
+import { toTitleCase, registerUser, checkPasswordLength } from '@care/shared';
 import moment from "moment";
 
 // Components
@@ -47,16 +46,13 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const [passwordAlert, setPasswordAlert] = useState(false);
-  const [emailValidityAlert, setEmailValidityAlert] = useState(false);
   const [imagePreview, setImagePreview] = useState(false);
   const [passwordConfirmAlert, setPasswordConfirmAlert] = useState(false);
-  const [emailUniquenessAlert, setEmailUniquenessAlert] = useState(false);
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [legalModal, setLegalModal] = useState(null);
-  const { allUsers } = useContext(AllUsersStateContext);
   const dispatchAllUsers = useContext(AllUsersDispatchContext);
 
   const history = useHistory();
@@ -255,22 +251,6 @@ export default function Register() {
                 />
               </FormControl>
             </div>
-            {emailValidityAlert && (
-              <>
-                <div className={classes.alert}>
-                  <p>Please enter a valid email address</p>
-                </div>
-                <br />
-              </>
-            )}
-            {emailUniquenessAlert && (
-              <>
-                <div className={classes.alert}>
-                  <p>This email address already exists!</p>
-                </div>
-                <br />
-              </>
-            )}
             <div className={classes.inputContainer}>
               <LockIcon className={classes.lockIcon} />
               <FormControl>

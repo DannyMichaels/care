@@ -27,7 +27,9 @@ export default function SymptomEditScreen({ route, navigation }) {
   const handleDelete = () => {
     Alert.alert('Delete Symptom', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await destroySymptom(id); navigation.goBack(); } },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+        try { await destroySymptom(id); navigation.goBack(); } catch (err) { Alert.alert('Error', getApiError(err)); }
+      } },
     ]);
   };
 
@@ -56,5 +58,5 @@ const styles = StyleSheet.create({
   container: { padding: 24 },
   title: { marginBottom: 16 },
   input: { marginBottom: 12 },
-  button: { marginTop: 8 },
+  button: { marginTop: 8, paddingVertical: 4 },
 });

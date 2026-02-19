@@ -1,16 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
-import { TextInput, Button, Text, Chip, List } from 'react-native-paper';
+import { Button, Text, Chip } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useTheme } from 'react-native-paper';
-import { putMed, destroyMed, getRXGuideMeds, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR, getApiError } from '@care/shared';
+import { putMed, destroyMed, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR, getApiError } from '@care/shared';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
+import MedicationSuggestions from '../../components/MedicationSuggestions';
 
 const ICON_MAP = { tablet: 'circle', pill: 'pill', droplet: 'water' };
 
 export default function MedEditScreen({ route, navigation }) {
-  const theme = useTheme();
   const { id, item } = route.params;
   const [name, setName] = useState(item.name || '');
   const [reason, setReason] = useState(item.reason || '');
@@ -22,33 +21,12 @@ export default function MedEditScreen({ route, navigation }) {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [isTaken, setIsTaken] = useState(!!item.is_taken);
   const [loading, setLoading] = useState(false);
-  const [rxGuide, setRxGuide] = useState([]);
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-
-  useEffect(() => {
-    getRXGuideMeds().then(setRxGuide).catch(() => {});
-  }, []);
-
-  const handleNameChange = (text) => {
-    setName(text);
-    if (text.length > 0) {
-      const filtered = rxGuide.filter((m) =>
-        m.fields.name?.toLowerCase().includes(text.toLowerCase())
-      );
-      setSuggestions(filtered);
-      setShowSuggestions(filtered.length > 0);
-    } else {
-      setShowSuggestions(false);
-    }
-  };
 
   const handleSelectSuggestion = (med) => {
     setName(med.fields.name);
     setMedClass(med.fields.medClass || '');
     setIcon(med.fields.icon || DEFAULT_ICON);
     setIconColor(med.fields.iconColor || DEFAULT_COLOR);
-    setShowSuggestions(false);
   };
 
   const handleUpdate = async () => {
@@ -126,8 +104,7 @@ export default function MedEditScreen({ route, navigation }) {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          await destroyMed(id);
-          navigation.goBack();
+          try { await destroyMed(id); navigation.goBack(); } catch (err) { Alert.alert('Error', getApiError(err)); }
         },
       },
     ]);
@@ -146,28 +123,7 @@ export default function MedEditScreen({ route, navigation }) {
         )
       }
 
-      <View>
-        <TextInput
-          label="Name"
-          value={name}
-          onChangeText={handleNameChange}
-          mode="outlined"
-          style={styles.input}
-        />
-        {showSuggestions && (
-          <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline }]}>
-            {suggestions.slice(0, 5).map((med) => (
-              <List.Item
-                key={med.id}
-                title={med.fields.name}
-                description={med.fields.medClass}
-                onPress={() => handleSelectSuggestion(med)}
-                style={styles.suggestionItem}
-              />
-            ))}
-          </View>
-        )}
-      </View>
+      <MedicationSuggestions name={name} onNameChange={setName} onSelect={handleSelectSuggestion} />
 
       <TextInput label="Reason" value={reason} onChangeText={setReason} mode="outlined" style={styles.input} />
       <TextInput label="Class" value={medClass} onChangeText={setMedClass} mode="outlined" style={styles.input} />
@@ -242,7 +198,7 @@ const styles = StyleSheet.create({
   chip: { marginBottom: 12, alignSelf: 'flex-start' },
   takenButton: { marginBottom: 12, alignSelf: 'stretch' },
   input: { marginBottom: 12 },
-  button: { marginTop: 8 },
+  button: { marginTop: 8, paddingVertical: 4 },
   label: { marginBottom: 4, marginTop: 8 },
   iconRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
   iconButton: {
@@ -262,14 +218,4 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   colorSwatchActive: { borderColor: '#333' },
-  suggestionsContainer: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 4,
-    marginTop: -8,
-    marginBottom: 12,
-    elevation: 3,
-  },
-  suggestionItem: { paddingVertical: 2 },
 });

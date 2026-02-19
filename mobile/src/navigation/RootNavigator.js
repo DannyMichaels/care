@@ -43,9 +43,7 @@ export default function RootNavigator({ navigationRef }) {
 
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener(async (response) => {
-      console.log('notification response', JSON.stringify(response.notification.request.content));
       const data = response.notification.request.content.data;
-      console.log('notification data', data);
       if (!data?.medication_id) return;
 
       const tryNavigate = async (retries = 5) => {
@@ -63,12 +61,10 @@ export default function RootNavigator({ navigationRef }) {
           }
           await new Promise((r) => setTimeout(r, 500));
         }
-        console.warn('Navigation not ready after retries');
+        // navigation not ready after retries
       };
 
-      tryNavigate().catch((err) => {
-        console.log('Notification navigate failed:', err);
-      });
+      tryNavigate().catch(() => {});
     });
 
     return () => subscription.remove();

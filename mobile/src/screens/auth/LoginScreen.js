@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { TextInput, Button, Text, HelperText } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
 import { loginUser, getApiError } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import ScreenWrapper from '../../components/ScreenWrapper';

@@ -28,7 +28,9 @@ export default function MoodEditScreen({ route, navigation }) {
   const handleDelete = () => {
     Alert.alert('Delete Mood', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await destroyMood(id); navigation.goBack(); } },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+        try { await destroyMood(id); navigation.goBack(); } catch (err) { Alert.alert('Error', getApiError(err)); }
+      } },
     ]);
   };
 
@@ -63,5 +65,5 @@ const styles = StyleSheet.create({
   container: { padding: 24 },
   title: { marginBottom: 16 },
   input: { marginBottom: 12 },
-  button: { marginTop: 8 },
+  button: { marginTop: 8, paddingVertical: 4 },
 });

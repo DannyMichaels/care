@@ -24,7 +24,9 @@ export default function AffirmationEditScreen({ route, navigation }) {
   const handleDelete = () => {
     Alert.alert('Delete Affirmation', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await destroyAffirmation(id); navigation.goBack(); } },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+        try { await destroyAffirmation(id); navigation.goBack(); } catch (err) { Alert.alert('Error', getApiError(err)); }
+      } },
     ]);
   };
 
@@ -43,5 +45,5 @@ const styles = StyleSheet.create({
   container: { padding: 24 },
   title: { marginBottom: 16 },
   input: { marginBottom: 12 },
-  button: { marginTop: 8 },
+  button: { marginTop: 8, paddingVertical: 4 },
 });

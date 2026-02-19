@@ -1,17 +1,10 @@
 import { useState } from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { TextInput, Button, Text, HelperText, Checkbox } from 'react-native-paper';
-import { registerUser, sendVerificationCode } from '@care/shared';
+import { registerUser, sendVerificationCode, getApiError } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
-
-const formatDate = (date) => {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-};
 
 export default function RegisterScreen({ navigation }) {
   const [, dispatch] = useCurrentUser();
@@ -37,7 +30,7 @@ export default function RegisterScreen({ navigation }) {
   const handleDateConfirm = (date) => {
     setShowDatePicker(false);
     setBirthdayDate(date);
-    handleChange('birthday', formatDate(date));
+    handleChange('birthday', date.toLocaleDateString('en-CA'));
   };
 
   const handleRegister = async () => {
@@ -59,7 +52,7 @@ export default function RegisterScreen({ navigation }) {
       await sendVerificationCode(formData.email);
       navigation.navigate('EmailVerification', { email: formData.email });
     } catch (err) {
-      setError(err?.response?.data?.error || 'Registration failed');
+      setError(getApiError(err));
     } finally {
       setLoading(false);
     }

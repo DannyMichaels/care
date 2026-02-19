@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
-import { putSymptom, destroySymptom } from '@care/shared';
+import { putSymptom, destroySymptom, getApiError } from '@care/shared';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 
@@ -18,7 +18,7 @@ export default function SymptomEditScreen({ route, navigation }) {
       await putSymptom(id, { name, time: time.toISOString() });
       navigation.goBack();
     } catch (err) {
-      Alert.alert('Error', err?.message || 'Failed to update symptom');
+      Alert.alert('Error', getApiError(err));
     } finally {
       setLoading(false);
     }

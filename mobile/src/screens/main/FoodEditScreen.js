@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { putFood, destroyFood } from '@care/shared';
+import { putFood, destroyFood, getApiError } from '@care/shared';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 
@@ -21,7 +21,7 @@ export default function FoodEditScreen({ route, navigation }) {
       await putFood(id, { name, factors, rating, time: time.toISOString() });
       navigation.goBack();
     } catch (err) {
-      Alert.alert('Error', err?.message || 'Failed to update food');
+      Alert.alert('Error', getApiError(err));
     } finally {
       setLoading(false);
     }

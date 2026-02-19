@@ -1,10 +1,19 @@
 import { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import {View, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import { TextInput, Button, Text, List } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import dayjs from 'dayjs';
 import { useTheme } from 'react-native-paper';
-import { postMed, getRXGuideMeds, selectedDateToLocal, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR } from '@care/shared';
+import {
+  postMed,
+  getRXGuideMeds,
+  selectedDateToLocal,
+  MED_ICONS,
+  MED_COLORS,
+  DEFAULT_ICON,
+  DEFAULT_COLOR,
+  getApiError
+} from '@care/shared';
 import { useDate } from '../../context/DateContext';
 
 import ScreenWrapper from '../../components/ScreenWrapper';
@@ -73,6 +82,7 @@ export default function MedCreateScreen({ navigation }) {
       navigation.goBack();
     } catch (err) {
       console.log('Med create failed:', err);
+      Alert.alert('Error', getApiError(err));
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
-import { putAffirmation, destroyAffirmation } from '@care/shared';
+import { putAffirmation, destroyAffirmation, getApiError } from '@care/shared';
 import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function AffirmationEditScreen({ route, navigation }) {
@@ -15,7 +15,7 @@ export default function AffirmationEditScreen({ route, navigation }) {
       await putAffirmation(id, { content });
       navigation.goBack();
     } catch (err) {
-      Alert.alert('Error', err?.message || 'Failed to update affirmation');
+      Alert.alert('Error', getApiError(err));
     } finally {
       setLoading(false);
     }

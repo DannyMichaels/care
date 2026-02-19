@@ -3,7 +3,7 @@ import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Text, Chip, List } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from 'react-native-paper';
-import { putMed, destroyMed, getRXGuideMeds, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR } from '@care/shared';
+import { putMed, destroyMed, getRXGuideMeds, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR, getApiError } from '@care/shared';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 
@@ -64,7 +64,7 @@ export default function MedEditScreen({ route, navigation }) {
       });
       navigation.goBack();
     } catch (err) {
-      Alert.alert('Error', err?.message || 'Failed to update medication');
+      Alert.alert('Error', getApiError(err));
     } finally {
       setLoading(false);
     }
@@ -85,7 +85,7 @@ export default function MedEditScreen({ route, navigation }) {
               setIsTaken(true);
               navigation.goBack();
             } catch (err) {
-              Alert.alert('Error', err?.message || 'Failed to mark as taken');
+              Alert.alert('Error', getApiError(err));
             } finally {
               setLoading(false);
             }
@@ -109,7 +109,7 @@ export default function MedEditScreen({ route, navigation }) {
               await putMed(id, { is_taken: false, taken_date: null });
               setIsTaken(false);
             } catch (err) {
-              Alert.alert('Error', err?.message || 'Failed to undo taken');
+              Alert.alert('Error', getApiError(err));
             } finally {
               setLoading(false);
             }

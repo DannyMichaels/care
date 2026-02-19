@@ -27,6 +27,7 @@ export { getAge } from './utils/getAge';
 export { toTitleCase } from './utils/toTitleCase';
 export { checkValidity } from './utils/checkValidity';
 export * from './utils/medConstants';
+export { getApiError } from './utils/getApiError';
 
 // Reducers
 export { default as currentUserReducer, initialState } from './reducers/currentUserReducer';

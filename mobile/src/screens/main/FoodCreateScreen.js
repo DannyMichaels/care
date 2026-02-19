@@ -3,7 +3,7 @@ import { View, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import dayjs from 'dayjs';
-import { postFood } from '@care/shared';
+import { postFood, getApiError } from '@care/shared';
 import { useDate } from '../../context/DateContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
@@ -24,7 +24,7 @@ export default function FoodCreateScreen({ navigation }) {
       await postFood({ name, factors, rating, time: dt.toISOString() });
       navigation.goBack();
     } catch (err) {
-      Alert.alert('Error', err?.message || 'Failed to save food');
+      Alert.alert('Error', getApiError(err));
     } finally {
       setLoading(false);
     }

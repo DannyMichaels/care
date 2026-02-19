@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { TextInput, Button, Text, HelperText } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { loginUser } from '@care/shared';
+import { loginUser, getApiError } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 
@@ -21,7 +21,7 @@ export default function LoginScreen({ navigation }) {
       const user = await loginUser({ email, password });
       dispatch({ type: 'SET_USER', currentUser: user });
     } catch (err) {
-      setError(err.response.data.message);
+      setError(getApiError(err));
     } finally {
       setLoading(false);
     }

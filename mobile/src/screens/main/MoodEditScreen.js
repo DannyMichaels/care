@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text, RadioButton } from 'react-native-paper';
-import { putMood, destroyMood } from '@care/shared';
+import { putMood, destroyMood, getApiError } from '@care/shared';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 
@@ -19,7 +19,7 @@ export default function MoodEditScreen({ route, navigation }) {
       await putMood(id, { status, reason, time: time.toISOString() });
       navigation.goBack();
     } catch (err) {
-      Alert.alert('Error', err?.message || 'Failed to update mood');
+      Alert.alert('Error', getApiError(err));
     } finally {
       setLoading(false);
     }

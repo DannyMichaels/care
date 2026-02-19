@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import dayjs from 'dayjs';
-import { postSymptom } from '@care/shared';
+import { postSymptom, getApiError } from '@care/shared';
 import { useDate } from '../../context/DateContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
@@ -21,7 +21,7 @@ export default function SymptomCreateScreen({ navigation }) {
       await postSymptom({ name, time: dt.toISOString() });
       navigation.goBack();
     } catch (err) {
-      Alert.alert('Error', err?.message || 'Failed to save symptom');
+      Alert.alert('Error', getApiError(err));
     } finally {
       setLoading(false);
     }

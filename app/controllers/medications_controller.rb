@@ -25,7 +25,7 @@ class MedicationsController < ApplicationController
       if @medication
         render json: @medication
       else
-        render json: { error: "Medication not found" }, status: :not_found
+        render json: { message: "Medication not found" }, status: :not_found
       end
     rescue => e
       Rails.logger.error("Medication#show failed: #{e.message}")

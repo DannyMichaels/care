@@ -25,8 +25,8 @@ export default function Affirmations({
   const handleClose = () => {
     setOpenDialog(false);
   };
-  const onSave = (formData) => {
-    handleCreate(formData);
+  const onSave = async (formData) => {
+    await handleCreate(formData);
     setOpenDialog(false);
   };
 

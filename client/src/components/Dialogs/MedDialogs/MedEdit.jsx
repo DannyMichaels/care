@@ -22,6 +22,7 @@ export default function MedEdit({
   meds,
   taken,
 }) {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     medication_class: '',
@@ -101,15 +102,20 @@ export default function MedEdit({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const medicine = RXGuideMeds.find((med) => med.fields.name === formData.name);
-    const selectedMedData = {
-      ...formData,
-      image: medicine?.fields.image || formData.image,
-      medication_class: medicine?.fields.medClass || formData.medication_class,
-    };
-    onSave(id, selectedMedData);
+    setLoading(true);
+    try {
+      const medicine = RXGuideMeds.find((med) => med.fields.name === formData.name);
+      const selectedMedData = {
+        ...formData,
+        image: medicine?.fields.image || formData.image,
+        medication_class: medicine?.fields.medClass || formData.medication_class,
+      };
+      await onSave(id, selectedMedData);
+    } catch {
+      setLoading(false);
+    }
   };
 
   return (
@@ -225,8 +231,8 @@ export default function MedEdit({
           </div>
 
           <DialogActions>
-            <Button to="/" type="submit" variant="contained" color="primary">
-              Save
+            <Button to="/" type="submit" disabled={loading} variant="contained" color="primary">
+              {loading ? 'Saving...' : 'Save'}
             </Button>
             <Button
               to="/"

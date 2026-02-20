@@ -23,6 +23,7 @@ import { compareDateWithCurrentTime } from '@care/shared';
 
 export default function MoodCreate({ open, onSave, handleClose }) {
   const { selectedDate } = useContext(DateContext);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     status: "Okay",
     time: "",
@@ -31,6 +32,7 @@ export default function MoodCreate({ open, onSave, handleClose }) {
 
   useEffect(() => {
     if (open) {
+      setLoading(false);
       setFormData((prev) => ({
         ...prev,
         time: new Date(selectedDateToLocal(selectedDate)).toISOString(),
@@ -62,12 +64,15 @@ export default function MoodCreate({ open, onSave, handleClose }) {
   return (
     <Dialog onClose={handleClose} open={open}>
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          onSave(formData);
-          // setting the formData to an empty string after submission to avoid the case
-          // where the user makes creates another one right after sending one without refreshing.
-          setFormData({ ...formData, status: formData.status });
+          setLoading(true);
+          try {
+            await onSave(formData);
+            setFormData({ ...formData, status: formData.status });
+          } catch {
+            setLoading(false);
+          }
         }}
       >
         <DialogTitle onClose={handleClose}>
@@ -156,8 +161,8 @@ export default function MoodCreate({ open, onSave, handleClose }) {
           </div>
         </DialogContent>
         <DialogActions>
-          <Button type="submit" variant="contained" color="primary">
-            Save
+          <Button type="submit" disabled={loading} variant="contained" color="primary">
+            {loading ? 'Saving...' : 'Save'}
           </Button>
           <Button variant="contained" color="secondary" onClick={handleClose}>
             Cancel

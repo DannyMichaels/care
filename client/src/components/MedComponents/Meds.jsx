@@ -30,8 +30,8 @@ export default function Meds({
     setOpenOptions(!openOptions);
   };
 
-  const onSave = (formData) => {
-    handleCreate(formData);
+  const onSave = async (formData) => {
+    await handleCreate(formData);
     setOpenDialog(false);
   };
 

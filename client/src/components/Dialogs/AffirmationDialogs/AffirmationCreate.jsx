@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -15,9 +15,16 @@ import { DateContext } from "../../../context/DateContext";
 
 export default function AffirmationCreate({ open, onSave, handleClose }) {
   const { selectedDate } = useContext(DateContext);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     content: "",
   });
+
+  useEffect(() => {
+    if (open) {
+      setLoading(false);
+    }
+  }, [open]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,10 +40,15 @@ export default function AffirmationCreate({ open, onSave, handleClose }) {
   return (
     <Dialog onClose={handleClose} open={open}>
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          onSave({ ...formData, affirmation_date: selectedDate });
-          setFormData({ content: "" });
+          setLoading(true);
+          try {
+            await onSave({ ...formData, affirmation_date: selectedDate });
+            setFormData({ content: "" });
+          } catch {
+            setLoading(false);
+          }
         }}
       >
         <DialogTitle onClose={handleClose}>
@@ -69,8 +81,8 @@ export default function AffirmationCreate({ open, onSave, handleClose }) {
           </div>
         </DialogContent>
         <DialogActions>
-          <Button type="submit" variant="contained" color="primary">
-            Save
+          <Button type="submit" disabled={loading} variant="contained" color="primary">
+            {loading ? 'Saving...' : 'Save'}
           </Button>
           <Button variant="contained" color="secondary" onClick={handleClose}>
             Cancel

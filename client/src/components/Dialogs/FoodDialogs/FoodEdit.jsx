@@ -17,6 +17,7 @@ import { toDateTimeLocal } from '@care/shared';
 
 export default function FoodEdit({ setOpenEdit, onSave, foods }) {
   const history = useHistory("/");
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     time: "",
@@ -62,9 +63,14 @@ export default function FoodEdit({ setOpenEdit, onSave, foods }) {
           <Typography className="title">Edit Food</Typography>
         </DialogTitle>
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            onSave(id, formData);
+            setLoading(true);
+            try {
+              await onSave(id, formData);
+            } catch {
+              setLoading(false);
+            }
           }}
         >
           <DialogContent dividers>
@@ -151,8 +157,8 @@ export default function FoodEdit({ setOpenEdit, onSave, foods }) {
             </div>
 
             <DialogActions>
-              <Button type="submit" variant="contained" color="primary">
-                Save
+              <Button type="submit" disabled={loading} variant="contained" color="primary">
+                {loading ? 'Saving...' : 'Save'}
               </Button>
               <Button
                 to="/"

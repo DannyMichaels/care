@@ -19,6 +19,7 @@ export default function SymptomEdit({
   handleClose,
   symptoms,
 }) {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     time: "",
@@ -58,9 +59,14 @@ export default function SymptomEdit({
       </DialogTitle>
 
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          onSave(id, formData);
+          setLoading(true);
+          try {
+            await onSave(id, formData);
+          } catch {
+            setLoading(false);
+          }
         }}
       >
         <DialogContent dividers>
@@ -94,8 +100,8 @@ export default function SymptomEdit({
           <br />
 
           <DialogActions>
-            <Button type="submit" variant="contained" color="primary">
-              Save
+            <Button type="submit" disabled={loading} variant="contained" color="primary">
+              {loading ? 'Saving...' : 'Save'}
             </Button>
             <Button
               to="/"

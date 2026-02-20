@@ -17,6 +17,7 @@ export default function AffirmationEdit({
   onSave,
   affirmations,
 }) {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     content: "",
   });
@@ -55,9 +56,14 @@ export default function AffirmationEdit({
       </DialogTitle>
 
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          onSave(id, formData);
+          setLoading(true);
+          try {
+            await onSave(id, formData);
+          } catch {
+            setLoading(false);
+          }
         }}
       >
         <DialogContent dividers>
@@ -78,8 +84,8 @@ export default function AffirmationEdit({
           </div>
 
           <DialogActions>
-            <Button type="submit" variant="contained" color="primary">
-              Save
+            <Button type="submit" disabled={loading} variant="contained" color="primary">
+              {loading ? 'Saving...' : 'Save'}
             </Button>
             <Button
               to="/"

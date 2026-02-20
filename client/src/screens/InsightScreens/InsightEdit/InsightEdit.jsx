@@ -37,9 +37,16 @@ export default function InsightEdit({ handleUpdate, insights, moderationError })
     }));
   };
 
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await handleUpdate(id, formData);
+    setLoading(true);
+    try {
+      await handleUpdate(id, formData);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -97,8 +104,8 @@ export default function InsightEdit({ handleUpdate, insights, moderationError })
           />
         </div>
         <div className="buttons">
-          <Button type="submit" variant="contained" color="primary">
-            Submit
+          <Button type="submit" disabled={loading} variant="contained" color="primary">
+            {loading ? 'Submitting...' : 'Submit'}
           </Button>
           <Button
             onClick={() => goBack()}

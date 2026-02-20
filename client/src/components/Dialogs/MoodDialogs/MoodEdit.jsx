@@ -22,6 +22,7 @@ import {
 import { compareDateWithCurrentTime, toDateTimeLocal } from '@care/shared';
 
 export default function MoodEdit(props) {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     status: "",
     time: "",
@@ -43,9 +44,14 @@ export default function MoodEdit(props) {
     }
   }, [props.moods, id]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    props.onSave(id, formData);
+    setLoading(true);
+    try {
+      await props.onSave(id, formData);
+    } catch {
+      setLoading(false);
+    }
   };
 
   const handleStatus = (e) => {
@@ -158,8 +164,8 @@ export default function MoodEdit(props) {
         </DialogContent>
 
         <DialogActions>
-          <Button type="submit" variant="contained" color="primary">
-            Save
+          <Button type="submit" disabled={loading} variant="contained" color="primary">
+            {loading ? 'Saving...' : 'Save'}
           </Button>
           <Button
             to="/"

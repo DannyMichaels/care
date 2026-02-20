@@ -15,6 +15,7 @@ import MedIconDisplay from '../../MedComponents/MedIconDisplay';
 
 export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
   const { selectedDate } = useContext(DateContext);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     medication_class: '',
@@ -28,6 +29,7 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
 
   useEffect(() => {
     if (open) {
+      setLoading(false);
       setFormData((prev) => ({
         ...prev,
         time: new Date(selectedDateToLocal(selectedDate)).toISOString(),
@@ -61,25 +63,30 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const medicine = RXGuideMeds.find((med) => med.fields.name === formData.name);
-    const selectedMedData = {
-      ...formData,
-      image: medicine?.fields.image || formData.image,
-      medication_class: medicine?.fields.medClass || formData.medication_class,
-    };
-    onSave(selectedMedData);
-    setFormData({
-      name: '',
-      medication_class: '',
-      reason: '',
-      image: '',
-      time: '',
-      is_taken: false,
-      icon: DEFAULT_ICON,
-      icon_color: DEFAULT_COLOR,
-    });
+    setLoading(true);
+    try {
+      const medicine = RXGuideMeds.find((med) => med.fields.name === formData.name);
+      const selectedMedData = {
+        ...formData,
+        image: medicine?.fields.image || formData.image,
+        medication_class: medicine?.fields.medClass || formData.medication_class,
+      };
+      await onSave(selectedMedData);
+      setFormData({
+        name: '',
+        medication_class: '',
+        reason: '',
+        image: '',
+        time: '',
+        is_taken: false,
+        icon: DEFAULT_ICON,
+        icon_color: DEFAULT_COLOR,
+      });
+    } catch {
+      setLoading(false);
+    }
   };
 
   return (
@@ -189,8 +196,8 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
           </div>
 
           <DialogActions>
-            <Button type="submit" variant="contained" color="primary">
-              Save
+            <Button type="submit" disabled={loading} variant="contained" color="primary">
+              {loading ? 'Saving...' : 'Save'}
             </Button>
             <Button variant="contained" color="secondary" onClick={handleClose}>
               Cancel

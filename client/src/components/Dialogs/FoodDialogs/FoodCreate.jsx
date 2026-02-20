@@ -18,6 +18,7 @@ import { Box } from "@material-ui/core";
 
 export default function FoodCreate({ open, onSave, handleClose }) {
   const { selectedDate } = useContext(DateContext);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     time: "",
@@ -27,6 +28,7 @@ export default function FoodCreate({ open, onSave, handleClose }) {
 
   useEffect(() => {
     if (open) {
+      setLoading(false);
       setFormData((prev) => ({
         ...prev,
         time: new Date(selectedDateToLocal(selectedDate)).toISOString(),
@@ -49,12 +51,15 @@ export default function FoodCreate({ open, onSave, handleClose }) {
   return (
     <Dialog onClose={handleClose} open={open}>
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          onSave(formData);
-          // setting the formData to an empty string after submission to avoid the case
-          // where the user makes creates another one right after sending one without refreshing.
-          setFormData("");
+          setLoading(true);
+          try {
+            await onSave(formData);
+            setFormData("");
+          } catch {
+            setLoading(false);
+          }
         }}
       >
         <DialogTitle onClose={handleClose}>
@@ -150,8 +155,8 @@ export default function FoodCreate({ open, onSave, handleClose }) {
           </div>
         </DialogContent>
         <DialogActions>
-          <Button type="submit" variant="contained" color="primary">
-            Save
+          <Button type="submit" disabled={loading} variant="contained" color="primary">
+            {loading ? 'Saving...' : 'Save'}
           </Button>
           <Button variant="contained" color="secondary" onClick={handleClose}>
             Cancel

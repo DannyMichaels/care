@@ -69,6 +69,8 @@ So far there are 10 tables all with full crud and associations
 |     Rack-CORS     | _back-end support for Cross-Origin Resource Sharing (CORS) for Rack compatible web applications._ |
 |        JWT        | _back-end authentication dependency_                                                              |
 |    PostgreSQL     | _object-relational database system_                                                               |
+|     Sidekiq      | _background job processing backed by Redis_                                                       |
+|   Sidekiq-Cron   | _recurring job scheduler for Sidekiq_                                                             |
 
 <br>
 
@@ -416,3 +418,4 @@ if the user's input DOESN"T match one of the names in the foodRegex, it will ret
 - updated browser version UI to have a slightly more modern look but still in-large keep as is.
 - create/edit insights using markdown editor and markdown reader for detail page
 - added med scheduling
+- switched background jobs from async to Sidekiq (Redis-backed), added recurring medication notifications via daily cron ([docs](docs/sidekiq.html))

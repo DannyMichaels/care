@@ -299,6 +299,7 @@
     <a href="#date-carousel">Date Carousel</a>
     <a href="#api-endpoints">API Endpoints</a>
     <a href="#schedule-math">Schedule Math</a>
+    <a href="#notifications">Notifications</a>
     <a href="#client-filtering">Client Filtering</a>
   </nav>
 
@@ -684,7 +685,7 @@ Response:
     <!-- SCHEDULE MATH -->
     <section id="schedule-math">
       <h2>Schedule Math</h2>
-      <p>Occurrence dates are computed client-side using <code>scheduleUtils.js</code>. No server-side cron or pre-generation.</p>
+      <p>Occurrence dates are computed client-side using <code>scheduleUtils.js</code> and server-side using <code>Medication#occurs_on_date?</code> (Ruby port). No pre-generation &mdash; dates are computed on-the-fly from the recurrence rule.</p>
 
       <h3>doesOccurOnDate(med, dateStr)</h3>
       <p>Returns <code>true</code> if the medication occurs on the given date.</p>
@@ -713,6 +714,49 @@ Response:
       </table>
 
       <p>Advanced mode allows custom combinations, e.g. "Every 3 days" or "Every 2 months".</p>
+    </section>
+
+    <!-- NOTIFICATIONS -->
+    <section id="notifications">
+      <h2>Recurring Medication Notifications</h2>
+      <p>
+        Recurring medications receive daily push notifications via Sidekiq background jobs.
+        See the <a href="sidekiq.html" style="color: var(--primary);">Sidekiq documentation</a> for full details.
+      </p>
+
+      <h3>How it works</h3>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot purple"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>1. Daily cron at 4 AM UTC</strong>
+            <small><code>DailyMedicationSchedulerJob</code> runs via sidekiq-cron.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>2. Find today's medications</strong>
+            <small>Iterates <code>Medication.recurring</code>, checks <code>occurs_on_date?(today)</code> and <code>occurrence_handled?(today)</code>.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div></div>
+          <div class="flow-content">
+            <strong>3. Schedule notifications</strong>
+            <small>Enqueues <code>MedicationNotificationJob</code> with a delay until the medication's time-of-day. Sends Expo + Web Push.</small>
+          </div>
+        </div>
+      </div>
+
+      <h3>Server-side schedule methods</h3>
+      <table>
+        <tr><th>Method</th><th>Description</th></tr>
+        <tr><td><code>Medication.recurring</code></td><td>Scope: <code>where.not(schedule_unit: nil)</code></td></tr>
+        <tr><td><code>recurring?</code></td><td>Returns <code>true</code> if <code>schedule_unit</code> is present</td></tr>
+        <tr><td><code>occurs_on_date?(date)</code></td><td>Ruby port of <code>scheduleUtils.js#doesOccurOnDate</code></td></tr>
+        <tr><td><code>occurrence_handled?(date)</code></td><td>Returns <code>true</code> if occurrence is taken or skipped</td></tr>
+      </table>
     </section>
 
     <!-- CLIENT FILTERING -->

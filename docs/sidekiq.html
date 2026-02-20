@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Care - Sidekiq & Background Jobs Documentation</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-dim: #8b949e;
+      --primary: #58a6ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --orange: #f0883e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 { font-size: 1.5rem; font-weight: 600; }
+    header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 4px; }
+
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 32px;
+      display: flex;
+      gap: 24px;
+      overflow-x: auto;
+      position: sticky;
+      top: 72px;
+      z-index: 9;
+    }
+
+    nav a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      padding: 4px 0;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    nav a:hover, nav a:focus {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    main { max-width: 900px; margin: 0 auto; padding: 32px; }
+    section { margin-bottom: 48px; }
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--primary);
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 20px 0 10px;
+      color: var(--text);
+    }
+
+    p { margin-bottom: 12px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--surface-2);
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    td { background: var(--surface); }
+
+    code {
+      background: var(--surface-2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: var(--orange);
+    }
+
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      margin: 12px 0;
+    }
+
+    pre code { background: none; padding: 0; color: var(--text); }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .badge-green { background: var(--green); }
+    .badge-yellow { background: var(--yellow); color: #000; }
+    .badge-red { background: var(--red); }
+    .badge-blue { background: var(--primary); color: #000; }
+    .badge-purple { background: var(--purple); color: #000; }
+
+    .diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin: 16px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre;
+      color: var(--text-dim);
+    }
+
+    .diagram .hl { color: var(--primary); }
+    .diagram .gr { color: var(--green); }
+    .diagram .yl { color: var(--yellow); }
+    .diagram .rd { color: var(--red); }
+    .diagram .pr { color: var(--purple); }
+
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 20px 0;
+    }
+
+    .flow-step {
+      display: flex;
+      gap: 16px;
+      position: relative;
+    }
+
+    .flow-line {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 32px;
+      flex-shrink: 0;
+    }
+
+    .flow-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--primary);
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    .flow-dot.green { background: var(--green); }
+    .flow-dot.yellow { background: var(--yellow); }
+    .flow-dot.red { background: var(--red); }
+    .flow-dot.purple { background: var(--purple); }
+    .flow-dot.orange { background: var(--orange); }
+
+    .flow-connector {
+      width: 2px;
+      flex: 1;
+      background: var(--border);
+      min-height: 16px;
+    }
+
+    .flow-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      flex: 1;
+    }
+
+    .flow-content strong { display: block; margin-bottom: 4px; }
+    .flow-content small { color: var(--text-dim); font-size: 0.85rem; }
+
+    .callout {
+      border-left: 3px solid var(--primary);
+      background: var(--surface);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 12px 0;
+    }
+
+    .callout.warn { border-left-color: var(--yellow); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    @media (max-width: 640px) {
+      .two-col, .three-col { grid-template-columns: 1fr; }
+      main { padding: 16px; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .card h4 { margin-bottom: 8px; color: var(--primary); }
+
+    ul { margin: 8px 0 16px 24px; }
+    li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Sidekiq & Background Jobs</h1>
+    <p>Care App &mdash; Feature Documentation</p>
+  </header>
+
+  <nav>
+    <a href="#overview">Overview</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#queues">Queues</a>
+    <a href="#jobs">Jobs</a>
+    <a href="#daily-scheduler">Daily Scheduler</a>
+    <a href="#notification-flow">Notification Flow</a>
+    <a href="#configuration">Configuration</a>
+    <a href="#deployment">Deployment</a>
+    <a href="#monitoring">Monitoring</a>
+  </nav>
+
+  <main>
+
+    <!-- OVERVIEW -->
+    <section id="overview">
+      <h2>Overview</h2>
+      <p>
+        Care uses <strong>Sidekiq</strong> (backed by Redis) for all background job processing.
+        This replaces the previous <code>:async</code> adapter where jobs ran in-process inside Puma
+        threads and were lost on restart.
+      </p>
+
+      <div class="two-col">
+        <div class="card">
+          <h4>Before (async)</h4>
+          <ul>
+            <li>Jobs ran in Puma threads</li>
+            <li>Lost on server restart/deploy</li>
+            <li>No retry mechanism</li>
+            <li>No recurring job support</li>
+            <li>Single notification on med create</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>After (Sidekiq)</h4>
+          <ul>
+            <li>Jobs run in a dedicated worker process</li>
+            <li>Persisted in Redis, survive restarts</li>
+            <li>Automatic retries on failure</li>
+            <li>Cron scheduling via sidekiq-cron</li>
+            <li>Daily notifications for recurring meds</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>What uses Sidekiq?</strong> Everything: medication notifications, <code>deliver_later</code>
+        mailers (sign-up, verification, password reset, account deletion emails), and the daily medication
+        scheduler cron job.
+      </div>
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section id="architecture">
+      <h2>Architecture</h2>
+
+      <div class="diagram"><span class="hl">Render Infrastructure</span>
+
+  +------------------+       +------------------+       +------------------+
+  |   <span class="gr">Web Service</span>    |       |     <span class="yl">Redis</span>        |       | <span class="pr">Background Worker</span>|
+  |   (Puma)         |       |                  |       |   (Sidekiq)      |
+  |                  |       |                  |       |                  |
+  |  Rails App       |------>|  Job Queue       |<------|  Processes Jobs  |
+  |  Enqueues Jobs   |       |  Scheduled Jobs  |       |  Cron Schedule   |
+  |                  |       |                  |       |                  |
+  +------------------+       +------------------+       +------------------+
+         |                                                      |
+         |              +------------------+                    |
+         +------------->|   <span class="hl">PostgreSQL</span>     |<-------------------+
+                        |   (Aiven)        |
+                        +------------------+</div>
+
+      <p>
+        The web service and worker are separate Render services sharing the same repo, database,
+        and Redis instance. The web process enqueues jobs; the worker process picks them up.
+      </p>
+    </section>
+
+    <!-- QUEUES -->
+    <section id="queues">
+      <h2>Queues</h2>
+      <p>Three queues are configured with different priorities (higher number = higher priority):</p>
+
+      <table>
+        <tr><th>Queue</th><th>Priority</th><th>Purpose</th></tr>
+        <tr><td><code>default</code></td><td>5</td><td>Mailers (sign-up, verification, password reset, account deletion)</td></tr>
+        <tr><td><code>notifications</code></td><td>3</td><td>Medication push notifications (Expo + Web Push)</td></tr>
+        <tr><td><code>scheduled</code></td><td>1</td><td>Daily scheduler cron job</td></tr>
+      </table>
+
+      <pre><code># config/sidekiq.yml
+:concurrency: 5
+:queues:
+  - [default, 5]
+  - [notifications, 3]
+  - [scheduled, 1]</code></pre>
+    </section>
+
+    <!-- JOBS -->
+    <section id="jobs">
+      <h2>Jobs</h2>
+
+      <div class="three-col">
+        <div class="card">
+          <h4>MedicationNotificationJob</h4>
+          <p><span class="badge badge-green">notifications</span></p>
+          <p>Sends Expo + Web Push notifications for a specific medication. Checks if the med has been taken/skipped before sending.</p>
+        </div>
+        <div class="card">
+          <h4>DailyMedicationSchedulerJob</h4>
+          <p><span class="badge badge-purple">scheduled</span></p>
+          <p>Runs daily at 4 AM UTC. Finds all recurring meds occurring today and enqueues notification jobs timed to each med's time-of-day.</p>
+        </div>
+        <div class="card">
+          <h4>ActionMailer Jobs</h4>
+          <p><span class="badge badge-blue">default</span></p>
+          <p>All <code>deliver_later</code> emails: verification codes, password resets, welcome emails, account deletion confirmations.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DAILY SCHEDULER -->
+    <section id="daily-scheduler">
+      <h2>Daily Medication Scheduler</h2>
+      <p>
+        The <code>DailyMedicationSchedulerJob</code> runs at <strong>4 AM UTC daily</strong> via
+        <code>sidekiq-cron</code>. It ensures every recurring medication gets a notification on the
+        correct day without requiring the user to open the app.
+      </p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot purple"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>1. Cron triggers at 4 AM UTC</strong>
+            <small>sidekiq-cron enqueues <code>DailyMedicationSchedulerJob</code> on the <code>scheduled</code> queue.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>2. Query recurring medications</strong>
+            <small><code>Medication.recurring.find_each</code> &mdash; iterates all medications with <code>schedule_unit</code> present.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot yellow"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>3. Check each med</strong>
+            <small>
+              For each medication:
+              <br>&bull; <code>occurs_on_date?(today)</code> &mdash; does the recurrence pattern match today?
+              <br>&bull; <code>occurrence_handled?(today)</code> &mdash; already taken or skipped?
+              <br>&bull; Is the time-of-day still in the future?
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div></div>
+          <div class="flow-content">
+            <strong>4. Enqueue notification</strong>
+            <small>
+              <code>MedicationNotificationJob.set(wait: delay).perform_later(med.id, med.time, today)</code>
+              <br>The job fires at the medication's scheduled time-of-day.
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>Time zones:</strong> The scheduler runs at 4 AM UTC. Medications whose time-of-day has
+        already passed by then (e.g., 3 AM UTC) will not get notifications that day. This covers the
+        vast majority of use cases since most medication times are during waking hours.
+      </div>
+    </section>
+
+    <!-- NOTIFICATION FLOW -->
+    <section id="notification-flow">
+      <h2>Notification Flow</h2>
+      <p><code>MedicationNotificationJob</code> handles both one-time and recurring medications.</p>
+
+      <h3>Parameters</h3>
+      <table>
+        <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+        <tr><td><code>medication_id</code></td><td>integer</td><td>The medication to notify about</td></tr>
+        <tr><td><code>expected_time</code></td><td>string (optional)</td><td>The time when the job was scheduled; if the med's time changed since, the job is skipped</td></tr>
+        <tr><td><code>occurrence_date</code></td><td>string (optional)</td><td>For recurring meds: the specific date this notification is for</td></tr>
+      </table>
+
+      <h3>Skip Logic</h3>
+      <div class="diagram"><span class="hl">MedicationNotificationJob#perform</span>
+          |
+     Find medication
+          |
+    <span class="yl">occurrence_date present?</span>
+        /          \
+      Yes           No
+       |             |
+  <span class="gr">Check occurrence</span>   <span class="gr">Check med flags</span>
+  handled?(date)   is_taken || skipped
+       |             |
+   <span class="rd">Skip if true</span>    <span class="rd">Skip if true</span>
+       |             |
+   <span class="yl">Time changed?</span>   <span class="yl">Time changed?</span>
+       |             |
+   <span class="rd">Skip if yes</span>    <span class="rd">Skip if yes</span>
+       |             |
+   <span class="gr">Send push</span>      <span class="gr">Send push</span>
+   (Expo + Web)   (Expo + Web)</div>
+    </section>
+
+    <!-- CONFIGURATION -->
+    <section id="configuration">
+      <h2>Configuration</h2>
+
+      <h3>Files</h3>
+      <table>
+        <tr><th>File</th><th>Purpose</th></tr>
+        <tr><td><code>Gemfile</code></td><td><code>sidekiq ~> 7.3</code> and <code>sidekiq-cron ~> 2.0</code></td></tr>
+        <tr><td><code>config/application.rb</code></td><td><code>config.active_job.queue_adapter = :sidekiq</code></td></tr>
+        <tr><td><code>config/environments/test.rb</code></td><td><code>config.active_job.queue_adapter = :test</code> (overrides for specs)</td></tr>
+        <tr><td><code>config/sidekiq.yml</code></td><td>Concurrency (5) and queue definitions with priorities</td></tr>
+        <tr><td><code>config/initializers/sidekiq.rb</code></td><td>Redis connection + cron schedule registration</td></tr>
+        <tr><td><code>Procfile</code></td><td>Defines <code>web</code> and <code>worker</code> processes</td></tr>
+      </table>
+
+      <h3>Environment Variables</h3>
+      <table>
+        <tr><th>Variable</th><th>Required</th><th>Description</th></tr>
+        <tr><td><code>REDIS_URL</code></td><td>Yes</td><td>Redis connection URL (also used by ActionCable)</td></tr>
+        <tr><td><code>DATABASE_URL</code></td><td>Yes</td><td>PostgreSQL connection (shared with web service)</td></tr>
+        <tr><td><code>SECRET_KEY_BASE</code></td><td>Yes</td><td>Rails secret key</td></tr>
+        <tr><td><code>VAPID_SUBJECT</code></td><td>For web push</td><td>VAPID subject for Web Push</td></tr>
+        <tr><td><code>VAPID_PUBLIC_KEY</code></td><td>For web push</td><td>VAPID public key</td></tr>
+        <tr><td><code>VAPID_PRIVATE_KEY</code></td><td>For web push</td><td>VAPID private key</td></tr>
+      </table>
+
+      <h3>Initializer</h3>
+      <pre><code># config/initializers/sidekiq.rb
+Sidekiq.configure_server do |config|
+  config.redis = { url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0') }
+
+  config.on(:startup) do
+    Sidekiq::Cron::Job.create(
+      name: 'DailyMedicationScheduler',
+      cron: '0 4 * * *',
+      class: 'DailyMedicationSchedulerJob'
+    )
+  end
+end
+
+Sidekiq.configure_client do |config|
+  config.redis = { url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0') }
+end</code></pre>
+    </section>
+
+    <!-- DEPLOYMENT -->
+    <section id="deployment">
+      <h2>Deployment (Render)</h2>
+      <p>Sidekiq runs as a separate <strong>Background Worker</strong> service on Render alongside the existing Web Service.</p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>1. Push code</strong>
+            <small>Render auto-deploys from the main branch.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot yellow"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>2. Web Service</strong>
+            <small>
+              Runs <code>bundle exec puma -C config/puma.rb</code> (or uses Procfile <code>web</code> entry).
+              <br>Enqueues jobs to Redis.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot purple"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>3. Create Background Worker service</strong>
+            <small>
+              Same repo, same env vars (<code>DATABASE_URL</code>, <code>REDIS_URL</code>, <code>SECRET_KEY_BASE</code>, VAPID keys).
+              <br>Start command: <code>bundle exec sidekiq -C config/sidekiq.yml</code>
+              <br>Plan: Starter ($7/month)
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div></div>
+          <div class="flow-content">
+            <strong>4. Verify</strong>
+            <small>Check worker logs for cron job registration and <code>[DailyScheduler]</code> output at 4 AM UTC.</small>
+          </div>
+        </div>
+      </div>
+
+      <h3>Procfile</h3>
+      <pre><code>web: bundle exec puma -C config/puma.rb
+worker: bundle exec sidekiq -C config/sidekiq.yml</code></pre>
+    </section>
+
+    <!-- MONITORING -->
+    <section id="monitoring">
+      <h2>Monitoring</h2>
+
+      <h3>Logs</h3>
+      <p>Sidekiq logs job execution to stdout. On Render, check the worker service logs for:</p>
+      <ul>
+        <li><code>[DailyScheduler] Processed recurring medications for 2026-02-20</code> &mdash; daily cron ran</li>
+        <li><code>MedicationNotificationJob JID-xxx</code> &mdash; individual notification jobs</li>
+        <li>Failed jobs are automatically retried with exponential backoff (25 retries over ~21 days)</li>
+      </ul>
+
+      <h3>Key Metrics</h3>
+      <table>
+        <tr><th>Metric</th><th>Where to Check</th></tr>
+        <tr><td>Queue depth</td><td>Render worker logs or Sidekiq Web UI (if mounted)</td></tr>
+        <tr><td>Failed jobs</td><td>Sidekiq retry queue</td></tr>
+        <tr><td>Cron schedule</td><td>Worker startup logs show registered cron jobs</td></tr>
+        <tr><td>Redis memory</td><td>Render Redis dashboard</td></tr>
+      </table>
+
+      <div class="callout">
+        <strong>Sidekiq Web UI:</strong> Not currently mounted. To enable, add
+        <code>mount Sidekiq::Web => '/sidekiq'</code> in <code>routes.rb</code> behind admin authentication.
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

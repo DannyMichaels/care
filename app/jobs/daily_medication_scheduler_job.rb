@@ -1,4 +1,4 @@
-gclass DailyMedicationSchedulerJob < ApplicationJob
+class DailyMedicationSchedulerJob < ApplicationJob
   queue_as :scheduled
 
   def perform

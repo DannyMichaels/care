@@ -1,4 +1,3 @@
-import { indigo } from '@material-ui/core/colors';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
@@ -25,13 +24,22 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: theme.typography.fontWeightRegular,
   },
   accordion: {
-    boxShadow: theme.palette.type === 'light'
-      ? 'default'
-      : `0px 0px 4px 1.2px ${indigo[50]}`,
-    marginTop: '20px',
-    marginBottom: '30px',
-    background: theme.palette.type === 'light' ? '#fff' : undefined,
-    border: theme.palette.type === 'light' ? '1px solid #DBDBDB' : undefined,
+    marginTop: 20,
+    marginBottom: 30,
+    '& .MuiAccordionSummary-content': {
+      alignItems: 'center',
+    },
+  },
+  contentContainer: {
+    width: '100%',
+  },
+  summaryActions: {
+    marginLeft: 'auto',
+    display: 'flex',
+    gap: 4,
+  },
+  actionIcon: {
+    padding: 6,
   },
 }));
 export { useStyles };

@@ -20,11 +20,13 @@ import {
   DialogContent,
   DialogActions,
 } from "../../Form/DialogComponents";
+import { useFormStyles } from "../../Form/formStyles";
 import { compareDateWithCurrentTime } from '@care/shared';
 
 export default function MoodCreate({ open, onSave, handleClose }) {
   const { selectedDate } = useContext(DateContext);
   const [loading, setLoading] = useState(false);
+  const classes = useFormStyles();
   const { formData, setFormData, handleChange } = useFormData({
     status: "Okay",
     time: "",
@@ -111,38 +113,35 @@ export default function MoodCreate({ open, onSave, handleClose }) {
             />
           </FormLabel>
 
-          <div className="input-container">
-            <TextField
-              name="time"
-              required
-              id="datetime-local"
-              label={`Please choose a time`}
-              type="datetime-local"
-              style={{ width: "300px", margin: "10px" }}
-              value={toDateTimeLocal(formData.time)}
-              onChange={handleChange}
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-          </div>
+          <TextField
+            className={classes.field}
+            fullWidth
+            name="time"
+            required
+            id="datetime-local"
+            label="Please choose a time"
+            type="datetime-local"
+            value={toDateTimeLocal(formData.time)}
+            onChange={handleChange}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
 
-          <div className="input-container">
-            <TextField
-              className="select-css"
-              name="reason"
-              type="text"
-              required
-              label={
-                compareDateWithCurrentTime(formData.time) === 1 && formData.time
-                  ? `why did you feel this way?`
-                  : `why do you feel this way?`
-              }
-              style={{ display: "flex", width: "300px", margin: "10px" }}
-              value={formData.reason}
-              onChange={handleChange}
-            />
-          </div>
+          <TextField
+            className={classes.field}
+            fullWidth
+            name="reason"
+            type="text"
+            required
+            label={
+              compareDateWithCurrentTime(formData.time) === 1 && formData.time
+                ? 'why did you feel this way?'
+                : 'why do you feel this way?'
+            }
+            value={formData.reason}
+            onChange={handleChange}
+          />
         </DialogContent>
         <DialogActions>
           <Button type="submit" disabled={loading} variant="contained" color="primary">

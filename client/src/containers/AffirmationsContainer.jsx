@@ -8,6 +8,9 @@ export default function AffirmationsContainer({
   affirmations,
   setAffirmations,
   loadedAffirmation,
+  createOpen,
+  onCloseCreate,
+  optionsOpen,
 }) {
   const [updatedAffirmation, setUpdatedAffirmation] = useState(false);
   const history = useHistory();
@@ -45,6 +48,9 @@ export default function AffirmationsContainer({
         handleCreate={handleAffirmationCreate}
         handleDelete={handleAffirmationDelete}
         setAffirmations={setAffirmations}
+        createOpen={createOpen}
+        onCloseCreate={onCloseCreate}
+        optionsOpen={optionsOpen}
       />
     </>
   );

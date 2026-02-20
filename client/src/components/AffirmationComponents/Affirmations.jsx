@@ -1,11 +1,27 @@
-import React, { useState } from "react";
-import "./Affirmations.css";
-import Button from "@material-ui/core/Button";
-import AddIcon from "@material-ui/icons/Add";
-import SettingsSharpIcon from "@material-ui/icons/SettingsSharp";
-import AffirmationLetter from "./AffirmationLetter";
-import AffirmationCreate from "../Dialogs/AffirmationDialogs/AffirmationCreate";
-import Typography from "@material-ui/core/Typography";
+import React from 'react';
+import AddIcon from '@material-ui/icons/Add';
+import { makeStyles } from '@material-ui/core/styles';
+import AffirmationLetter from './AffirmationLetter';
+import AffirmationCreate from '../Dialogs/AffirmationDialogs/AffirmationCreate';
+import Typography from '@material-ui/core/Typography';
+
+const useStyles = makeStyles((theme) => ({
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+    gap: 16,
+    padding: theme.spacing(2),
+    [theme.breakpoints.down('xs')]: {
+      gridTemplateColumns: '1fr',
+    },
+  },
+  empty: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: theme.spacing(2),
+  },
+}));
 
 export default function Affirmations({
   affirmations,
@@ -15,31 +31,22 @@ export default function Affirmations({
   loaded,
   setAffirmations,
   handleUpdate,
+  createOpen,
+  onCloseCreate,
+  optionsOpen,
 }) {
-  const [openOptions, setOpenOptions] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
+  const classes = useStyles();
 
-  const handleClickOpen = () => {
-    setOpenDialog(true);
-  };
-  const handleClose = () => {
-    setOpenDialog(false);
-  };
   const onSave = async (formData) => {
     await handleCreate(formData);
-    setOpenDialog(false);
-  };
-
-  const handleOptionsClick = () => {
-    setOpenOptions(!openOptions);
+    onCloseCreate();
   };
 
   const affirmationsJSX =
     affirmations?.length === 0 ? (
-      <div className="log-your-affirmation">
-        <Typography> Click the </Typography>&nbsp;
-        <AddIcon className="plus-icon-affirmations" />
-        &nbsp;
+      <div className={classes.empty}>
+        <Typography>Click the</Typography>
+        <AddIcon />
         <Typography>button to write yourself an affirmation!</Typography>
       </div>
     ) : (
@@ -50,7 +57,7 @@ export default function Affirmations({
           setAffirmations={setAffirmations}
           handleUpdate={handleUpdate}
           affirmation={affirmation}
-          openOptions={openOptions}
+          openOptions={optionsOpen}
           handleDelete={handleDelete}
           affirmations={affirmations}
         />
@@ -59,32 +66,13 @@ export default function Affirmations({
 
   return (
     <>
-      <div className="affirmations">
+      <AffirmationCreate
+        open={createOpen}
+        onSave={onSave}
+        handleClose={onCloseCreate}
+      />
+      <div className={classes.grid}>
         {loaded ? affirmationsJSX : <>Loading...</>}
-        <div className="mood-buttons-container">
-          <Button
-            className="edit-affirmations"
-            variant="outlined"
-            color="primary"
-            onClick={handleOptionsClick}
-          >
-            <SettingsSharpIcon className="options-icon" />
-          </Button>
-          &#8195;
-          <Button
-            onClick={handleClickOpen}
-            variant="outlined"
-            color="primary"
-            className="add-affirmation"
-          >
-            <AddIcon className="add-icon" />
-          </Button>
-          <AffirmationCreate
-            open={openDialog}
-            onSave={onSave}
-            handleClose={handleClose}
-          />
-        </div>
       </div>
     </>
   );

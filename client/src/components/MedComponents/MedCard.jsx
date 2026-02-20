@@ -1,17 +1,47 @@
 import React, { useEffect, useState, useRef } from 'react';
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
+import IconButton from '@material-ui/core/IconButton';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Divider from '@material-ui/core/Divider';
 import { Switch, Route, Link } from 'react-router-dom';
 import Moment from 'react-moment';
 import 'moment-timezone';
-import { useTheme } from '@material-ui/core/styles';
-import { indigo } from '@material-ui/core/colors/';
+import { makeStyles } from '@material-ui/core/styles';
 import MedEdit from '../Dialogs/MedDialogs/MedEdit';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import MedDetail from '../Dialogs/MedDialogs/MedDetail';
 import Typography from '@material-ui/core/Typography';
 import { compareDateWithCurrentTime } from '@care/shared';
 import MedImage from './MedImage';
+import GlassCard from '../shared/GlassCard';
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+  },
+  clickArea: {
+    cursor: 'pointer',
+  },
+  medName: {
+    fontFamily: 'Montserrat',
+    fontSize: '1.1rem',
+  },
+  imageWrap: {
+    padding: theme.spacing(2, 0),
+  },
+  actions: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: 4,
+    paddingTop: theme.spacing(1),
+  },
+  loading: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: theme.spacing(2),
+  },
+}));
 
 export default function MedCard({
   meds,
@@ -22,7 +52,7 @@ export default function MedCard({
   handleDelete,
   RXGuideMeds,
 }) {
-  const theme = useTheme();
+  const classes = useStyles();
   const [isRefreshed, setIsRefreshed] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
@@ -79,21 +109,18 @@ export default function MedCard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [med?.time]);
 
-  const cardStyle = theme.palette.type === 'light'
-    ? { boxShadow: 'default', cursor: 'pointer' }
-    : { boxShadow: `0px 0px 4px 1.2px ${indigo[50]}`, cursor: 'pointer' };
-
   return (
     <>
-      <Card style={cardStyle} className="med-card">
-        <div className="med-container">
+      <GlassCard style={{ cursor: 'pointer' }}>
+        <div className={classes.container}>
           <Typography
-            style={{ fontFamily: 'Montserrat', fontSize: '1.1rem' }}
-            onClick={handleDetailOpen}>
+            className={classes.medName}
+            onClick={handleDetailOpen}
+          >
             {med.name}
           </Typography>
           {!isRefreshed ? (
-            <div style={{ padding: '20px' }}>
+            <div className={classes.imageWrap}>
               <MedImage
                 onClick={handleDetailOpen}
                 icon={med.icon}
@@ -106,58 +133,56 @@ export default function MedCard({
               />
             </div>
           ) : (
-            <div className="med-container">
+            <div className={classes.loading}>
               <CircularProgress style={{ height: '80px', width: '80px' }} />
             </div>
           )}
           {!med.is_taken && compareDateWithCurrentTime(med.time) < 0 ? (
-            <div onClick={handleDetailOpen} className="time">
-              <Typography>
+            <div onClick={handleDetailOpen} className={classes.clickArea}>
+              <Typography variant="body2">
                 You have to take {med?.name} at <br />
                 <Moment format="MMM/DD/yyyy hh:mm A">{med?.time}</Moment>
               </Typography>
             </div>
           ) : !med.is_taken && compareDateWithCurrentTime(med.time) === 1 ? (
-            <div onClick={handleDetailOpen} className="time">
-              <Typography>
+            <div onClick={handleDetailOpen} className={classes.clickArea}>
+              <Typography variant="body2">
                 You were supposed to take {med?.name} at <br />
                 <Moment format="MMM/DD/yyyy hh:mm A">{med?.time}</Moment>
               </Typography>
             </div>
           ) : (
-            <div onClick={handleDetailOpen} className="time">
-              <Typography>
+            <div onClick={handleDetailOpen} className={classes.clickArea}>
+              <Typography variant="body2">
                 You took {med?.name} at <br />
                 <Moment format="MMM/DD/yyyy hh:mm A">{med?.taken_date}</Moment>
               </Typography>
             </div>
           )}
 
-          <div
-            className="buttons"
-            style={openOptions ? { display: 'flex' } : { display: 'none' }}>
-            <Button
-              component={Link}
-              onClick={handleOpen}
-              to={`/medications/${med.id}/edit`}
-              variant="contained"
-              color="primary"
-              className="edit-button">
-              <span role="img" aria-label="edit">
-                🔧
-              </span>
-            </Button>
-            &#8199;
-            <Button
-              variant="contained"
-              color="secondary"
-              className="delete-button"
-              onClick={() => handleDelete(med.id)}>
-              <span role="img" aria-label="delete">
-                🗑️
-              </span>
-            </Button>
-          </div>
+          {openOptions && (
+            <>
+              <Divider style={{ margin: '8px 0' }} />
+              <div className={classes.actions}>
+                <IconButton
+                  component={Link}
+                  onClick={handleOpen}
+                  to={`/medications/${med.id}/edit`}
+                  color="primary"
+                  size="small"
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+                <IconButton
+                  color="secondary"
+                  size="small"
+                  onClick={() => handleDelete(med.id)}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </div>
+            </>
+          )}
         </div>
         {openDetail && (
           <MedDetail
@@ -168,7 +193,7 @@ export default function MedCard({
             handleDetailClose={handleDetailClose}
           />
         )}
-      </Card>
+      </GlassCard>
 
       {openEdit && (
         <Switch>

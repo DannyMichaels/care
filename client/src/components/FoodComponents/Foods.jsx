@@ -1,11 +1,27 @@
-import React, { useState } from "react";
-import "./Foods.css";
-import Button from "@material-ui/core/Button";
-import AddIcon from "@material-ui/icons/Add";
-import SettingsSharpIcon from "@material-ui/icons/SettingsSharp";
-import FoodCard from "./FoodCard";
-import FoodCreate from "../Dialogs/FoodDialogs/FoodCreate";
-import Typography from "@material-ui/core/Typography";
+import React from 'react';
+import AddIcon from '@material-ui/icons/Add';
+import { makeStyles } from '@material-ui/core/styles';
+import FoodCard from './FoodCard';
+import FoodCreate from '../Dialogs/FoodDialogs/FoodCreate';
+import Typography from '@material-ui/core/Typography';
+
+const useStyles = makeStyles((theme) => ({
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+    gap: 16,
+    padding: theme.spacing(2),
+    [theme.breakpoints.down('xs')]: {
+      gridTemplateColumns: '1fr',
+    },
+  },
+  empty: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: theme.spacing(2),
+  },
+}));
 
 export default function Foods({
   foods,
@@ -15,26 +31,22 @@ export default function Foods({
   loaded,
   setFoods,
   handleUpdate,
+  createOpen,
+  onCloseCreate,
+  optionsOpen,
 }) {
-  const [openOptions, setOpenOptions] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
+  const classes = useStyles();
 
-  const handleClickOpen = () => {
-    setOpenDialog(true);
-  };
-  const handleClose = () => {
-    setOpenDialog(false);
-  };
-  const handleOptionsClick = () => {
-    setOpenOptions(!openOptions);
+  const onSave = async (formData) => {
+    await handleCreate(formData);
+    onCloseCreate();
   };
 
   const foodsJSX =
     foods.length === 0 ? (
-      <div className="log-your-food">
-        <Typography> Click the </Typography>&nbsp;
-        <AddIcon className="plus-icon-foods" />
-        &nbsp;
+      <div className={classes.empty}>
+        <Typography>Click the</Typography>
+        <AddIcon />
         <Typography>button to add a food to your diary!</Typography>
       </div>
     ) : (
@@ -46,45 +58,21 @@ export default function Foods({
           updated={updated}
           food={food}
           handleUpdate={handleUpdate}
-          openOptions={openOptions}
+          openOptions={optionsOpen}
           handleDelete={handleDelete}
         />
       ))
     );
 
-  const onSave = async (formData) => {
-    await handleCreate(formData);
-    setOpenDialog(false);
-  };
-
   return (
     <>
-      <div className="foods">
+      <FoodCreate
+        open={createOpen}
+        onSave={onSave}
+        handleClose={onCloseCreate}
+      />
+      <div className={classes.grid}>
         {loaded ? foodsJSX : <>Loading...</>}
-        <div className="food-buttons-container">
-          <Button
-            className="edit-foods"
-            variant="outlined"
-            color="primary"
-            onClick={handleOptionsClick}
-          >
-            <SettingsSharpIcon className="options-icon" />
-          </Button>
-          &#8195;
-          <Button
-            onClick={handleClickOpen}
-            variant="outlined"
-            color="primary"
-            className="add-food"
-          >
-            <AddIcon className="add-icon" />
-          </Button>
-          <FoodCreate
-            open={openDialog}
-            onSave={onSave}
-            handleClose={handleClose}
-          />
-        </div>
       </div>
     </>
   );

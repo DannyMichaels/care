@@ -1,11 +1,27 @@
-import React, { useState } from "react";
-import "./Meds.css";
-import Button from "@material-ui/core/Button";
-import AddIcon from "@material-ui/icons/Add";
-import SettingsSharpIcon from "@material-ui/icons/SettingsSharp";
-import MedCard from "./MedCard";
-import MedCreate from "../Dialogs/MedDialogs/MedCreate";
-import Typography from "@material-ui/core/Typography";
+import React from 'react';
+import AddIcon from '@material-ui/icons/Add';
+import { makeStyles } from '@material-ui/core/styles';
+import MedCard from './MedCard';
+import MedCreate from '../Dialogs/MedDialogs/MedCreate';
+import Typography from '@material-ui/core/Typography';
+
+const useStyles = makeStyles((theme) => ({
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+    gap: 16,
+    padding: theme.spacing(2),
+    [theme.breakpoints.down('xs')]: {
+      gridTemplateColumns: '1fr',
+    },
+  },
+  empty: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: theme.spacing(2),
+  },
+}));
 
 export default function Meds({
   meds,
@@ -16,38 +32,29 @@ export default function Meds({
   loaded,
   RXGuideMeds,
   handleUpdate,
+  createOpen,
+  onCloseCreate,
+  optionsOpen,
 }) {
-  const [openOptions, setOpenOptions] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
-
-  const handleClickOpen = () => {
-    setOpenDialog(true);
-  };
-  const handleClose = () => {
-    setOpenDialog(false);
-  };
-  const handleOptionsClick = () => {
-    setOpenOptions(!openOptions);
-  };
+  const classes = useStyles();
 
   const onSave = async (formData) => {
     await handleCreate(formData);
-    setOpenDialog(false);
+    onCloseCreate();
   };
 
   const medsJSX =
     meds.length === 0 ? (
-      <div className="log-your-med">
-        <Typography> Click the </Typography>&nbsp;
-        <AddIcon className="plus-icon-meds" />
-        &nbsp;
+      <div className={classes.empty}>
+        <Typography>Click the</Typography>
+        <AddIcon />
         <Typography>button to add a medication!</Typography>
       </div>
     ) : (
       meds.map((med) => (
         <MedCard
           key={med.id}
-          openOptions={openOptions}
+          openOptions={optionsOpen}
           RXGuideMeds={RXGuideMeds}
           meds={meds}
           setMeds={setMeds}
@@ -61,33 +68,14 @@ export default function Meds({
 
   return (
     <>
-      <div className="meds">
+      <MedCreate
+        RXGuideMeds={RXGuideMeds}
+        open={createOpen}
+        onSave={onSave}
+        handleClose={onCloseCreate}
+      />
+      <div className={classes.grid}>
         {loaded ? medsJSX : <>Loading...</>}
-        <div className="med-buttons-container">
-          <Button
-            className="edit-meds"
-            variant="outlined"
-            color="primary"
-            onClick={handleOptionsClick}
-          >
-            <SettingsSharpIcon className="options-icon" />
-          </Button>
-          &#8195;
-          <Button
-            onClick={handleClickOpen}
-            variant="outlined"
-            color="primary"
-            className="add-med"
-          >
-            <AddIcon className="add-icon" />
-          </Button>
-          <MedCreate
-            RXGuideMeds={RXGuideMeds}
-            open={openDialog}
-            onSave={onSave}
-            handleClose={handleClose}
-          />
-        </div>
       </div>
     </>
   );

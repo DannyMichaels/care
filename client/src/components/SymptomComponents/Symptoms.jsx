@@ -1,11 +1,27 @@
-import React, { useState } from "react";
-import "./Symptoms.css";
-import Button from "@material-ui/core/Button";
-import AddIcon from "@material-ui/icons/Add";
-import SettingsSharpIcon from "@material-ui/icons/SettingsSharp";
-import SymptomCard from "./SymptomCard";
-import SymptomCreate from "../Dialogs/SymptomDialogs/SymptomCreate";
-import Typography from "@material-ui/core/Typography";
+import React from 'react';
+import AddIcon from '@material-ui/icons/Add';
+import { makeStyles } from '@material-ui/core/styles';
+import SymptomCard from './SymptomCard';
+import SymptomCreate from '../Dialogs/SymptomDialogs/SymptomCreate';
+import Typography from '@material-ui/core/Typography';
+
+const useStyles = makeStyles((theme) => ({
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+    gap: 16,
+    padding: theme.spacing(2),
+    [theme.breakpoints.down('xs')]: {
+      gridTemplateColumns: '1fr',
+    },
+  },
+  empty: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: theme.spacing(2),
+  },
+}));
 
 export default function Symptoms({
   symptoms,
@@ -15,26 +31,22 @@ export default function Symptoms({
   loaded,
   handleUpdate,
   setSymptoms,
+  createOpen,
+  onCloseCreate,
+  optionsOpen,
 }) {
-  const [openOptions, setOpenOptions] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
+  const classes = useStyles();
 
-  const handleClickOpen = () => {
-    setOpenDialog(true);
-  };
-  const handleClose = () => {
-    setOpenDialog(false);
-  };
-  const handleOptionsClick = () => {
-    setOpenOptions(!openOptions);
+  const onSave = async (formData) => {
+    await handleCreate(formData);
+    onCloseCreate();
   };
 
   const symptomsJSX =
     symptoms.length === 0 ? (
-      <div className="log-your-symptom">
-        <Typography> Click the </Typography>&nbsp;
-        <AddIcon className="plus-icon-symptoms" />
-        &nbsp;
+      <div className={classes.empty}>
+        <Typography>Click the</Typography>
+        <AddIcon />
         <Typography>button to track your symptoms!</Typography>
       </div>
     ) : (
@@ -46,45 +58,21 @@ export default function Symptoms({
           handleUpdate={handleUpdate}
           updated={updated}
           symptom={symptom}
-          openOptions={openOptions}
+          openOptions={optionsOpen}
           handleDelete={handleDelete}
         />
       ))
     );
 
-  const onSave = async (formData) => {
-    await handleCreate(formData);
-    setOpenDialog(false);
-  };
-
   return (
     <>
-      <div className="symptoms">
+      <SymptomCreate
+        open={createOpen}
+        onSave={onSave}
+        handleClose={onCloseCreate}
+      />
+      <div className={classes.grid}>
         {loaded ? symptomsJSX : <>Loading...</>}
-        <div className="symptom-buttons-container">
-          <Button
-            className="edit-symptoms"
-            variant="outlined"
-            color="primary"
-            onClick={handleOptionsClick}
-          >
-            <SettingsSharpIcon className="options-icon" />
-          </Button>
-          &#8195;
-          <Button
-            onClick={handleClickOpen}
-            variant="outlined"
-            color="primary"
-            className="add-symptom"
-          >
-            <AddIcon className="add-icon" />
-          </Button>
-          <SymptomCreate
-            open={openDialog}
-            onSave={onSave}
-            handleClose={handleClose}
-          />
-        </div>
       </div>
     </>
   );

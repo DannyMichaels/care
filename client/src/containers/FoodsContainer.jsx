@@ -6,7 +6,7 @@ import { destroyFood, getAllFoods, postFood, putFood, filterByDate } from '@care
 import { CurrentUserContext } from "../context/CurrentUserContext";
 import { DateContext } from "../context/DateContext";
 
-export default function FoodsContainer({ onFilteredCount }) {
+export default function FoodsContainer({ onFilteredCount, createOpen, onCloseCreate, optionsOpen }) {
   const [currentUser] = useContext(CurrentUserContext);
   const { selectedDate, showAllDates } = useContext(DateContext);
   const [foods, setFoods] = useState([]);
@@ -62,6 +62,9 @@ export default function FoodsContainer({ onFilteredCount }) {
       loaded={loaded}
       handleCreate={handleCreate}
       handleDelete={handleDelete}
+      createOpen={createOpen}
+      onCloseCreate={onCloseCreate}
+      optionsOpen={optionsOpen}
     />
   );
 }

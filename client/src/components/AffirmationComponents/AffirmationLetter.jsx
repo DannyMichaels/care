@@ -1,9 +1,32 @@
-import Button from "@material-ui/core/Button";
-import { Switch, Route, Link } from "react-router-dom";
-import AffirmationDetail from "../Dialogs/AffirmationDialogs/AffirmationDetail";
-import { useState } from "react";
-import AffirmationEdit from "../Dialogs/AffirmationDialogs/AffirmationEdit";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import { useState } from 'react';
+import IconButton from '@material-ui/core/IconButton';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Divider from '@material-ui/core/Divider';
+import { Switch, Route, Link } from 'react-router-dom';
+import { makeStyles } from '@material-ui/core/styles';
+import AffirmationDetail from '../Dialogs/AffirmationDialogs/AffirmationDetail';
+import AffirmationEdit from '../Dialogs/AffirmationDialogs/AffirmationEdit';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import GlassCard from '../shared/GlassCard';
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+  },
+  actions: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: 4,
+    paddingTop: theme.spacing(1),
+  },
+  loading: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: theme.spacing(2),
+  },
+}));
 
 export default function AffirmationLetter({
   affirmation,
@@ -13,6 +36,7 @@ export default function AffirmationLetter({
   affirmations,
   setAffirmations,
 }) {
+  const classes = useStyles();
   const [openEdit, setOpenEdit] = useState(false);
   const [isRefreshed, setIsRefreshed] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
@@ -52,43 +76,41 @@ export default function AffirmationLetter({
     <>
       {!isRefreshed ? (
         <>
-          <div className="affirmation-container">
-            <div className="content">
+          <GlassCard>
+            <div className={classes.container}>
               <img
-                style={{ cursor: "pointer" }}
+                style={{ cursor: 'pointer' }}
                 onClick={handleDetailOpen}
                 width="80px"
                 height="80px"
                 src="https://www.pngrepo.com/download/180697/love-letter-hearts.png"
                 alt="closed affirmation letter"
               />
+              {openOptions && (
+                <>
+                  <Divider style={{ margin: '8px 0' }} />
+                  <div className={classes.actions}>
+                    <IconButton
+                      component={Link}
+                      to={`/affirmations/${affirmation.id}/edit`}
+                      onClick={handleOpen}
+                      color="primary"
+                      size="small"
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      color="secondary"
+                      size="small"
+                      onClick={() => handleDelete(affirmation.id)}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                </>
+              )}
             </div>
-            <div
-              className="buttons"
-              style={openOptions ? { display: "flex" } : { display: "none" }}>
-              <Button
-                component={Link}
-                to={`/affirmations/${affirmation.id}/edit`}
-                onClick={handleOpen}
-                variant="contained"
-                color="primary"
-                className="edit-button">
-                <span role="img" aria-label="edit">
-                  🔧
-                </span>
-              </Button>
-              &#8199;
-              <Button
-                variant="contained"
-                color="secondary"
-                className="delete-button"
-                onClick={() => handleDelete(affirmation.id)}>
-                <span role="img" aria-label="delete">
-                  🗑️
-                </span>
-              </Button>
-            </div>
-          </div>
+          </GlassCard>
           {openDetail && (
             <AffirmationDetail
               affirmation={affirmation}
@@ -99,8 +121,8 @@ export default function AffirmationLetter({
           )}
         </>
       ) : (
-        <div className="affirmation-container">
-          <CircularProgress style={{ height: "80px", width: "80px" }} />
+        <div className={classes.loading}>
+          <CircularProgress style={{ height: '80px', width: '80px' }} />
         </div>
       )}
       {openEdit && (

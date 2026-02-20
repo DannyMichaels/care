@@ -1,16 +1,35 @@
 import React, { useState } from 'react';
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
+import IconButton from '@material-ui/core/IconButton';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 import { Link, Route, Switch } from 'react-router-dom';
 import Moment from 'react-moment';
 import 'moment-timezone';
-import { useTheme } from '@material-ui/core/styles';
-import { indigo } from '@material-ui/core/colors/';
+import { makeStyles } from '@material-ui/core/styles';
 import getRating from '../../utils/getRating';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import FoodEdit from '../Dialogs/FoodDialogs/FoodEdit';
 import FoodDetail from '../Dialogs/FoodDialogs/FoodDetail';
 import { foodNameJSX } from '../../utils/foodUtils';
+import GlassCard from '../shared/GlassCard';
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+  },
+  clickArea: {
+    cursor: 'pointer',
+  },
+  actions: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: 4,
+    paddingTop: theme.spacing(1),
+  },
+}));
 
 export default function FoodCard({
   foods,
@@ -20,7 +39,7 @@ export default function FoodCard({
   openOptions,
   handleDelete,
 }) {
-  const theme = useTheme();
+  const classes = useStyles();
   const [isRefreshed, setIsRefreshed] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
@@ -42,53 +61,44 @@ export default function FoodCard({
     }
   };
 
-  const cardStyle = theme.palette.type === 'light'
-    ? { boxShadow: 'default' }
-    : { boxShadow: `0px 0px 4px 1.2px ${indigo[50]}` };
-
   return (
     <>
-      <Card style={cardStyle} className="food-card">
-        <div className="food-container">
-          <div className="hover-container" onClick={() => setOpenDetail(true)}>
+      <GlassCard>
+        <div className={classes.container}>
+          <div className={classes.clickArea} onClick={() => setOpenDetail(true)}>
             {!isRefreshed ? foodNameJSX(food) : <CircularProgress />}
-            <div className="time">
+            <Typography variant="caption" color="textSecondary" component="div">
               <Moment format="MMM/DD/yyyy hh:mm A">
                 {food?.time?.toLocaleString()}
               </Moment>
-            </div>
-            <div className="rating">{getRating(food.rating, "⭐")}</div>
+            </Typography>
+            <div>{getRating(food.rating, "⭐")}</div>
           </div>
-          <div
-            className="buttons"
-            style={openOptions ? { display: 'flex' } : { display: 'none' }}
-          >
-            <Button
-              component={Link}
-              onClick={() => setOpenEdit(true)}
-              to={`/foods/${food.id}/edit`}
-              variant="contained"
-              color="primary"
-              className="edit-button"
-            >
-              <span role="img" aria-label="edit">
-                🔧
-              </span>
-            </Button>
-            &#8199;
-            <Button
-              variant="contained"
-              color="secondary"
-              className="delete-button"
-              onClick={() => handleDelete(food.id)}
-            >
-              <span role="img" aria-label="delete">
-                🗑️
-              </span>
-            </Button>
-          </div>
+          {openOptions && (
+            <>
+              <Divider style={{ margin: '8px 0' }} />
+              <div className={classes.actions}>
+                <IconButton
+                  component={Link}
+                  onClick={() => setOpenEdit(true)}
+                  to={`/foods/${food.id}/edit`}
+                  color="primary"
+                  size="small"
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+                <IconButton
+                  color="secondary"
+                  size="small"
+                  onClick={() => handleDelete(food.id)}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </div>
+            </>
+          )}
         </div>
-      </Card>
+      </GlassCard>
       {openEdit && (
         <Switch>
           <Route path="/foods/:id/edit">

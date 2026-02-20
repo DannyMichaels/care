@@ -6,7 +6,7 @@ import { destroySymptom, getAllSymptoms, postSymptom, putSymptom, filterByDate }
 import { CurrentUserContext } from "../context/CurrentUserContext";
 import { DateContext } from "../context/DateContext";
 
-export default function SymptomsContainer({ onFilteredCount }) {
+export default function SymptomsContainer({ onFilteredCount, createOpen, onCloseCreate, optionsOpen }) {
   const [currentUser] = useContext(CurrentUserContext);
   const { selectedDate, showAllDates } = useContext(DateContext);
   const [symptoms, setSymptoms] = useState([]);
@@ -65,6 +65,9 @@ export default function SymptomsContainer({ onFilteredCount }) {
         handleUpdate={handleUpdate}
         handleCreate={handleCreate}
         handleDelete={handleDelete}
+        createOpen={createOpen}
+        onCloseCreate={onCloseCreate}
+        optionsOpen={optionsOpen}
       />
     </>
   );

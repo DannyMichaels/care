@@ -6,7 +6,7 @@ import { destroyMood, getAllMoods, postMood, putMood, filterByDate } from '@care
 import { CurrentUserContext } from "../context/CurrentUserContext";
 import { DateContext } from "../context/DateContext";
 
-export default function MoodsContainer({ onFilteredCount }) {
+export default function MoodsContainer({ onFilteredCount, createOpen, onCloseCreate, optionsOpen }) {
   const [currentUser] = useContext(CurrentUserContext);
   const { selectedDate, showAllDates } = useContext(DateContext);
   const [moods, setMoods] = useState([]);
@@ -63,6 +63,9 @@ export default function MoodsContainer({ onFilteredCount }) {
         handleCreate={handleCreate}
         handleDelete={handleDelete}
         handleUpdate={handleUpdate}
+        createOpen={createOpen}
+        onCloseCreate={onCloseCreate}
+        optionsOpen={optionsOpen}
       />
     </>
   );

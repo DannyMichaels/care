@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 import { destroyMed, postMed, putMed, getAllMeds, getRXGuideMeds, filterByDate } from '@care/shared';
 import { DateContext } from "../context/DateContext";
 
-export default function MedsContainer({ onFilteredCount }) {
+export default function MedsContainer({ onFilteredCount, createOpen, onCloseCreate, optionsOpen }) {
   const { selectedDate, showAllDates } = useContext(DateContext);
   const [updated, setUpdated] = useState(false);
   const [meds, setMeds] = useState([]);
@@ -73,6 +73,9 @@ export default function MedsContainer({ onFilteredCount }) {
         handleCreate={handleCreate}
         handleDelete={handleDelete}
         handleUpdate={handleUpdate}
+        createOpen={createOpen}
+        onCloseCreate={onCloseCreate}
+        optionsOpen={optionsOpen}
       />
     </>
   );

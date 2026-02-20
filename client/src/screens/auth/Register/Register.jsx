@@ -1,45 +1,40 @@
-import { useState, useContext } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { useState, useContext } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 
 // Context
-import { useStateValue } from "../../../context/CurrentUserContext";
+import { useStateValue } from '../../../context/CurrentUserContext';
 import {
   AllUsersDispatchContext,
-} from "../../../context/AllUsersContext";
+} from '../../../context/AllUsersContext';
 
 // Services and Utils
 import { toTitleCase, registerUser, checkPasswordLength } from '@care/shared';
-import moment from "moment";
+import moment from 'moment';
 
 // Components
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import Input from "@material-ui/core/Input";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import IconButton from "@material-ui/core/IconButton";
-import NativeSelect from "@material-ui/core/NativeSelect";
-import FormHelperText from "@material-ui/core/FormHelperText";
-import Checkbox from "@material-ui/core/Checkbox";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import LinearProgressLoading from "../../../components/Loading/LinearProgressLoading.jsx";
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import IconButton from '@material-ui/core/IconButton';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import LinearProgressLoading from '../../../components/Loading/LinearProgressLoading.jsx';
 
 // Icons
-import Visibility from "@material-ui/icons/Visibility";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import EmailIcon from "@material-ui/icons/Email";
-import LockIcon from "@material-ui/icons/Lock";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import ClearIcon from "@material-ui/icons/Clear";
-import EventIcon from "@material-ui/icons/Event";
-import CameraIcon from "@material-ui/icons/CameraAlt";
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import EmailIcon from '@material-ui/icons/Email';
+import LockIcon from '@material-ui/icons/Lock';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import ClearIcon from '@material-ui/icons/Clear';
+import EventIcon from '@material-ui/icons/Event';
+import CameraIcon from '@material-ui/icons/CameraAlt';
 
 // Styles
-import { useStyles } from "./registerStyles";
-import Logo from "../../../components/Logo/Logo.jsx";
-import LegalModal from "../../legal/LegalModal";
+import { useStyles } from './registerStyles';
+import Logo from '../../../components/Logo/Logo.jsx';
+import LegalModal from '../../legal/LegalModal';
 
 export default function Register() {
   const [{ currentUser }, dispatch] = useStateValue();
@@ -48,7 +43,7 @@ export default function Register() {
   const [passwordAlert, setPasswordAlert] = useState(false);
   const [imagePreview, setImagePreview] = useState(false);
   const [passwordConfirmAlert, setPasswordConfirmAlert] = useState(false);
-  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -70,9 +65,9 @@ export default function Register() {
       setIsLoading(true);
       registerData.email = registerData?.email?.toLowerCase();
       const userData = await registerUser(registerData);
-      dispatch({ type: "SET_USER", currentUser: userData });
+      dispatch({ type: 'SET_USER', currentUser: userData });
 
-      dispatchAllUsers({ type: "USER_CREATED", payload: userData });
+      dispatchAllUsers({ type: 'USER_CREATED', payload: userData });
 
       // Verification code is sent automatically by the backend on registration
       setIsLoading(false);
@@ -84,12 +79,12 @@ export default function Register() {
   };
 
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    birthday: "",
-    gender: "",
-    image: "",
+    name: '',
+    email: '',
+    password: '',
+    birthday: '',
+    gender: '',
+    image: '',
   });
   const { name, email, password, birthday, gender, image } = formData;
 
@@ -104,12 +99,6 @@ export default function Register() {
   const handleSubmit = (e) => {
     e.preventDefault();
     checkPasswordLength(password, setPasswordAlert);
-    // checkEmailValidity(email, setEmailValidityAlert);
-    // if (allUsers.find((user) => user.email === email)) {
-    //   setEmailUniquenessAlert(true);
-    // } else {
-    //   setEmailUniquenessAlert(false);
-    // }
     if (password !== passwordConfirm) {
       return setPasswordConfirmAlert(true);
     } else {
@@ -121,7 +110,7 @@ export default function Register() {
   const onImageSelected = (e) => {
     const img = e.target.files[0];
     const fileReader = new FileReader();
-    fileReader.addEventListener("load", () => {
+    fileReader.addEventListener('load', () => {
       setFormData((prevState) => ({
         ...prevState,
         image: fileReader.result,
@@ -129,13 +118,13 @@ export default function Register() {
       setImagePreview(true);
     });
     if (img) {
-      if (img.type?.includes("image")) {
+      if (img.type?.includes('image')) {
         return fileReader.readAsDataURL(img);
       } else {
-        document.getElementById("image-upload").value = "";
+        document.getElementById('image-upload').value = '';
         return alert(
           `${img.type
-            .split("/") // get file type string and remove all characters before "/"
+            .split('/')
             .pop()} file types aren't allowed! \nplease upload an image file.`
         );
       }
@@ -143,15 +132,15 @@ export default function Register() {
   };
 
   const selectImage = () => {
-    document.getElementById("image-upload").click();
+    document.getElementById('image-upload').click();
   };
 
   const handleImageClear = () => {
     setFormData((prevState) => ({
       ...prevState,
-      image: "",
+      image: '',
     }));
-    document.getElementById("image-upload").value = "";
+    document.getElementById('image-upload').value = '';
 
     setImagePreview(false);
   };
@@ -171,7 +160,7 @@ export default function Register() {
             <Logo className={classes.logo} />
           </div>
           {error && (
-            <Typography className={classes.user} style={{ color: "red" }}>
+            <Typography className={classes.user} style={{ color: 'red' }}>
               {error.data?.message ?? error?.statusText}
             </Typography>
           )}
@@ -207,88 +196,75 @@ export default function Register() {
           </div>
           <br />
           <form className={classes.form} onSubmit={handleSubmit}>
-            <div className={classes.inputContainer}>
-              {!imagePreview ? (
-                <AccountCircleIcon />
-              ) : (
-                <img className={classes.userImage} src={image} alt={name} />
-              )}
-              <FormControl>
-                <InputLabel
-                  className={classes.label}
-                  htmlFor="name"
-                >
-                  Name
-                </InputLabel>
-                <Input
-                  required
-                  className={classes.inputField}
-                  type="text"
-                  inputProps={{ maxLength: 20 }}
-                  name="name"
-                  value={name}
-                  onChange={handleChange}
-                />
-              </FormControl>
-            </div>
-            <div className={classes.inputContainer}>
-              <EmailIcon />
-              <FormControl>
-                <InputLabel
-                  className={classes.label}
-                  htmlFor="email"
-                >
-                  Email Address
-                </InputLabel>
-                <Input
-                  required
-                  id="email"
-                  type="text"
-                  className={classes.inputField}
-                  name="email"
-                  value={email}
-                  onChange={handleChange}
-                />
-              </FormControl>
-            </div>
-            <div className={classes.inputContainer}>
-              <LockIcon className={classes.lockIcon} />
-              <FormControl>
-                <InputLabel
-                  className={classes.passwordLabel}
-                  htmlFor="password"
-                >
-                  Password
-                </InputLabel>
-                <Input
-                  required
-                  className={classes.passwordField}
-                  name="password"
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={handleChange}
-                  endAdornment={
-                    <InputAdornment
-                      className={classes.passwordIcon}
-                      position="end"
+            <TextField
+              required
+              label="Name"
+              name="name"
+              type="text"
+              inputProps={{ maxLength: 20 }}
+              value={name}
+              onChange={handleChange}
+              className={classes.field}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    {!imagePreview ? (
+                      <AccountCircleIcon />
+                    ) : (
+                      <img className={classes.userImage} src={image} alt={name} />
+                    )}
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              required
+              label="Email Address"
+              name="email"
+              type="text"
+              value={email}
+              onChange={handleChange}
+              className={classes.field}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              required
+              label="Password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={handleChange}
+              className={classes.field}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
                     >
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleClickShowPassword}
-                        onMouseDown={handleMouseDownPassword}
-                      >
-                        {showPassword ? (
-                          <Visibility className={classes.visibility} />
-                        ) : (
-                          <VisibilityOff className={classes.visibility} />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                />
-              </FormControl>
-            </div>
+                      {showPassword ? (
+                        <Visibility className={classes.visibility} />
+                      ) : (
+                        <VisibilityOff className={classes.visibility} />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
             {passwordAlert && (
               <>
                 <div className={classes.alert}>
@@ -297,46 +273,38 @@ export default function Register() {
                 <br />
               </>
             )}
-            <div className={classes.inputContainer}>
-              <LockIcon className={classes.lockIcon} />
-              <FormControl>
-                <InputLabel
-                  className={classes.passwordLabel}
-                  htmlFor="passwordConfirm"
-                >
-                  Confirm Password
-                </InputLabel>
-                <Input
-                  required
-                  className={classes.passwordField}
-                  name="passwordConfirm"
-                  id="passwordConfirm"
-                  type={showPasswordConfirm ? "text" : "password"}
-                  value={passwordConfirm}
-                  onChange={(e) => setPasswordConfirm(e.target.value)}
-                  endAdornment={
-                    <InputAdornment
-                      className={classes.passwordIcon}
-                      position="end"
+            <TextField
+              required
+              label="Confirm Password"
+              name="passwordConfirm"
+              type={showPasswordConfirm ? 'text' : 'password'}
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+              className={classes.field}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
                     >
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={() =>
-                          setShowPasswordConfirm(!showPasswordConfirm)
-                        }
-                        onMouseDown={handleMouseDownPassword}
-                      >
-                        {showPasswordConfirm ? (
-                          <Visibility className={classes.visibility} />
-                        ) : (
-                          <VisibilityOff className={classes.visibility} />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                />
-              </FormControl>
-            </div>
+                      {showPasswordConfirm ? (
+                        <Visibility className={classes.visibility} />
+                      ) : (
+                        <VisibilityOff className={classes.visibility} />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
             {passwordConfirmAlert && (
               <>
                 <div className={classes.alert}>
@@ -345,55 +313,49 @@ export default function Register() {
                 <br />
               </>
             )}
-            <div className={classes.inputContainer}>
-              <EventIcon className={classes.lockIcon} />
-              <TextField
-                id="date"
-                required
-                label="Date of Birth"
-                type="date"
-                className={classes.birthdayField}
-                name="birthday"
-                InputProps={{
-                  inputProps: { max: moment().format("YYYY-MM-DD") },
-                }}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                value={birthday}
-                onChange={handleChange}
-              />
-            </div>
+            <TextField
+              id="date"
+              required
+              label="Date of Birth"
+              type="date"
+              className={classes.field}
+              name="birthday"
+              InputProps={{
+                inputProps: { max: moment().format('YYYY-MM-DD') },
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EventIcon />
+                  </InputAdornment>
+                ),
+              }}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              value={birthday}
+              onChange={handleChange}
+            />
             <input
               type="file"
               id="image-upload"
-              style={{ visibility: "hidden" }}
+              style={{ visibility: 'hidden' }}
               onChange={onImageSelected}
             />
-            <div className={classes.genderContainer}>
-              <FormHelperText style={{ marginLeft: "-20px" }}>
-                What's your gender?
-              </FormHelperText>
-              <FormControl>
-                <NativeSelect
-                  required
-                  label="gender"
-                  value={toTitleCase(gender)}
-                  onChange={handleChange}
-                  inputProps={{
-                    name: "gender",
-                    id: "gender-native-simple",
-                  }}
-                >
-                  <option value="" selected disabled hidden>
-                    Select a gender
-                  </option>
-                  <option value={"Male"}>Male</option>
-                  <option value={"Female"}>Female</option>
-                  <option value={"Other"}>Other</option>
-                </NativeSelect>
-              </FormControl>
-            </div>
+            <TextField
+              select
+              required
+              label="Gender"
+              name="gender"
+              value={toTitleCase(gender)}
+              onChange={handleChange}
+              className={classes.field}
+              SelectProps={{ native: true }}
+            >
+              <option value="" disabled hidden>
+              </option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </TextField>
             <div className={classes.genderContainer} style={{ marginTop: '8px' }}>
               <FormControlLabel
                 control={
@@ -433,14 +395,9 @@ export default function Register() {
               Register
             </Button>
           </form>
-          <Typography
-            className={classes.login}
-          >
+          <Typography className={classes.login}>
             Already have an account? &nbsp;
-            <Link
-              className={classes.loginLink}
-              to="/login"
-            >
+            <Link className={classes.loginLink} to="/login">
               Login
             </Link>
           </Typography>

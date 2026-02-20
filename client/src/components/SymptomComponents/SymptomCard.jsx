@@ -1,13 +1,34 @@
 import React, { useState } from 'react';
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
+import IconButton from '@material-ui/core/IconButton';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 import { Link, Route, Switch } from 'react-router-dom';
 import Moment from 'react-moment';
 import 'moment-timezone';
-import { useTheme } from '@material-ui/core/styles';
-import { indigo } from '@material-ui/core/colors/';
+import { makeStyles } from '@material-ui/core/styles';
 import SymptomEdit from '../Dialogs/SymptomDialogs/SymptomEdit';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import GlassCard from '../shared/GlassCard';
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+  },
+  actions: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: 4,
+    paddingTop: theme.spacing(1),
+  },
+  loading: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: theme.spacing(2),
+  },
+}));
 
 export default function SymptomCard({
   handleUpdate,
@@ -17,7 +38,7 @@ export default function SymptomCard({
   symptoms,
   setSymptoms,
 }) {
-  const theme = useTheme();
+  const classes = useStyles();
   const [isRefreshed, setIsRefreshed] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
 
@@ -39,50 +60,44 @@ export default function SymptomCard({
     setOpenEdit(false);
   };
 
-  const cardStyle = theme.palette.type === 'light'
-    ? { boxShadow: 'default' }
-    : { boxShadow: `0px 0px 4px 1.2px ${indigo[50]}` };
-
   return (
     <>
       {!isRefreshed ? (
-        <Card style={cardStyle} className="symptom-card">
-          <div className="symptom-container">
-            {symptom.name}
-            <div className="time">
+        <GlassCard>
+          <div className={classes.container}>
+            <Typography variant="subtitle1">{symptom.name}</Typography>
+            <Typography variant="caption" color="textSecondary">
               <Moment format="MMM/DD/yyyy hh:mm A">
                 {symptom.time?.toLocaleString()}
               </Moment>
-            </div>
-            <div
-              className="buttons"
-              style={openOptions ? { display: 'flex' } : { display: 'none' }}>
-              <Button
-                component={Link}
-                onClick={handleOpen}
-                to={`/symptoms/${symptom.id}/edit`}
-                variant="contained"
-                color="primary"
-                className="edit-button">
-                <span role="img" aria-label="edit">
-                  🔧
-                </span>
-              </Button>
-              &#8199;
-              <Button
-                variant="contained"
-                color="secondary"
-                className="delete-button"
-                onClick={() => handleDelete(symptom.id)}>
-                <span role="img" aria-label="delete">
-                  🗑️
-                </span>
-              </Button>
-            </div>
+            </Typography>
+            {openOptions && (
+              <>
+                <Divider style={{ margin: '8px 0' }} />
+                <div className={classes.actions}>
+                  <IconButton
+                    component={Link}
+                    onClick={handleOpen}
+                    to={`/symptoms/${symptom.id}/edit`}
+                    color="primary"
+                    size="small"
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    color="secondary"
+                    size="small"
+                    onClick={() => handleDelete(symptom.id)}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </div>
+              </>
+            )}
           </div>
-        </Card>
+        </GlassCard>
       ) : (
-        <div className="affirmation-container">
+        <div className={classes.loading}>
           <CircularProgress style={{ height: '60px', width: '60px' }} />
         </div>
       )}

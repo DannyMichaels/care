@@ -1,35 +1,31 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 // Components
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
-import Dialog from "@material-ui/core/Dialog";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import Input from "@material-ui/core/Input";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import NativeSelect from "@material-ui/core/NativeSelect";
-import FormHelperText from "@material-ui/core/FormHelperText";
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import Dialog from '@material-ui/core/Dialog';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 import {
   DialogTitle,
   DialogContent,
   DialogActions,
-} from "../../Form/DialogComponents";
-import Form from "./StyledUserEdit";
+} from '../../Form/DialogComponents';
+import { useFormStyles } from '../../Form/formStyles';
+import Form from './StyledUserEdit';
 
 // Icons
-import IconButton from "@material-ui/core/IconButton";
-import Visibility from "@material-ui/icons/Visibility";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
+import IconButton from '@material-ui/core/IconButton';
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 
-import EmailIcon from "@material-ui/icons/Email";
-import LockIcon from "@material-ui/icons/Lock";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import CameraIcon from "@material-ui/icons/CameraAlt";
-import ClearIcon from "@material-ui/icons/Clear";
+import EmailIcon from '@material-ui/icons/Email';
+import LockIcon from '@material-ui/icons/Lock';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import CameraIcon from '@material-ui/icons/CameraAlt';
+import ClearIcon from '@material-ui/icons/Clear';
 
 // Services and Utils
 import { getOneUser, putUser, toTitleCase, checkEmailUniqueuess, checkEmailValidity, checkPasswordLength } from '@care/shared';
@@ -44,18 +40,19 @@ export default function UserEdit({
   dispatchAllUsers,
   setOpenEdit,
 }) {
+  const classes = useFormStyles();
   const [formData, setFormData] = useState({
-    name: "",
-    birthday: "",
-    email: "",
-    gender: "",
-    password: "",
-    image: "",
+    name: '',
+    birthday: '',
+    email: '',
+    gender: '',
+    password: '',
+    image: '',
   });
   const { name, birthday, gender, email, password, image } = formData;
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
-  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState('');
   const [passwordConfirmAlert, setPasswordConfirmAlert] = useState(false);
   const [emailUniquenessAlert, setEmailUniquenessAlert] = useState(false);
   const [emailValidityAlert, setEmailValidityAlert] = useState(false);
@@ -65,9 +62,9 @@ export default function UserEdit({
   const handleImageClear = () => {
     setFormData((prevState) => ({
       ...prevState,
-      image: "",
+      image: '',
     }));
-    document.getElementById("image-upload").value = "";
+    document.getElementById('image-upload').value = '';
   };
 
   const handleClickShowPassword = () => {
@@ -81,20 +78,20 @@ export default function UserEdit({
   const onImageSelected = (e) => {
     const img = e.target.files[0];
     const fileReader = new FileReader();
-    fileReader.addEventListener("load", () => {
+    fileReader.addEventListener('load', () => {
       setFormData((prevState) => ({
         ...prevState,
         image: fileReader.result,
       }));
     });
     if (img) {
-      if (img.type?.includes("image")) {
+      if (img.type?.includes('image')) {
         return fileReader.readAsDataURL(img);
       } else {
-        document.getElementById("image-upload").value = "";
+        document.getElementById('image-upload').value = '';
         return alert(
           `${img.type
-            .split("/") // get file type string and remove all characters before "/"
+            .split('/')
             .pop()} file types aren't allowed! \nplease upload an image file.`
         );
       }
@@ -102,7 +99,7 @@ export default function UserEdit({
   };
 
   const selectImage = () => {
-    document.getElementById("image-upload").click();
+    document.getElementById('image-upload').click();
   };
 
   const handleChange = (e) => {
@@ -165,8 +162,8 @@ export default function UserEdit({
     userData.email = userData?.email?.toLowerCase();
     const updatedUser = await putUser(id, userData);
 
-    dispatchCurrentUser({ type: "EDIT_USER", currentUser: updatedUser });
-    await dispatchAllUsers({ type: "USER_UPDATED", payload: userData });
+    dispatchCurrentUser({ type: 'EDIT_USER', currentUser: updatedUser });
+    await dispatchAllUsers({ type: 'USER_UPDATED', payload: userData });
   };
 
   const handleSubmit = async (e) => {
@@ -215,40 +212,41 @@ export default function UserEdit({
             </footer>
           </div>
 
-          <div className="input-container">
-            {!image ? (
-              <AccountCircleIcon className="icon" />
-            ) : (
-              <img className="user-image" src={image} alt="invalid url" />
-            )}
-            <FormControl className="name">
-              <InputLabel htmlFor="name">Name</InputLabel>
-              <Input
-                className="input-field"
-                type="text"
-                inputProps={{ maxLength: 20 }}
-                name="name"
-                value={name}
-                onChange={handleChange}
-              />
-            </FormControl>
-          </div>
-          <br />
-          <div className="input-container">
-            <EmailIcon className="icon" />
-            <FormControl>
-              <InputLabel htmlFor="email">Email Address</InputLabel>
-              <Input
-                className="input-field"
-                id="email"
-                type="text"
-                name="email"
-                value={email}
-                onChange={handleChange}
-              />
-            </FormControl>
-          </div>
-          <br />
+          <TextField
+            label="Name"
+            name="name"
+            type="text"
+            inputProps={{ maxLength: 20 }}
+            value={name}
+            onChange={handleChange}
+            className={classes.field}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  {!image ? (
+                    <AccountCircleIcon />
+                  ) : (
+                    <img className="user-image" src={image} alt="invalid url" />
+                  )}
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Email Address"
+            name="email"
+            type="text"
+            value={email}
+            onChange={handleChange}
+            className={classes.field}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <EmailIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
           {emailValidityAlert && (
             <>
               <div className="alert">
@@ -265,37 +263,37 @@ export default function UserEdit({
               <br />
             </>
           )}
-          <div className="input-container">
-            <LockIcon className="icon" />
-            <FormControl>
-              <InputLabel htmlFor="password">New Password (optional)</InputLabel>
-              <Input
-                className="input-field"
-                name="password"
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={handleChange}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                      onMouseDown={handleMouseDownPassword}
-                    >
-                      {showPassword ? (
-                        <Visibility className="visibility" />
-                      ) : (
-                        <VisibilityOff className="visibility" />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-            </FormControl>
-            <br />
-          </div>
-          <br />
+          <TextField
+            label="New Password (optional)"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={handleChange}
+            className={classes.field}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockIcon />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? (
+                      <Visibility className="visibility" />
+                    ) : (
+                      <VisibilityOff className="visibility" />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
           {passwordAlert && (
             <>
               <div className="alert">
@@ -304,40 +302,37 @@ export default function UserEdit({
               <br />
             </>
           )}
-          <div className="input-container">
-            <LockIcon className="icon" />
-            <FormControl className="password-confirm">
-              <InputLabel htmlFor="passwordConfirm">
-                Confirm New Password
-              </InputLabel>
-              <Input
-                className="input-field"
-                name="passwordConfirm"
-                id="password-confirm"
-                type={showPasswordConfirm ? "text" : "password"}
-                value={passwordConfirm}
-                onChange={(e) => setPasswordConfirm(e.target.value)}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() =>
-                        setShowPasswordConfirm(!showPasswordConfirm)
-                      }
-                      onMouseDown={handleMouseDownPassword}
-                    >
-                      {showPasswordConfirm ? (
-                        <Visibility className="visibility" />
-                      ) : (
-                        <VisibilityOff className="visibility" />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-            </FormControl>
-          </div>
-          <br />
+          <TextField
+            label="Confirm New Password"
+            name="passwordConfirm"
+            type={showPasswordConfirm ? 'text' : 'password'}
+            value={passwordConfirm}
+            onChange={(e) => setPasswordConfirm(e.target.value)}
+            className={classes.field}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockIcon />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPasswordConfirm ? (
+                      <Visibility className="visibility" />
+                    ) : (
+                      <VisibilityOff className="visibility" />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
           {passwordConfirmAlert && (
             <>
               <div className="alert">
@@ -347,60 +342,43 @@ export default function UserEdit({
             </>
           )}
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              flexDirection: "column",
-              alignItems: "center",
+          <TextField
+            id="date"
+            required
+            label="Date of Birth"
+            type="date"
+            name="birthday"
+            className={classes.field}
+            InputLabelProps={{
+              shrink: true,
             }}
+            value={birthday}
+            onChange={handleChange}
+          />
+          <input
+            type="file"
+            id="image-upload"
+            style={{ visibility: 'hidden' }}
+            onChange={onImageSelected}
+          />
+          <TextField
+            select
+            label="Gender"
+            name="gender"
+            value={toTitleCase(gender)}
+            onChange={handleChange}
+            className={classes.field}
+            SelectProps={{ native: true }}
           >
-            <TextField
-              id="date"
-              required
-              label="Date of Birth"
-              type="date"
-              name="birthday"
-              InputLabelProps={{
-                shrink: true,
-              }}
-              value={birthday}
-              onChange={handleChange}
-            />
-            <input
-              type="file"
-              id="image-upload"
-              style={{ visibility: "hidden" }}
-              onChange={onImageSelected}
-            />
-          </div>
-          <div className="gender-container">
-            <FormHelperText style={{ marginLeft: "-20px" }}>
-              What's your gender?
-            </FormHelperText>
-            <FormControl>
-              <NativeSelect
-                native
-                required
-                label="gender"
-                value={toTitleCase(gender)}
-                onChange={handleChange}
-                inputProps={{
-                  name: "gender",
-                  id: "gender-native-simple",
-                }}
-              >
-                <option value="" selected disabled hidden>
-                  Select a gender
-                </option>
-                <option value={"Male"}>Male</option>
-                <option value={"Female"}>Female</option>
-                <option value={"Transgender"}>Transgender</option>
-                <option value={"Non-binray"}>Non-Binary </option>
-                <option value={"Other"}>Other</option>
-              </NativeSelect>
-            </FormControl>
-          </div>
+            <option value="" disabled hidden>
+              Select a gender
+            </option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Transgender">Transgender</option>
+            <option value="Non-binray">Non-Binary</option>
+            <option value="Other">Other</option>
+          </TextField>
           <br />
           <DialogActions>
             <Button

@@ -4,9 +4,12 @@ import { useParams, useHistory } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
+import { useTheme } from "@material-ui/core/styles";
+import MDEditor from "@uiw/react-md-editor";
 import { Div, Form } from "./styledInsightEdit";
 
 export default function InsightEdit({ handleUpdate, insights, moderationError }) {
+  const theme = useTheme();
   const { formData, setFormData, handleChange } = useFormData({
     title: "",
     description: "",
@@ -80,20 +83,12 @@ export default function InsightEdit({ handleUpdate, insights, moderationError })
           />
         </div>
         <br />
-        <div className="input-container">
-          <TextField
-            required
-            multiline
-            rowsMax={10}
-            type="text"
-            name="body"
-            className="string-input content"
-            label="content"
+        <div className="input-container content" data-color-mode={theme.palette.type}>
+          <MDEditor
             value={body}
-            onChange={handleChange}
-            id="outlined-multiline-static"
-            rows={4}
-            variant="filled"
+            onChange={(val) => setFormData((prev) => ({ ...prev, body: val || '' }))}
+            preview="edit"
+            height={200}
           />
         </div>
         <div className="buttons">

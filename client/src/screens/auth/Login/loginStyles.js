@@ -64,31 +64,10 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: 'none',
     color: theme.palette.primary.main,
   },
-  inputField: {
-    color: theme.palette.text.primary,
-    marginBottom: '20px',
-    width: '300px',
-    marginLeft: '10px',
-  },
-  passwordField: {
-    color: theme.palette.text.primary,
-    marginBottom: '20px',
-    width: '300px',
-  },
-  lockIcon: {
-    marginRight: '10px',
-  },
-  inputContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    color: theme.palette.text.primary,
-  },
-  label: {
-    color: theme.palette.text.primary,
-    marginLeft: '10px',
-  },
-  passwordLabel: {
-    color: theme.palette.text.primary,
+  field: {
+    width: '100%',
+    maxWidth: 340,
+    marginBottom: 16,
   },
   visibility: {
     color: theme.palette.text.primary,

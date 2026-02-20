@@ -52,10 +52,6 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     color: theme.palette.text.primary,
   },
-  label: {
-    color: theme.palette.text.primary,
-    marginLeft: '10px',
-  },
   login: {
     fontFamily: ['Montserrat', 'sans-serif'].join(','),
     fontSize: '26px',
@@ -67,33 +63,10 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: 'none',
     color: theme.palette.primary.main,
   },
-  inputField: {
-    color: theme.palette.text.primary,
-    marginBottom: '20px',
-    width: '300px',
-    marginLeft: '10px',
-  },
-  birthdayField: {
-    color: theme.palette.text.primary,
-    marginBottom: '20px',
-    width: '300px',
-    marginLeft: '0',
-  },
-  passwordField: {
-    color: theme.palette.text.primary,
-    marginBottom: '20px',
-    width: '300px',
-  },
-  lockIcon: {
-    marginRight: '10px',
-  },
-  inputContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    color: theme.palette.text.primary,
-  },
-  passwordLabel: {
-    color: theme.palette.text.primary,
+  field: {
+    width: '100%',
+    maxWidth: 340,
+    marginBottom: 16,
   },
   alert: {
     color: 'red',
@@ -146,9 +119,6 @@ const useStyles = makeStyles((theme) => ({
   },
   visibility: {
     color: theme.palette.text.primary,
-  },
-  passwordIcon: {
-    marginRight: '-10px',
   },
   genderContainer: {
     display: 'flex',

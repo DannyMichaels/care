@@ -1,11 +1,27 @@
-import React, { useState } from "react";
-import "./Moods.css";
-import Button from "@material-ui/core/Button";
-import AddIcon from "@material-ui/icons/Add";
-import SettingsSharpIcon from "@material-ui/icons/SettingsSharp";
-import MoodCard from "./MoodCard";
-import MoodCreate from "../Dialogs/MoodDialogs/MoodCreate";
-import Typography from "@material-ui/core/Typography";
+import React from 'react';
+import AddIcon from '@material-ui/icons/Add';
+import { makeStyles } from '@material-ui/core/styles';
+import MoodCard from './MoodCard';
+import MoodCreate from '../Dialogs/MoodDialogs/MoodCreate';
+import Typography from '@material-ui/core/Typography';
+
+const useStyles = makeStyles((theme) => ({
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+    gap: 16,
+    padding: theme.spacing(2),
+    [theme.breakpoints.down('xs')]: {
+      gridTemplateColumns: '1fr',
+    },
+  },
+  empty: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: theme.spacing(2),
+  },
+}));
 
 export default function Moods({
   moods,
@@ -15,31 +31,22 @@ export default function Moods({
   loaded,
   handleUpdate,
   setMoods,
+  createOpen,
+  onCloseCreate,
+  optionsOpen,
 }) {
-  const [openOptions, setOpenOptions] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
-
-  const handleClickOpen = () => {
-    setOpenDialog(true);
-  };
-  const handleClose = () => {
-    setOpenDialog(false);
-  };
-  const handleOptionsClick = () => {
-    setOpenOptions(!openOptions);
-  };
+  const classes = useStyles();
 
   const onSave = async (formData) => {
     await handleCreate(formData);
-    setOpenDialog(false);
+    onCloseCreate();
   };
 
   const moodsJSX =
     moods.length === 0 ? (
-      <div className="log-your-mood">
-        <Typography> Click the </Typography>&nbsp;
-        <AddIcon className="plus-icon-moods" />
-        &nbsp;
+      <div className={classes.empty}>
+        <Typography>Click the</Typography>
+        <AddIcon />
         <Typography>button to log your mood!</Typography>
       </div>
     ) : (
@@ -51,7 +58,7 @@ export default function Moods({
           updated={updated}
           mood={mood}
           moods={moods}
-          openOptions={openOptions}
+          openOptions={optionsOpen}
           handleDelete={handleDelete}
         />
       ))
@@ -59,32 +66,13 @@ export default function Moods({
 
   return (
     <>
-      <div className="moods">
+      <MoodCreate
+        open={createOpen}
+        onSave={onSave}
+        handleClose={onCloseCreate}
+      />
+      <div className={classes.grid}>
         {loaded ? moodsJSX : <>Loading...</>}
-        <div className="mood-buttons-container">
-          <Button
-            className="edit-moods"
-            variant="outlined"
-            color="primary"
-            onClick={handleOptionsClick}
-          >
-            <SettingsSharpIcon className="options-icon" />
-          </Button>
-          &#8195;
-          <Button
-            onClick={handleClickOpen}
-            variant="outlined"
-            color="primary"
-            className="add-mood"
-          >
-            <AddIcon className="add-icon" />
-          </Button>
-          <MoodCreate
-            open={openDialog}
-            onSave={onSave}
-            handleClose={handleClose}
-          />
-        </div>
       </div>
     </>
   );

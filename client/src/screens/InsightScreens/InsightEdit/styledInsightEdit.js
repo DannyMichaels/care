@@ -26,6 +26,7 @@ const Div = styled.div`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
+  align-items: center;
   margin: 20px auto;
 
   .input-container {
@@ -35,14 +36,10 @@ const Form = styled.form`
     min-width: 235px;
     width: 235px;
   }
-  #outlined-multiline-static {
-    width: 218px;
-    min-height: 10vh;
-    max-height: 12vh;
-  }
   .content {
     margin-top: 20px;
     margin-bottom: 10px;
+    width: 235px;
   }
   .buttons {
     margin-top: 20px;
@@ -54,12 +51,11 @@ const Form = styled.form`
   }
 
   @media screen and (min-width: 1000px) {
-    #outlined-multiline-static {
-      min-width: 500px;
-      min-height: 15vh;
-    }
     .string-input {
       min-width: 520px;
+    }
+    .content {
+      width: 520px;
     }
     .cancel {
       margin-left: 50px;

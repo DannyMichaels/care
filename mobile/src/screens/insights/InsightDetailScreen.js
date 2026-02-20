@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet, Alert, Modal } from 'react-native';
 import { Text, Card, Button, TextInput, Divider, ActivityIndicator, IconButton, Portal, useTheme as usePaperTheme } from 'react-native-paper';
 import { getOneInsight, destroyInsight, postComment, destroyComment, postLike, destroyLike, postReport } from '@care/shared';
+import Markdown from 'react-native-markdown-display';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 
@@ -9,6 +10,18 @@ export default function InsightDetailScreen({ route, navigation }) {
   const { id } = route.params;
   const [{ currentUser }] = useCurrentUser();
   const theme = usePaperTheme();
+  const markdownStyles = useMemo(() => ({
+    body: { color: theme.colors.onSurface },
+    heading1: { color: theme.colors.onSurface },
+    heading2: { color: theme.colors.onSurface },
+    heading3: { color: theme.colors.onSurface },
+    paragraph: { color: theme.colors.onSurface },
+    link: { color: theme.colors.primary },
+    blockquote: { borderLeftColor: theme.colors.primary, color: theme.colors.onSurface },
+    code_inline: { color: theme.colors.onSurface, backgroundColor: theme.dark ? '#333' : '#f0f0f0' },
+    fence: { color: theme.colors.onSurface, backgroundColor: theme.dark ? '#333' : '#f0f0f0' },
+    list_item: { color: theme.colors.onSurface },
+  }), [theme]);
   const [insight, setInsight] = useState(null);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(true);
@@ -92,7 +105,7 @@ export default function InsightDetailScreen({ route, navigation }) {
         {' '}| {insight.likes?.length || 0} likes
       </Text>
 
-      <Text variant="bodyLarge" style={styles.body}>{insight.body || insight.description}</Text>
+      <Markdown style={markdownStyles}>{insight.body || insight.description || ''}</Markdown>
 
       <View style={styles.actions}>
         <Button icon={isLiked ? 'heart' : 'heart-outline'} onPress={handleLike}>

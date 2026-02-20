@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {Link, useParams, useHistory} from "react-router-dom";
 import Moment from "react-moment";
+import ReactMarkdown from "react-markdown";
 
 // components
 import TextField from "@material-ui/core/TextField";
@@ -274,7 +275,9 @@ export default function InsightDetail({
                     <hr/>
                     <main className="insight-page">
                         <div className="inner-column">
-                            <p className="insight-text">{insight?.body}</p>
+                            <div className="insight-text">
+                                <ReactMarkdown>{insight?.body || ''}</ReactMarkdown>
+                            </div>
                         </div>
 
                         <hr/>
@@ -308,7 +311,6 @@ export default function InsightDetail({
                                             onChange={handleCommentChange}
                                             id="outlined-multiline-static"
                                             rows={4}
-                                            variant="filled"
                                         />
                                     </div>
                                     <Button

@@ -1,29 +1,31 @@
-import React, { useState, useEffect } from "react";
-import useFormData from "../../../hooks/useFormData";
-import Button from "@material-ui/core/Button";
-import { Link, useHistory, useParams } from "react-router-dom";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
-import FormHelperText from "@material-ui/core/FormHelperText";
-import Dialog from "@material-ui/core/Dialog";
-import NativeSelect from "@material-ui/core/NativeSelect";
+import React, { useState, useEffect } from 'react';
+import useFormData from '../../../hooks/useFormData';
+import Button from '@material-ui/core/Button';
+import { Link, useHistory, useParams } from 'react-router-dom';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import Dialog from '@material-ui/core/Dialog';
+import NativeSelect from '@material-ui/core/NativeSelect';
 import {
   DialogTitle,
   DialogContent,
   DialogActions,
-} from "../../Form/DialogComponents";
-import { Box } from "@material-ui/core";
-import { foodIcon, foodName } from "../../../utils/foodUtils";
+} from '../../Form/DialogComponents';
+import { useFormStyles } from '../../Form/formStyles';
+import { Box } from '@material-ui/core';
+import { foodIcon, foodName } from '../../../utils/foodUtils';
 import { toDateTimeLocal } from '@care/shared';
 
 export default function FoodEdit({ setOpenEdit, onSave, foods }) {
-  const history = useHistory("/");
+  const history = useHistory('/');
   const [loading, setLoading] = useState(false);
+  const classes = useFormStyles();
   const { formData, setFormData, handleChange } = useFormData({
-    name: "",
-    time: "",
-    rating: "",
-    factors: "",
+    name: '',
+    time: '',
+    rating: '',
+    factors: '',
   });
   const { name, rating, factors } = formData;
   const { id } = useParams();
@@ -34,7 +36,7 @@ export default function FoodEdit({ setOpenEdit, onSave, foods }) {
         return food?.id === Number(id);
       });
       if (oneFood?.name === undefined) {
-        history.push("/");
+        history.push('/');
       } else {
         const { name, time, rating, factors } = oneFood;
         setFormData({ name, time, rating, factors });
@@ -63,52 +65,49 @@ export default function FoodEdit({ setOpenEdit, onSave, foods }) {
           }}
         >
           <DialogContent dividers>
-            <div className="input-container">
-              <TextField
-                required
-                autoFocus
-                inputProps={{ maxLength: 15 }}
-                type="text"
-                name="name"
-                label="Food name"
-                style={{ width: "300px", margin: "10px" }}
-                value={name}
-                onChange={handleChange}
-                id="outlined-multiline-static"
-                variant="filled"
-                InputProps={{
-                  startAdornment: (
-                    <Box role="img" aria-label={formData.name} mt={2}>
-                      {foodIcon(formData.name)}
-                    </Box>
-                  ),
-                }}
-              />
-            </div>
+            <TextField
+              required
+              autoFocus
+              inputProps={{ maxLength: 15 }}
+              type="text"
+              name="name"
+              label="Food name"
+              className={classes.field}
+              fullWidth
+              value={name}
+              onChange={handleChange}
+              id="outlined-multiline-static"
+              InputProps={{
+                startAdornment: (
+                  <Box role="img" aria-label={formData.name} mt={2}>
+                    {foodIcon(formData.name)}
+                  </Box>
+                ),
+              }}
+            />
 
-            <div className="input-container">
-              <TextField
-                name="time"
-                required
-                id="datetime-local"
-                label={
-                  name ? `When did you eat ${name}?` : `When did you eat this?`
-                }
-                type="datetime-local"
-                style={{ width: "300px", margin: "10px" }}
-                value={toDateTimeLocal(formData.time)}
-                onChange={handleChange}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-            </div>
+            <TextField
+              name="time"
+              required
+              id="datetime-local"
+              label={
+                name ? `When did you eat ${name}?` : 'When did you eat this?'
+              }
+              type="datetime-local"
+              className={classes.field}
+              fullWidth
+              value={toDateTimeLocal(formData.time)}
+              onChange={handleChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
 
-            <div className="rating-input-container">
+            <div className={classes.ratingContainer}>
               <FormHelperText>
                 On a scale of 1 to 5,
                 <br /> how much did you enjoy&nbsp;
-                {name ? foodName(name) : "it"}?
+                {name ? foodName(name) : 'it'}?
               </FormHelperText>
               <NativeSelect
                 required
@@ -116,8 +115,8 @@ export default function FoodEdit({ setOpenEdit, onSave, foods }) {
                 value={rating}
                 onChange={handleChange}
                 inputProps={{
-                  name: "rating",
-                  id: "rating-native-simple",
+                  name: 'rating',
+                  id: 'rating-native-simple',
                 }}
               >
                 <option value={1}>⭐ </option>
@@ -128,22 +127,21 @@ export default function FoodEdit({ setOpenEdit, onSave, foods }) {
               </NativeSelect>
             </div>
 
-            <div className="input-container">
-              <TextField
-                inputProps={{ maxLength: 131 }}
-                name="factors"
-                required
-                id="factor-input"
-                label="What were the leading factors?"
-                type="text"
-                style={{ width: "300px", margin: "10px" }}
-                value={factors}
-                onChange={handleChange}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-            </div>
+            <TextField
+              inputProps={{ maxLength: 131 }}
+              name="factors"
+              required
+              id="factor-input"
+              label="What were the leading factors?"
+              type="text"
+              className={classes.field}
+              fullWidth
+              value={factors}
+              onChange={handleChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
 
             <DialogActions>
               <Button type="submit" disabled={loading} variant="contained" color="primary">

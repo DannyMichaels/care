@@ -14,6 +14,7 @@ import {
   DialogActions,
 } from '../../Form/DialogComponents';
 import MedIconDisplay from '../../MedComponents/MedIconDisplay';
+import { useFormStyles } from '../../Form/formStyles';
 
 export default function MedEdit({
   RXGuideMeds,
@@ -24,6 +25,7 @@ export default function MedEdit({
   taken,
 }) {
   const [loading, setLoading] = useState(false);
+  const classes = useFormStyles();
   const { formData, setFormData } = useFormData({
     name: '',
     medication_class: '',
@@ -127,66 +129,62 @@ export default function MedEdit({
 
       <form onSubmit={handleSubmit}>
         <DialogContent dividers>
-          <div className="input-container">
-            <Autocomplete
-              freeSolo
-              options={medOptions}
-              value={formData.name}
-              onChange={handleAutocompleteChange}
-              onInputChange={handleInputChange}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Medication name"
-                  required
-                  style={{ width: '300px', marginLeft: '10px' }}
-                />
-              )}
-            />
-          </div>
+          <Autocomplete
+            freeSolo
+            options={medOptions}
+            value={formData.name}
+            onChange={handleAutocompleteChange}
+            onInputChange={handleInputChange}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Medication name"
+                required
+                className={classes.field}
+                fullWidth
+              />
+            )}
+          />
 
-          <div className="input-container">
-            <TextField
-              className="select-css"
-              name="reason"
-              type="text"
-              required
-              label={
-                name && taken === false
-                  ? `Why do you take ${formData.name}?`
-                  : !name
-                  ? 'Why do you take your medication?'
-                  : name && taken === true
-                  ? `Why did you take ${formData.name}?`
-                  : 'Why do you take this medication?'
-              }
-              style={{ display: 'flex', width: '300px', margin: '10px' }}
-              value={formData.reason}
-              onChange={handleChange}
-            />
-          </div>
+          <TextField
+            className={classes.field}
+            fullWidth
+            name="reason"
+            type="text"
+            required
+            label={
+              name && taken === false
+                ? `Why do you take ${formData.name}?`
+                : !name
+                ? 'Why do you take your medication?'
+                : name && taken === true
+                ? `Why did you take ${formData.name}?`
+                : 'Why do you take this medication?'
+            }
+            value={formData.reason}
+            onChange={handleChange}
+          />
 
-          <div className="input-container">
-            <TextField
-              name="time"
-              required
-              id="datetime-local"
-              label={
-                name && taken === false
-                  ? `When do you take ${formData.name}?`
-                  : !name
-                  ? 'When do you take this medication?'
-                  : name && taken === true
-                  ? `When did you take ${formData.name}?`
-                  : 'When do you take this medication?'
-              }
-              type="datetime-local"
-              style={{ width: '300px', margin: '10px' }}
-              value={toDateTimeLocal(formData.time)}
-              onChange={handleChange}
-              InputLabelProps={{ shrink: true }}
-            />
-          </div>
+          <TextField
+            className={classes.field}
+            fullWidth
+            name="time"
+            required
+            id="datetime-local"
+            label={
+              name && taken === false
+                ? `When do you take ${formData.name}?`
+                : !name
+                ? 'When do you take this medication?'
+                : name && taken === true
+                ? `When did you take ${formData.name}?`
+                : 'When do you take this medication?'
+            }
+            type="datetime-local"
+            value={toDateTimeLocal(formData.time)}
+            onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
+          />
 
           <div style={{ margin: '10px' }}>
             <small style={{ color: 'inherit', opacity: 0.7 }}>Icon</small>

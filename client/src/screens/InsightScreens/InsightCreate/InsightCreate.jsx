@@ -4,17 +4,20 @@ import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
+import { useTheme } from "@material-ui/core/styles";
 import HelpIcon from "@material-ui/icons/Help";
+import MDEditor from "@uiw/react-md-editor";
 import { Div, Form } from "./styledInsightCreate.js";
 
 export default function InsightCreate({ handleCreate, moderationError }) {
+  const theme = useTheme();
   const [openAbout, setOpenAbout] = useState(false);
 
   const handleOpen = () => {
     setOpenAbout(!openAbout);
   };
 
-  const { formData, handleChange } = useFormData({
+  const { formData, setFormData, handleChange } = useFormData({
     title: "",
     description: "",
     body: "",
@@ -85,19 +88,12 @@ export default function InsightCreate({ handleCreate, moderationError }) {
         </div>
 
         <br />
-        <div className="input-container content">
-          <TextField
-            required
-            multiline
-            rowsMax={10}
-            type="text"
-            name="body"
-            label="content"
+        <div className="input-container content" data-color-mode={theme.palette.type}>
+          <MDEditor
             value={formData.body}
-            onChange={handleChange}
-            id="outlined-multiline-static"
-            rows={4}
-            variant="filled"
+            onChange={(val) => setFormData((prev) => ({ ...prev, body: val || '' }))}
+            preview="edit"
+            height={200}
           />
         </div>
 

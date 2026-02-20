@@ -31,7 +31,8 @@ export default function InsightEditScreen({ route, navigation }) {
       <Text variant="headlineMedium" style={styles.title}>Edit Insight</Text>
       <TextInput label="Title" value={title} onChangeText={setTitle} mode="outlined" style={styles.input} />
       <TextInput label="Description" value={description} onChangeText={setDescription} mode="outlined" style={styles.input} multiline />
-      <TextInput label="Body" value={body} onChangeText={setBody} mode="outlined" style={[styles.input, styles.bodyInput]} multiline numberOfLines={6} />
+      <TextInput label="Body" value={body} onChangeText={setBody} mode="outlined" style={[styles.input, styles.bodyInput]} multiline numberOfLines={8} />
+      <Text variant="bodySmall" style={styles.hint}>Supports markdown (bold, lists, links)</Text>
       <Button mode="contained" onPress={handleUpdate} loading={loading} disabled={!title || loading} style={styles.button}>
         Save
       </Button>
@@ -45,5 +46,6 @@ const styles = StyleSheet.create({
   title: { marginBottom: 16 },
   input: { marginBottom: 12 },
   bodyInput: { minHeight: 150, textAlignVertical: 'top' },
+  hint: { opacity: 0.6, marginBottom: 8, marginLeft: 4 },
   button: { marginTop: 8, paddingVertical: 4 },
 });

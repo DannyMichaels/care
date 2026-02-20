@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
-import useFormData from "../../../hooks/useFormData";
-import { useParams } from "react-router-dom";
-import Button from "@material-ui/core/Button";
-import { Link, useHistory } from "react-router-dom";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
-import Dialog from "@material-ui/core/Dialog";
+import React, { useState, useEffect } from 'react';
+import useFormData from '../../../hooks/useFormData';
+import { useParams } from 'react-router-dom';
+import Button from '@material-ui/core/Button';
+import { Link, useHistory } from 'react-router-dom';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import Dialog from '@material-ui/core/Dialog';
 import {
   DialogTitle,
   DialogContent,
   DialogActions,
-} from "../../Form/DialogComponents";
+} from '../../Form/DialogComponents';
+import { useFormStyles } from '../../Form/formStyles';
 
 export default function AffirmationEdit({
   handleOpen,
@@ -19,8 +20,9 @@ export default function AffirmationEdit({
   affirmations,
 }) {
   const [loading, setLoading] = useState(false);
+  const classes = useFormStyles();
   const { formData, setFormData, handleChange } = useFormData({
-    content: "",
+    content: '',
   });
   const { content } = formData;
   const { id } = useParams();
@@ -31,7 +33,7 @@ export default function AffirmationEdit({
         return affirmation?.id === Number(id);
       });
       if (oneAffirmation?.content === undefined) {
-        history.push("/");
+        history.push('/');
       } else {
         const { content } = oneAffirmation;
         setFormData({ content });
@@ -60,21 +62,19 @@ export default function AffirmationEdit({
         }}
       >
         <DialogContent dividers>
-          <div className="input-container">
-            <TextField
-              required
-              label="content"
-              variant="filled"
-              className="string-input title"
-              autoFocus
-              multiline
-              rows={4}
-              type="text"
-              name="content"
-              value={content}
-              onChange={handleChange}
-            />
-          </div>
+          <TextField
+            className={classes.field}
+            fullWidth
+            required
+            label="content"
+            autoFocus
+            multiline
+            rows={4}
+            type="text"
+            name="content"
+            value={content}
+            onChange={handleChange}
+          />
 
           <DialogActions>
             <Button type="submit" disabled={loading} variant="contained" color="primary">

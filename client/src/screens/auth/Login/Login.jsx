@@ -1,31 +1,29 @@
-import { useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { useState } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 
 // Context
-import { useStateValue } from "../../../context/CurrentUserContext";
+import { useStateValue } from '../../../context/CurrentUserContext';
 
 // Services and Utilities
 import { loginUser } from '@care/shared';
 
 // Components
-import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import Input from "@material-ui/core/Input";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import LinearProgressLoading from "../../../components/Loading/LinearProgressLoading.jsx";
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import LinearProgressLoading from '../../../components/Loading/LinearProgressLoading.jsx';
 
 // Icons
-import Visibility from "@material-ui/icons/Visibility";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import IconButton from "@material-ui/core/IconButton";
-import EmailIcon from "@material-ui/icons/Email";
-import LockIcon from "@material-ui/icons/Lock";
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import IconButton from '@material-ui/core/IconButton';
+import EmailIcon from '@material-ui/icons/Email';
+import LockIcon from '@material-ui/icons/Lock';
 
 // Styles
-import { useStyles } from "./loginStyles.js";
-import Logo from "../../../components/Logo/Logo.jsx";
+import { useStyles } from './loginStyles.js';
+import Logo from '../../../components/Logo/Logo.jsx';
 
 export default function Login() {
   const [{ currentUser }, dispatch] = useStateValue();
@@ -50,12 +48,12 @@ export default function Login() {
       const userData = await loginUser(loginData);
 
       dispatch({
-        type: "SET_USER",
+        type: 'SET_USER',
         currentUser: userData,
       });
 
       setIsLoading(false);
-      history.push("/");
+      history.push('/');
     } catch (error) {
       setIsLoading(false);
       setError(error.response);
@@ -63,8 +61,8 @@ export default function Login() {
   };
 
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
 
   const handleChange = (e) => {
@@ -87,7 +85,7 @@ export default function Login() {
           <Logo className={classes.logo} />
         </div>
         {error && (
-          <Typography className={classes.user} style={{ color: "red" }}>
+          <Typography className={classes.user} style={{ color: 'red' }}>
             {error.data?.message ?? error?.statusText}
           </Typography>
         )}
@@ -98,55 +96,52 @@ export default function Login() {
             handleLogin(formData);
           }}
         >
-          <div className={classes.inputContainer}>
-            <EmailIcon />
-            <FormControl>
-              <InputLabel className={classes.label} htmlFor="email">
-                Email Address
-              </InputLabel>
-              <Input
-                id="email"
-                type="text"
-                className={classes.inputField}
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </FormControl>
-          </div>
-          <br />
-          <div className={classes.inputContainer}>
-            <LockIcon className={classes.lockIcon} />
-            <FormControl>
-              <InputLabel className={classes.passwordLabel} htmlFor="password">
-                Password
-              </InputLabel>
-              <Input
-                className={classes.passwordField}
-                name="password"
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={formData.password}
-                onChange={handleChange}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                      onMouseDown={handleMouseDownPassword}
-                    >
-                      {showPassword ? (
-                        <Visibility className={classes.visibility} />
-                      ) : (
-                        <VisibilityOff className={classes.visibility} />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-            </FormControl>
-          </div>
-          <br />
+          <TextField
+            label="Email Address"
+            name="email"
+            type="text"
+            value={formData.email}
+            onChange={handleChange}
+            className={classes.field}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <EmailIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Password"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            value={formData.password}
+            onChange={handleChange}
+            className={classes.field}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockIcon />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? (
+                      <Visibility className={classes.visibility} />
+                    ) : (
+                      <VisibilityOff className={classes.visibility} />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
           <Button type="submit" className={classes.loginButton}>
             Login
           </Button>

@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from "react";
-import useFormData from "../../../hooks/useFormData";
-import { useParams } from "react-router-dom";
-import Button from "@material-ui/core/Button";
-import { Link } from "react-router-dom";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
-import Dialog from "@material-ui/core/Dialog";
-import FormHelperText from "@material-ui/core/FormHelperText";
+import React, { useState, useEffect } from 'react';
+import useFormData from '../../../hooks/useFormData';
+import { useParams } from 'react-router-dom';
+import Button from '@material-ui/core/Button';
+import { Link } from 'react-router-dom';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import Dialog from '@material-ui/core/Dialog';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import {
   DialogTitle,
   DialogContent,
   DialogActions,
-} from "../../Form/DialogComponents";
+} from '../../Form/DialogComponents';
+import { useFormStyles } from '../../Form/formStyles';
 import { toDateTimeLocal } from '@care/shared';
 
 export default function SymptomEdit({
@@ -21,9 +22,10 @@ export default function SymptomEdit({
   symptoms,
 }) {
   const [loading, setLoading] = useState(false);
+  const classes = useFormStyles();
   const { formData, setFormData, handleChange } = useFormData({
-    name: "",
-    time: "",
+    name: '',
+    time: '',
   });
   const { name } = formData;
   const { id } = useParams();
@@ -59,34 +61,36 @@ export default function SymptomEdit({
         }}
       >
         <DialogContent dividers>
-          <div className="input-container">
-            <TextField
-              required
-              label="Symptom"
-              autoFocus
-              type="text"
-              name="name"
-              inputProps={{ maxLength: 32 }}
-              value={name}
-              onChange={handleChange}
-            />
-          </div>
-          <br />
-          <div className="input-container">
-            {!name ? (
-              <FormHelperText>When did this happen?</FormHelperText>
-            ) : (
-              <FormHelperText>When did {name} happen?</FormHelperText>
-            )}
-            <TextField
-              required
-              type="datetime-local"
-              name="time"
-              value={toDateTimeLocal(formData.time)}
-              onChange={handleChange}
-            />
-          </div>
-          <br />
+          <TextField
+            className={classes.field}
+            fullWidth
+            required
+            label="Symptom"
+            autoFocus
+            type="text"
+            name="name"
+            inputProps={{ maxLength: 32 }}
+            value={name}
+            onChange={handleChange}
+          />
+
+          <TextField
+            className={classes.field}
+            fullWidth
+            required
+            type="datetime-local"
+            name="time"
+            label={
+              !name
+                ? 'When did this happen?'
+                : `When did ${name} happen?`
+            }
+            value={toDateTimeLocal(formData.time)}
+            onChange={handleChange}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
 
           <DialogActions>
             <Button type="submit" disabled={loading} variant="contained" color="primary">

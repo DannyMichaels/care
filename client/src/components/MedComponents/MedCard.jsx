@@ -76,8 +76,8 @@ export default function MedCard({
     return `${selectedDate}T${hh}:${mm}:00`;
   })();
 
-  const onSave = (id, formData) => {
-    handleUpdate(id, formData);
+  const onSave = (id, formData, options) => {
+    handleUpdate(id, formData, options);
     setIsRefreshed(true);
     setTimeout(async () => {
       setIsRefreshed(false);

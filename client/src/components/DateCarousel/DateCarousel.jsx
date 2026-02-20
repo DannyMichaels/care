@@ -2,7 +2,7 @@ import React, { useContext, useMemo, useEffect, useRef, useState } from 'react';
 import IconButton from '@material-ui/core/IconButton';
 import Switch from '@material-ui/core/Switch';
 import EventIcon from '@material-ui/icons/Event';
-import TodayIcon from '@material-ui/icons/Today';
+import MyLocationIcon from '@material-ui/icons/MyLocation';
 import { useTheme } from '@material-ui/core/styles';
 import { DateContext } from '../../context/DateContext';
 import { buildCalendarDays } from '@care/shared';
@@ -117,7 +117,7 @@ export default function DateCarousel() {
           title="Go to today"
           style={{ marginLeft: 4 }}
         >
-          <TodayIcon fontSize="small" />
+          <MyLocationIcon fontSize="small" />
         </IconButton>
       </div>
 

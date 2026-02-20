@@ -48,6 +48,8 @@ class MedicationsController < ApplicationController
 
   # PATCH/PUT /medications/1
   def update
+    handle_schedule_conversion if converting_to_one_time?
+
     if @medication.update(medication_params)
       schedule_notification(@medication)
       render json: @medication
@@ -74,6 +76,34 @@ class MedicationsController < ApplicationController
     # Only allow a trusted parameter "white list" through.
     def medication_params
       params.require(:medication).permit(:name, :medication_class, :reason, :image, :time, :user_id, :is_taken, :taken_date, :icon, :icon_color, :schedule_unit, :schedule_interval, :schedule_end_date)
+    end
+
+    def converting_to_one_time?
+      @medication.schedule_unit.present? &&
+        params[:medication].key?(:schedule_unit) &&
+        params.dig(:medication, :schedule_unit).blank?
+    end
+
+    def handle_schedule_conversion
+      target_date = params[:conversion_date]
+      return unless target_date.present?
+
+      occ = @medication.medication_occurrences.find_by(occurrence_date: target_date)
+      if occ&.is_taken
+        params[:medication][:is_taken] = true
+        params[:medication][:taken_date] = occ.taken_date
+      end
+
+      incoming_time = params.dig(:medication, :time)
+      time_source = incoming_time.present? ? Time.parse(incoming_time.to_s) : @medication.time
+      params[:medication][:time] = Time.parse("#{target_date}T#{time_source.strftime('%H:%M:%S')}").iso8601
+
+      case params[:occurrence_action]
+      when 'delete_all'
+        @medication.medication_occurrences.destroy_all
+      when 'delete_untaken'
+        @medication.medication_occurrences.where(is_taken: [false, nil]).destroy_all
+      end
     end
 
     def schedule_notification(medication)

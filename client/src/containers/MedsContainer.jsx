@@ -51,8 +51,8 @@ export default function MedsContainer({ onFilteredCount, createOpen, onCloseCrea
     setMeds((prevState) => [...prevState, newMed]);
   };
 
-  const handleUpdate = async (id, medData) => {
-    const updatedMed = await putMed(id, medData);
+  const handleUpdate = async (id, medData, options = {}) => {
+    const updatedMed = await putMed(id, medData, options);
     setMeds((prevState) =>
       prevState.map((med) => {
         return med.id === Number(id) ? updatedMed : med;

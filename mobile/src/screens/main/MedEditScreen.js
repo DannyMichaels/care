@@ -37,26 +37,59 @@ export default function MedEditScreen({ route, navigation }) {
     setIconColor(med.fields.iconColor || DEFAULT_COLOR);
   };
 
-  const handleUpdate = async () => {
+  const buildMedData = () => ({
+    name,
+    reason,
+    medication_class: medClass,
+    time: time.toISOString(),
+    icon,
+    icon_color: iconColor,
+    schedule_unit: scheduleUnit,
+    schedule_interval: scheduleInterval,
+    schedule_end_date: scheduleEndDate,
+  });
+
+  const saveMed = async (options = {}) => {
     setLoading(true);
     try {
-      await putMed(id, {
-        name,
-        reason,
-        medication_class: medClass,
-        time: time.toISOString(),
-        icon,
-        icon_color: iconColor,
-        schedule_unit: scheduleUnit,
-        schedule_interval: scheduleInterval,
-        schedule_end_date: scheduleEndDate,
-      });
+      await putMed(id, buildMedData(), options);
       navigation.goBack();
     } catch (err) {
       Alert.alert('Error', getApiError(err));
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleUpdate = () => {
+    const wasScheduled = isScheduledMed(item);
+    const becomingOneTime = wasScheduled && !scheduleUnit;
+
+    if (!becomingOneTime) {
+      saveMed();
+      return;
+    }
+
+    Alert.alert(
+      'Convert to One-Time',
+      'This medication has occurrence history. What would you like to do with past records?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Keep all history',
+          onPress: () => saveMed({ conversion_date: selectedDate, occurrence_action: 'keep' }),
+        },
+        {
+          text: 'Delete untaken',
+          onPress: () => saveMed({ conversion_date: selectedDate, occurrence_action: 'delete_untaken' }),
+        },
+        {
+          text: 'Delete all history',
+          style: 'destructive',
+          onPress: () => saveMed({ conversion_date: selectedDate, occurrence_action: 'delete_all' }),
+        },
+      ]
+    );
   };
 
   const handleMarkTaken = () => {
@@ -247,6 +280,31 @@ export default function MedEditScreen({ route, navigation }) {
       <Button mode="contained" onPress={handleUpdate} loading={loading} disabled={!name || loading} style={styles.button}>
         Save
       </Button>
+      {scheduled && !occurrence?.skipped && (
+        <Button
+          mode="outlined"
+          icon="calendar-remove"
+          onPress={() => {
+            Alert.alert('Skip Today', `Skip ${name} for ${selectedDate}?`, [
+              { text: 'Cancel', style: 'cancel' },
+              {
+                text: 'Skip',
+                onPress: async () => {
+                  try {
+                    await createOccurrence(id, { occurrence_date: selectedDate, skipped: true });
+                    navigation.goBack();
+                  } catch (err) {
+                    Alert.alert('Error', getApiError(err));
+                  }
+                },
+              },
+            ]);
+          }}
+          style={styles.button}
+        >
+          Skip Today
+        </Button>
+      )}
       <Button mode="outlined" onPress={handleDelete} textColor="red" style={styles.button}>
         Delete
       </Button>

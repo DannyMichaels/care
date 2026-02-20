@@ -24,8 +24,8 @@ export const postMed = async (medData) => {
   return resp.data;
 };
 
-export const putMed = async (id, medData) => {
-  const resp = await api.put(`/medications/${id}`, { medication: medData });
+export const putMed = async (id, medData, options = {}) => {
+  const resp = await api.put(`/medications/${id}`, { medication: medData, ...options });
   return resp.data;
 };
 

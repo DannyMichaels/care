@@ -111,7 +111,7 @@ export default function DateCarousel() {
         <Text variant="labelMedium" style={[styles.year, { color: colors.onSurface }]}>
           {visibleYear}
         </Text>
-        <IconButton icon="calendar-today" size={20} onPress={handleGoToToday} />
+        <IconButton icon="crosshairs-gps" size={20} onPress={handleGoToToday} />
       </View>
 
       <DatePickerModal

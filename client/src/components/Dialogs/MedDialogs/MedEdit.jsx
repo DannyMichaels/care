@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import useFormData from '../../../hooks/useFormData';
 import { useParams } from 'react-router-dom';
+import { DateContext } from '../../../context/DateContext';
 import Button from '@material-ui/core/Button';
 import { Link } from 'react-router-dom';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Dialog from '@material-ui/core/Dialog';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { compareTakenWithSelectedTime, toDateTimeLocal, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR } from '@care/shared';
+import { compareTakenWithSelectedTime, toDateTimeLocal, isScheduledMed, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR } from '@care/shared';
 import {
   DialogTitle,
   DialogContent,
@@ -26,6 +27,7 @@ export default function MedEdit({
   taken,
 }) {
   const [loading, setLoading] = useState(false);
+  const { selectedDate } = useContext(DateContext);
   const classes = useFormStyles();
   const { formData, setFormData } = useFormData({
     name: '',
@@ -130,7 +132,11 @@ export default function MedEdit({
         image: medicine?.fields.image || formData.image,
         medication_class: medicine?.fields.medClass || formData.medication_class,
       };
-      await onSave(id, selectedMedData);
+      const foundMed = meds?.find((med) => med?.id === Number(id));
+      const wasScheduled = foundMed && isScheduledMed(foundMed);
+      const becomingOneTime = wasScheduled && !formData.schedule_unit;
+      const options = becomingOneTime ? { conversion_date: selectedDate } : {};
+      await onSave(id, selectedMedData, options);
     } catch {
       setLoading(false);
     }

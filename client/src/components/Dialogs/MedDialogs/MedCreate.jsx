@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
+import useFormData from '../../../hooks/useFormData';
 import TextField from '@material-ui/core/TextField';
 import { DateContext } from '../../../context/DateContext';
 import { selectedDateToLocal, toDateTimeLocal, MED_ICONS, MED_COLORS, DEFAULT_ICON, DEFAULT_COLOR } from '@care/shared';
@@ -16,7 +17,7 @@ import MedIconDisplay from '../../MedComponents/MedIconDisplay';
 export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
   const { selectedDate } = useContext(DateContext);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const { formData, setFormData, handleChange } = useFormData({
     name: '',
     medication_class: '',
     reason: '',
@@ -53,14 +54,6 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
 
   const handleInputChange = (e, value) => {
     setFormData((prev) => ({ ...prev, name: value }));
-  };
-
-  const handleChange = (e) => {
-    let { name, value } = e.target;
-    if (name === 'time' && value) {
-      value = new Date(value).toISOString();
-    }
-    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {

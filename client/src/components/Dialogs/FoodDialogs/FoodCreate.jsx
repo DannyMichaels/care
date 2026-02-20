@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect } from "react";
+import useFormData from "../../../hooks/useFormData";
 import TextField from "@material-ui/core/TextField";
 import { DateContext } from "../../../context/DateContext";
 import { selectedDateToLocal, toDateTimeLocal } from '@care/shared';
@@ -19,7 +20,7 @@ import { Box } from "@material-ui/core";
 export default function FoodCreate({ open, onSave, handleClose }) {
   const { selectedDate } = useContext(DateContext);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const { formData, setFormData, handleChange } = useFormData({
     name: "",
     time: "",
     rating: 1,
@@ -35,18 +36,6 @@ export default function FoodCreate({ open, onSave, handleClose }) {
       }));
     }
   }, [open, selectedDate]);
-
-  const handleChange = (e) => {
-    let { name, value } = e.target;
-    if (name === "time" && value) {
-      let date = new Date(value);
-      value = date.toISOString();
-    }
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
 
   return (
     <Dialog onClose={handleClose} open={open}>

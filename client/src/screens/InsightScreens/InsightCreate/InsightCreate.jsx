@@ -1,4 +1,5 @@
 import { useState } from "react";
+import useFormData from "../../../hooks/useFormData";
 import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
@@ -13,19 +14,11 @@ export default function InsightCreate({ handleCreate, moderationError }) {
     setOpenAbout(!openAbout);
   };
 
-  const [formData, setFormData] = useState({
+  const { formData, handleChange } = useFormData({
     title: "",
     description: "",
     body: "",
   });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
 
   const [loading, setLoading] = useState(false);
 

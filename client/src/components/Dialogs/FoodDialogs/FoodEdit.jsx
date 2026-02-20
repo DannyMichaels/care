@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import useFormData from "../../../hooks/useFormData";
 import Button from "@material-ui/core/Button";
 import { Link, useHistory, useParams } from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
@@ -18,7 +19,7 @@ import { toDateTimeLocal } from '@care/shared';
 export default function FoodEdit({ setOpenEdit, onSave, foods }) {
   const history = useHistory("/");
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const { formData, setFormData, handleChange } = useFormData({
     name: "",
     time: "",
     rating: "",
@@ -43,18 +44,6 @@ export default function FoodEdit({ setOpenEdit, onSave, foods }) {
       prefillFormData();
     }
   }, [foods, id, history]);
-
-  const handleChange = (e) => {
-    let { name, value } = e.target;
-    if (name === "time" && value) {
-      let date = new Date(value);
-      value = date.toISOString();
-    }
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
 
   return (
     <>

@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect } from "react";
+import useFormData from "../../../hooks/useFormData";
 import { DateContext } from "../../../context/DateContext";
 import { selectedDateToLocal, toDateTimeLocal } from '@care/shared';
 import FormLabel from "@material-ui/core/FormLabel";
@@ -24,7 +25,7 @@ import { compareDateWithCurrentTime } from '@care/shared';
 export default function MoodCreate({ open, onSave, handleClose }) {
   const { selectedDate } = useContext(DateContext);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const { formData, setFormData, handleChange } = useFormData({
     status: "Okay",
     time: "",
     reason: "",
@@ -39,27 +40,6 @@ export default function MoodCreate({ open, onSave, handleClose }) {
       }));
     }
   }, [open, selectedDate]);
-
-  const handleStatus = (e) => {
-    const { name } = e.target;
-    setFormData((prevState) => ({
-      // spreading through previous state so date doesn't give "invalid date on submission"
-      ...prevState,
-      status: name,
-    }));
-  };
-
-  const handleChange = (e) => {
-    let { name, value } = e.target;
-    if (name === "time" && value) {
-      let date = new Date(value);
-      value = date.toISOString();
-    }
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
 
   return (
     <Dialog onClose={handleClose} open={open}>
@@ -94,36 +74,40 @@ export default function MoodCreate({ open, onSave, handleClose }) {
             Poor
             <PoorRadio
               type="radio"
-              name="Poor"
+              name="status"
+              value="Poor"
               checked={formData.status === "Poor"}
-              onChange={handleStatus}
+              onChange={handleChange}
             />
           </FormLabel>
           <FormLabel>
             Okay
             <OkayRadio
               type="radio"
-              name="Okay"
+              name="status"
+              value="Okay"
               checked={formData.status === "Okay"}
-              onChange={handleStatus}
+              onChange={handleChange}
             />
           </FormLabel>
           <FormLabel>
             Good
             <GoodRadio
               type="radio"
-              name="Good"
+              name="status"
+              value="Good"
               checked={formData.status === "Good"}
-              onChange={handleStatus}
+              onChange={handleChange}
             />
           </FormLabel>
           <FormLabel>
             Great
             <GreatRadio
               type="radio"
-              name="Great"
+              name="status"
+              value="Great"
               checked={formData.status === "Great"}
-              onChange={handleStatus}
+              onChange={handleChange}
             />
           </FormLabel>
 

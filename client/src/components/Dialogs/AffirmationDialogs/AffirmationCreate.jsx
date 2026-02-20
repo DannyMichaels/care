@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect } from "react";
+import useFormData from "../../../hooks/useFormData";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -16,7 +17,7 @@ import { DateContext } from "../../../context/DateContext";
 export default function AffirmationCreate({ open, onSave, handleClose }) {
   const { selectedDate } = useContext(DateContext);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const { formData, setFormData, handleChange } = useFormData({
     content: "",
   });
 
@@ -25,14 +26,6 @@ export default function AffirmationCreate({ open, onSave, handleClose }) {
       setLoading(false);
     }
   }, [open]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
 
   // Display the selected date (with current time for the Moment display)
   const displayDate = new Date(selectedDate + "T00:00:00");

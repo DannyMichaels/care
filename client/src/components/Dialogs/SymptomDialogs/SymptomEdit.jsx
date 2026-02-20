@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import useFormData from "../../../hooks/useFormData";
 import { useParams } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
@@ -20,7 +21,7 @@ export default function SymptomEdit({
   symptoms,
 }) {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const { formData, setFormData, handleChange } = useFormData({
     name: "",
     time: "",
   });
@@ -39,18 +40,6 @@ export default function SymptomEdit({
       prefillFormData();
     }
   }, [symptoms, id]);
-
-  const handleChange = (e) => {
-    let { name, value } = e.target;
-    if (name === "time" && value) {
-      let date = new Date(value);
-      value = date.toISOString();
-    }
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
 
   return (
     <Dialog onClose={handleClose} open={handleOpen}>

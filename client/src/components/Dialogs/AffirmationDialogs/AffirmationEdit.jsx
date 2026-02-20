@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import useFormData from "../../../hooks/useFormData";
 import { useParams } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import { Link, useHistory } from "react-router-dom";
@@ -18,7 +19,7 @@ export default function AffirmationEdit({
   affirmations,
 }) {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const { formData, setFormData, handleChange } = useFormData({
     content: "",
   });
   const { content } = formData;
@@ -40,14 +41,6 @@ export default function AffirmationEdit({
       prefillFormData();
     }
   }, [affirmations, id, history]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
 
   return (
     <Dialog onClose={handleClose} open={handleOpen}>

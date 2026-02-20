@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import useFormData from "../../../hooks/useFormData";
 import { useParams, useHistory } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
@@ -6,7 +7,7 @@ import Typography from "@material-ui/core/Typography";
 import { Div, Form } from "./styledInsightEdit";
 
 export default function InsightEdit({ handleUpdate, insights, moderationError }) {
-  const [formData, setFormData] = useState({
+  const { formData, setFormData, handleChange } = useFormData({
     title: "",
     description: "",
     body: "",
@@ -28,14 +29,6 @@ export default function InsightEdit({ handleUpdate, insights, moderationError })
       prefillFormData();
     }
   }, [insights, id]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
 
   const [loading, setLoading] = useState(false);
 

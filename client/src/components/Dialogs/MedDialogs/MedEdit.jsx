@@ -153,7 +153,7 @@ export default function MedEdit({
           <Autocomplete
             freeSolo
             options={medOptions}
-            value={formData.name}
+            inputValue={formData.name}
             onChange={handleAutocompleteChange}
             onInputChange={handleInputChange}
             renderInput={(params) => (

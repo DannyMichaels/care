@@ -11,7 +11,7 @@ import MedEdit from '../Dialogs/MedDialogs/MedEdit';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import MedDetail from '../Dialogs/MedDialogs/MedDetail';
 import Typography from '@material-ui/core/Typography';
-import { compareDateWithCurrentTime, isScheduledMed } from '@care/shared';
+import { compareDateWithCurrentTime, isScheduledMed, getEffectiveTime, createOccurrence, deleteOccurrence } from '@care/shared';
 import MedImage from './MedImage';
 import GlassCard from '../shared/GlassCard';
 
@@ -45,14 +45,13 @@ const useStyles = makeStyles((theme) => ({
 
 export default function MedCard({
   meds,
-  setMeds,
   handleUpdate,
   med,
   openOptions,
   handleDelete,
   RXGuideMeds,
-  occurrences = [],
   selectedDate,
+  onOccurrenceChange,
 }) {
   const classes = useStyles();
   const [isRefreshed, setIsRefreshed] = useState(false);
@@ -60,46 +59,61 @@ export default function MedCard({
   const [openDetail, setOpenDetail] = useState(false);
   const [rerender, toggleRerender] = useState(false);
 
-  let timerId = useRef(null);
+  const timerId = useRef(null);
 
   const scheduled = isScheduledMed(med);
-  const occurrence = occurrences.find(
-    (o) => o.medication_id === med.id && o.occurrence_date === selectedDate
-  );
-  const medIsTaken = scheduled ? !!occurrence?.is_taken : !!med.is_taken;
+  const occurrence = med.occurrence;
 
-  const effectiveTime = (() => {
-    if (!scheduled || !selectedDate) return med.time;
-    const t = new Date(med.time);
-    const hh = String(t.getHours()).padStart(2, '0');
-    const mm = String(t.getMinutes()).padStart(2, '0');
-    return `${selectedDate}T${hh}:${mm}:00`;
-  })();
+  // Normalize scheduled/one-time state into one place
+  const source = scheduled ? (occurrence || {}) : med;
+  const skipped = !!source.skipped;
+  const taken = !skipped && !!source.is_taken;
+  const takenDate = source.taken_date;
 
-  const onSave = (id, formData, options) => {
-    handleUpdate(id, formData, options);
+  const effectiveTime = getEffectiveTime(med, selectedDate);
+
+  const timeStatus = compareDateWithCurrentTime(effectiveTime);
+
+  const getStatusText = () => {
+    if (skipped) {
+      return (
+        <Typography variant="body2" style={{ color: '#9E9E9E' }}>
+          {med.name} is skipped for today
+        </Typography>
+      );
+    }
+    if (taken) {
+      return (
+        <Typography variant="body2">
+          You took {med.name} at <br />
+          <Moment format="MMM/DD/yyyy hh:mm A">{takenDate}</Moment>
+        </Typography>
+      );
+    }
+    if (timeStatus < 0) {
+      return (
+        <Typography variant="body2">
+          You have to take {med.name} at <br />
+          <Moment format="MMM/DD/yyyy hh:mm A">{effectiveTime}</Moment>
+        </Typography>
+      );
+    }
+    return (
+      <Typography variant="body2">
+        You were supposed to take {med.name} at <br />
+        <Moment format="MMM/DD/yyyy hh:mm A">{effectiveTime}</Moment>
+      </Typography>
+    );
+  };
+
+  const onSave = async (id, formData, options) => {
     setIsRefreshed(true);
-    setTimeout(async () => {
+    try {
+      await handleUpdate(id, formData, options);
+    } finally {
       setIsRefreshed(false);
       setOpenEdit(false);
-    }, 800);
-    setMeds(meds);
-  };
-
-  const handleOpen = () => {
-    setOpenEdit(true);
-  };
-
-  const handleDetailClose = () => {
-    setOpenDetail(false);
-  };
-
-  const handleDetailOpen = () => {
-    setOpenDetail(true);
-  };
-
-  const handleClose = () => {
-    setOpenEdit(false);
+    }
   };
 
   const onDelete = (id) => {
@@ -112,8 +126,28 @@ export default function MedCard({
     setOpenDetail(false);
   };
 
+  const onUnskip = async () => {
+    if (scheduled && occurrence?.id) {
+      await deleteOccurrence(med.id, occurrence.id);
+      onOccurrenceChange?.();
+    } else {
+      await handleUpdate(med.id, { skipped: false });
+    }
+    setOpenDetail(false);
+  };
+
+  const onSkip = async () => {
+    if (scheduled) {
+      await createOccurrence(med.id, { occurrence_date: selectedDate, skipped: true });
+      onOccurrenceChange?.();
+    } else {
+      await handleUpdate(med.id, { skipped: true });
+    }
+    setOpenDetail(false);
+  };
+
   useEffect(() => {
-    if (compareDateWithCurrentTime(effectiveTime) === -1) {
+    if (timeStatus === -1) {
       let delay = new Date(effectiveTime).getTime() - Date.now();
       if (timerId.current) {
         clearTimeout(timerId.current);
@@ -131,21 +165,18 @@ export default function MedCard({
         <div className={classes.container}>
           <Typography
             className={classes.medName}
-            onClick={handleDetailOpen}
+            onClick={() => setOpenDetail(true)}
           >
             {med.name}
           </Typography>
           {!isRefreshed ? (
             <div className={classes.imageWrap}>
               <MedImage
-                onClick={handleDetailOpen}
+                onClick={() => setOpenDetail(true)}
                 icon={med.icon}
                 iconColor={med.icon_color}
                 alt={med.name}
-                style={{
-                  width: '50px',
-                  height: '50px',
-                }}
+                style={{ width: '50px', height: '50px' }}
               />
             </div>
           ) : (
@@ -153,28 +184,9 @@ export default function MedCard({
               <CircularProgress style={{ height: '80px', width: '80px' }} />
             </div>
           )}
-          {!medIsTaken && compareDateWithCurrentTime(effectiveTime) < 0 ? (
-            <div onClick={handleDetailOpen} className={classes.clickArea}>
-              <Typography variant="body2">
-                You have to take {med?.name} at <br />
-                <Moment format="MMM/DD/yyyy hh:mm A">{effectiveTime}</Moment>
-              </Typography>
-            </div>
-          ) : !medIsTaken && compareDateWithCurrentTime(effectiveTime) === 1 ? (
-            <div onClick={handleDetailOpen} className={classes.clickArea}>
-              <Typography variant="body2">
-                You were supposed to take {med?.name} at <br />
-                <Moment format="MMM/DD/yyyy hh:mm A">{effectiveTime}</Moment>
-              </Typography>
-            </div>
-          ) : (
-            <div onClick={handleDetailOpen} className={classes.clickArea}>
-              <Typography variant="body2">
-                You took {med?.name} at <br />
-                <Moment format="MMM/DD/yyyy hh:mm A">{scheduled ? occurrence?.taken_date : med?.taken_date}</Moment>
-              </Typography>
-            </div>
-          )}
+          <div onClick={() => setOpenDetail(true)} className={classes.clickArea}>
+            {getStatusText()}
+          </div>
 
           {openOptions && (
             <>
@@ -182,7 +194,7 @@ export default function MedCard({
               <div className={classes.actions}>
                 <IconButton
                   component={Link}
-                  onClick={handleOpen}
+                  onClick={() => setOpenEdit(true)}
                   to={`/medications/${med.id}/edit`}
                   color="primary"
                   size="small"
@@ -206,9 +218,13 @@ export default function MedCard({
             openDetail={openDetail}
             onDelete={onDelete}
             onTake={onTake}
-            handleDetailClose={handleDetailClose}
-            medIsTaken={medIsTaken}
+            onSkip={onSkip}
+            onUnskip={onUnskip}
+            handleDetailClose={() => setOpenDetail(false)}
+            medIsTaken={taken}
+            medIsSkipped={skipped}
             occurrence={occurrence}
+            effectiveTime={effectiveTime}
           />
         )}
       </GlassCard>
@@ -221,10 +237,10 @@ export default function MedCard({
               meds={meds}
               onSave={onSave}
               RXGuideMeds={RXGuideMeds}
-              handleOpen={handleOpen}
+              handleOpen={() => setOpenEdit(true)}
               handleUpdate={handleUpdate}
               setOpenEdit={setOpenEdit}
-              handleClose={handleClose}
+              handleClose={() => setOpenEdit(false)}
             />
           </Route>
         </Switch>

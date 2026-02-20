@@ -8,7 +8,7 @@ import { DateContext } from "../context/DateContext";
 
 export default function MoodsContainer({ onFilteredCount, createOpen, onCloseCreate, optionsOpen }) {
   const [currentUser] = useContext(CurrentUserContext);
-  const { selectedDate, showAllDates } = useContext(DateContext);
+  const { selectedDate } = useContext(DateContext);
   const [moods, setMoods] = useState([]);
   const [updated, setUpdated] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -45,8 +45,8 @@ export default function MoodsContainer({ onFilteredCount, createOpen, onCloseCre
   };
 
   const filteredMoods = useMemo(
-    () => filterByDate(moods, selectedDate, showAllDates, "time"),
-    [moods, selectedDate, showAllDates]
+    () => filterByDate(moods, selectedDate, "time"),
+    [moods, selectedDate]
   );
 
   useEffect(() => {

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { View, ScrollView, Image, StyleSheet } from 'react-native';
 import { List, Text, Badge, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { getAllMeds, getAllMoods, getAllFoods, getAllSymptoms, getAllAffirmations, getBatchOccurrences, filterByDate, isScheduledMed, doesOccurOnDate, MED_ICON_DISPLAY_MAP } from '@care/shared';
+import { getDashboardMeds, getAllMoods, getAllFoods, getAllSymptoms, getAllAffirmations, filterByDate, isScheduledMed, doesOccurOnDate, getEffectiveTime, MED_ICON_DISPLAY_MAP } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import { useDate } from '../../context/DateContext';
 import DateCarousel from '../../components/DateCarousel';
@@ -20,14 +20,19 @@ export default function HomeScreen({ navigation }) {
   const [foods, setFoods] = useState([]);
   const [symptoms, setSymptoms] = useState([]);
   const [affirmations, setAffirmations] = useState([]);
-  const [occurrences, setOccurrences] = useState([]);
 
-  const fetchAll = useCallback(async () => {
+  const fetchMeds = useCallback(async () => {
     try {
-      const [m, mo, f, s, a] = await Promise.all([
-        getAllMeds(), getAllMoods(), getAllFoods(), getAllSymptoms(), getAllAffirmations(),
+      const data = await getDashboardMeds(selectedDate);
+      setMeds(data || []);
+    } catch {}
+  }, [selectedDate]);
+
+  const fetchOtherData = useCallback(async () => {
+    try {
+      const [mo, f, s, a] = await Promise.all([
+        getAllMoods(), getAllFoods(), getAllSymptoms(), getAllAffirmations(),
       ]);
-      setMeds(m || []);
       setMoods(mo || []);
       setFoods(f || []);
       setSymptoms(s || []);
@@ -36,48 +41,23 @@ export default function HomeScreen({ navigation }) {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', fetchAll);
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchMeds();
+      fetchOtherData();
+    });
     return () => {
       unsubscribe();
     };
-  }, [navigation, fetchAll]);
+  }, [navigation, fetchMeds, fetchOtherData]);
 
-  // Fetch occurrences when selectedDate or meds change
-  useEffect(() => {
-    const hasScheduled = meds.some(isScheduledMed);
-    if (!hasScheduled) {
-      setOccurrences([]);
-      return;
-    }
-    const fetchOccurrences = async () => {
-      try {
-        const from = selectedDate;
-        const to = selectedDate;
-        const data = await getBatchOccurrences(from, to);
-        setOccurrences(data || []);
-      } catch {}
-    };
-    fetchOccurrences();
-  }, [selectedDate, meds]);
-
-  const getOccurrenceForMed = (medId) => {
-    return occurrences.find(
-      (o) => o.medication_id === medId && o.occurrence_date === selectedDate
-    );
-  };
+  useEffect(() => { fetchMeds(); }, [fetchMeds]);
 
   const filteredMeds = useMemo(() => {
     const oneTimeMeds = meds.filter((med) => !isScheduledMed(med));
     const scheduledMeds = meds.filter((med) => isScheduledMed(med) && doesOccurOnDate(med, selectedDate));
     const filteredOneTime = filterByDate(oneTimeMeds, selectedDate, false, 'time');
-    const allVisible = [...filteredOneTime, ...scheduledMeds];
-    // Exclude skipped occurrences
-    return allVisible.filter((med) => {
-      if (!isScheduledMed(med)) return true;
-      const occ = getOccurrenceForMed(med.id);
-      return !occ?.skipped;
-    });
-  }, [meds, selectedDate, occurrences]);
+    return [...filteredOneTime, ...scheduledMeds];
+  }, [meds, selectedDate]);
 
   const filteredMoods = useMemo(() => filterByDate(moods, selectedDate, false, 'time'), [moods, selectedDate]);
   const filteredFoods = useMemo(() => filterByDate(foods, selectedDate, false, 'time'), [foods, selectedDate]);
@@ -86,25 +66,18 @@ export default function HomeScreen({ navigation }) {
 
   const isMedTaken = (med) => {
     if (isScheduledMed(med)) {
-      const occ = getOccurrenceForMed(med.id);
-      return !!occ?.is_taken;
+      return !!med.occurrence?.is_taken;
     }
     return !!med.is_taken;
-  };
-
-  const getEffectiveTime = (med) => {
-    if (!isScheduledMed(med)) return med.time;
-    const t = new Date(med.time);
-    return `${selectedDate}T${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}:00`;
   };
 
   const hasUrgentMed = useMemo(() => {
     return filteredMeds?.some?.((med) => {
       if (isMedTaken(med) || !med.time) return false;
-      const diff = new Date(getEffectiveTime(med)) - now;
+      const diff = new Date(getEffectiveTime(med, selectedDate)) - now;
       return diff > 0 && diff < 60000;
     });
-  }, [filteredMeds, now, occurrences, selectedDate]);
+  }, [filteredMeds, now, selectedDate]);
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), hasUrgentMed ? 1000 : 60000);
@@ -189,19 +162,25 @@ export default function HomeScreen({ navigation }) {
             >
               {section.data.map((item) => {
                 const isMed = section.type === 'med';
-                const effectiveTime = isMed ? getEffectiveTime(item) : item.time;
+                const effectiveTime = isMed ? getEffectiveTime(item, selectedDate) : item.time;
                 const time = formatMedTime(effectiveTime);
-                const taken = isMed && isMedTaken(item);
-                const countdown = isMed && !taken ? getCountdown(effectiveTime, now) : null;
-                const occ = isMed ? getOccurrenceForMed(item.id) : null;
+                const occ = isMed ? item.occurrence : null;
+                const skipped = isMed && (isScheduledMed(item) ? !!occ?.skipped : !!item.skipped);
+                const taken = isMed && !skipped && isMedTaken(item);
+                const countdown = isMed && !taken && !skipped ? getCountdown(effectiveTime, now) : null;
                 return (
                   <List.Item
                     key={item.id}
                     title={item[section.nameField]?.substring(0, 40) || 'Untitled'}
+                    titleStyle={skipped ? { opacity: 0.5 } : undefined}
                     left={getSectionIcon(section, item)}
                     right={(isMed || time) ? () => (
                       <View style={styles.medBadges}>
-                        {isMed && taken ? (
+                        {isMed && skipped ? (
+                          <View style={[styles.badge, styles.skippedBadge]}>
+                            <Text style={styles.badgeText}>Skipped</Text>
+                          </View>
+                        ) : isMed && taken ? (
                           <View style={[styles.badge, styles.takenBadge]}>
                             <Text style={styles.badgeText}>Taken ✓</Text>
                           </View>
@@ -287,6 +266,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     color: '#fff',
+  },
+  skippedBadge: {
+    backgroundColor: '#9E9E9E',
   },
   takenBadge: {
     backgroundColor: '#4CAF50',

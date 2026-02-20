@@ -45,13 +45,8 @@ describe('dateUtils', () => {
       { id: 3, time: '2026-02-17T15:00:00' },
     ];
 
-    it('returns all items when showAllDates is true', () => {
-      const result = filterByDate(items, '2026-02-17', true);
-      expect(result).toHaveLength(3);
-    });
-
     it('filters items by selected date', () => {
-      const result = filterByDate(items, '2026-02-17', false);
+      const result = filterByDate(items, '2026-02-17');
       expect(result).toHaveLength(2);
       expect(result.map((i) => i.id)).toEqual([1, 3]);
     });
@@ -61,13 +56,13 @@ describe('dateUtils', () => {
         { id: 1, affirmation_date: '2026-02-17' },
         { id: 2, affirmation_date: '2026-02-18' },
       ];
-      const result = filterByDate(dateItems, '2026-02-17', false, 'affirmation_date');
+      const result = filterByDate(dateItems, '2026-02-17', 'affirmation_date');
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe(1);
     });
 
     it('skips items without the date field', () => {
-      const result = filterByDate([{ id: 1 }], '2026-02-17', false);
+      const result = filterByDate([{ id: 1 }], '2026-02-17');
       expect(result).toHaveLength(0);
     });
   });

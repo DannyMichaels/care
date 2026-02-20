@@ -44,14 +44,14 @@ export default function FoodCard({
   const [openEdit, setOpenEdit] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
 
-  const onSave = (id, formData) => {
-    handleUpdate(id, formData);
+  const onSave = async (id, formData) => {
     setIsRefreshed(true);
-    setTimeout(async () => {
+    try {
+      await handleUpdate(id, formData);
+    } finally {
       setIsRefreshed(false);
       setOpenEdit(false);
-    }, 800);
-    setFoods(foods);
+    }
   };
 
   const onDelete = (id) => {

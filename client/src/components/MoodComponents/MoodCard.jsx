@@ -58,14 +58,14 @@ export default function MoodCard({
     setOpenEdit(false);
   };
 
-  const onSave = (id, formData) => {
-    handleUpdate(id, formData);
+  const onSave = async (id, formData) => {
     setIsRefreshed(true);
-    setTimeout(async () => {
+    try {
+      await handleUpdate(id, formData);
+    } finally {
       setIsRefreshed(false);
       setOpenEdit(false);
-    }, 800);
-    setMoods(moods);
+    }
   };
 
   const onDelete = (id) => {

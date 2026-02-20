@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { Button, Text, Chip, TextInput } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { putMed, destroyMed, createOccurrence, updateOccurrence, isScheduledMed, MED_ICONS, MED_COLORS, MED_ICON_DISPLAY_MAP, DEFAULT_ICON, DEFAULT_COLOR, getApiError } from '@care/shared';
+import { putMed, destroyMed, createOccurrence, updateOccurrence, deleteOccurrence, isScheduledMed, MED_ICONS, MED_COLORS, MED_ICON_DISPLAY_MAP, DEFAULT_ICON, DEFAULT_COLOR, getApiError } from '@care/shared';
 import { useDate } from '../../context/DateContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
@@ -72,19 +72,15 @@ export default function MedEditScreen({ route, navigation }) {
 
     Alert.alert(
       'Convert to One-Time',
-      'This medication has occurrence history. What would you like to do with past records?',
+      'What would you like to do with past occurrence records?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Keep all history',
+          text: 'Keep history',
           onPress: () => saveMed({ conversion_date: selectedDate, occurrence_action: 'keep' }),
         },
         {
-          text: 'Delete untaken',
-          onPress: () => saveMed({ conversion_date: selectedDate, occurrence_action: 'delete_untaken' }),
-        },
-        {
-          text: 'Delete all history',
+          text: 'Delete all',
           style: 'destructive',
           onPress: () => saveMed({ conversion_date: selectedDate, occurrence_action: 'delete_all' }),
         },
@@ -199,14 +195,44 @@ export default function MedEditScreen({ route, navigation }) {
     <ScreenWrapper scroll contentContainerStyle={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>Edit Medication</Text>
 
-      {isTaken
-        ? <Chip icon="check" onPress={handleUntake} onClose={handleUntake} style={styles.chip}>Taken</Chip>
-        : (
-          <Button mode="contained" icon="check" onPress={handleMarkTaken} disabled={loading} style={styles.takenButton} buttonColor="#4CAF50">
-            Mark as Taken
-          </Button>
-        )
-      }
+      {(scheduled ? occurrence?.skipped : item.skipped) ? (
+        <Chip
+          icon="calendar-remove"
+          onPress={async () => {
+            try {
+              if (scheduled && occurrence?.id) {
+                await deleteOccurrence(id, occurrence.id);
+              } else {
+                await putMed(id, { skipped: false });
+              }
+              navigation.goBack();
+            } catch (err) {
+              Alert.alert('Error', getApiError(err));
+            }
+          }}
+          onClose={async () => {
+            try {
+              if (scheduled && occurrence?.id) {
+                await deleteOccurrence(id, occurrence.id);
+              } else {
+                await putMed(id, { skipped: false });
+              }
+              navigation.goBack();
+            } catch (err) {
+              Alert.alert('Error', getApiError(err));
+            }
+          }}
+          style={[styles.chip, { backgroundColor: '#E0E0E0' }]}
+        >
+          Skipped — tap to unskip
+        </Chip>
+      ) : isTaken ? (
+        <Chip icon="check" onPress={handleUntake} onClose={handleUntake} style={styles.chip}>Taken</Chip>
+      ) : (
+        <Button mode="contained" icon="check" onPress={handleMarkTaken} disabled={loading} style={styles.takenButton} buttonColor="#4CAF50">
+          Mark as Taken
+        </Button>
+      )}
 
       <MedicationSuggestions name={name} onNameChange={setName} onSelect={handleSelectSuggestion} />
 
@@ -280,18 +306,22 @@ export default function MedEditScreen({ route, navigation }) {
       <Button mode="contained" onPress={handleUpdate} loading={loading} disabled={!name || loading} style={styles.button}>
         Save
       </Button>
-      {scheduled && !occurrence?.skipped && (
+      {!(scheduled ? occurrence?.skipped : item.skipped) && (
         <Button
           mode="outlined"
           icon="calendar-remove"
           onPress={() => {
-            Alert.alert('Skip Today', `Skip ${name} for ${selectedDate}?`, [
+            Alert.alert('Skip', `Skip ${name}${scheduled ? ` for ${selectedDate}` : ''}?`, [
               { text: 'Cancel', style: 'cancel' },
               {
                 text: 'Skip',
                 onPress: async () => {
                   try {
-                    await createOccurrence(id, { occurrence_date: selectedDate, skipped: true });
+                    if (scheduled) {
+                      await createOccurrence(id, { occurrence_date: selectedDate, skipped: true });
+                    } else {
+                      await putMed(id, { skipped: true });
+                    }
                     navigation.goBack();
                   } catch (err) {
                     Alert.alert('Error', getApiError(err));
@@ -302,7 +332,7 @@ export default function MedEditScreen({ route, navigation }) {
           }}
           style={styles.button}
         >
-          Skip Today
+          Skip
         </Button>
       )}
       <Button mode="outlined" onPress={handleDelete} textColor="red" style={styles.button}>

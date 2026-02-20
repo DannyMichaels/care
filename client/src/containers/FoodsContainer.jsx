@@ -8,7 +8,7 @@ import { DateContext } from "../context/DateContext";
 
 export default function FoodsContainer({ onFilteredCount, createOpen, onCloseCreate, optionsOpen }) {
   const [currentUser] = useContext(CurrentUserContext);
-  const { selectedDate, showAllDates } = useContext(DateContext);
+  const { selectedDate } = useContext(DateContext);
   const [foods, setFoods] = useState([]);
   const [updated, setUpdated] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -45,8 +45,8 @@ export default function FoodsContainer({ onFilteredCount, createOpen, onCloseCre
   };
 
   const filteredFoods = useMemo(
-    () => filterByDate(foods, selectedDate, showAllDates, "time"),
-    [foods, selectedDate, showAllDates]
+    () => filterByDate(foods, selectedDate, "time"),
+    [foods, selectedDate]
   );
 
   useEffect(() => {

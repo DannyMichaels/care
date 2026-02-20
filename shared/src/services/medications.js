@@ -14,6 +14,11 @@ export const getAllMeds = async () => {
   }
 };
 
+export const getDashboardMeds = async (date) => {
+  const resp = await api.get('/medications/dashboard', { params: { date } });
+  return resp.data;
+};
+
 export const getOneMed = async (id) => {
   const resp = await api.get(`/medications/${id}`);
   return resp.data;

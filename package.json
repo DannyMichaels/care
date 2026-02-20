@@ -9,6 +9,9 @@
   "devDependencies": {
     "sharp": "^0.34.5"
   },
+  "overrides": {
+    "@babel/parser": "7.28.6"
+  },
   "scripts": {
     "postinstall": "node scripts/fix-ajv.js"
   }

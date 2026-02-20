@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   resources :medications do
     collection do
       get :rx_guide
+      get :dashboard
     end
     resources :occurrences, controller: 'medication_occurrences', only: [:index, :create, :update, :destroy]
   end

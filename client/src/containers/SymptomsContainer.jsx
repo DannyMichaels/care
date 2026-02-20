@@ -8,7 +8,7 @@ import { DateContext } from "../context/DateContext";
 
 export default function SymptomsContainer({ onFilteredCount, createOpen, onCloseCreate, optionsOpen }) {
   const [currentUser] = useContext(CurrentUserContext);
-  const { selectedDate, showAllDates } = useContext(DateContext);
+  const { selectedDate } = useContext(DateContext);
   const [symptoms, setSymptoms] = useState([]);
   const [updated, setUpdated] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -47,8 +47,8 @@ export default function SymptomsContainer({ onFilteredCount, createOpen, onClose
   };
 
   const filteredSymptoms = useMemo(
-    () => filterByDate(symptoms, selectedDate, showAllDates, "time"),
-    [symptoms, selectedDate, showAllDates]
+    () => filterByDate(symptoms, selectedDate, "time"),
+    [symptoms, selectedDate]
   );
 
   useEffect(() => {

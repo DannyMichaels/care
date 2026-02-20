@@ -1,6 +1,5 @@
 import React, { useContext, useMemo, useEffect, useRef, useState } from 'react';
 import IconButton from '@material-ui/core/IconButton';
-import Switch from '@material-ui/core/Switch';
 import EventIcon from '@material-ui/icons/Event';
 import MyLocationIcon from '@material-ui/icons/MyLocation';
 import { useTheme } from '@material-ui/core/styles';
@@ -9,8 +8,7 @@ import { buildCalendarDays } from '@care/shared';
 import './DateCarousel.css';
 
 export default function DateCarousel() {
-  const { selectedDate, setSelectedDate, showAllDates, setShowAllDates } =
-    useContext(DateContext);
+  const { selectedDate, setSelectedDate } = useContext(DateContext);
   const theme = useTheme();
   const stripRef = useRef(null);
   const pickerRef = useRef(null);
@@ -70,7 +68,6 @@ export default function DateCarousel() {
   }, []);
 
   const handleChipClick = (dateKey) => {
-    if (showAllDates) setShowAllDates(false);
     setSelectedDate(dateKey);
   };
 
@@ -84,7 +81,6 @@ export default function DateCarousel() {
   const handlePickerChange = (e) => {
     const val = e.target.value;
     if (val) {
-      if (showAllDates) setShowAllDates(false);
       setSelectedDate(val);
     }
   };
@@ -110,10 +106,7 @@ export default function DateCarousel() {
         {visibleYear}
         <IconButton
           size="small"
-          onClick={() => {
-            if (showAllDates) setShowAllDates(false);
-            setSelectedDate(today);
-          }}
+          onClick={() => setSelectedDate(today)}
           title="Go to today"
           style={{ marginLeft: 4 }}
         >
@@ -121,21 +114,9 @@ export default function DateCarousel() {
         </IconButton>
       </div>
 
-      <div className="date-carousel__all-label">
-        <Switch
-          size="small"
-          checked={showAllDates}
-          onChange={(e) => setShowAllDates(e.target.checked)}
-          color="primary"
-        />
-        All
-      </div>
-
       <div
         ref={stripRef}
-        className={`date-carousel__strip${
-          showAllDates ? ' date-carousel__strip--dimmed' : ''
-        }`}
+        className="date-carousel__strip"
       >
         {dates.map((d) => (
           <button

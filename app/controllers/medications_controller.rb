@@ -1,5 +1,5 @@
 class MedicationsController < ApplicationController
-  before_action :authorize_request, only: [:index, :show, :create, :update, :destroy]
+  before_action :authorize_request, only: [:index, :show, :create, :update, :destroy, :dashboard]
   before_action :set_user_medication, only: [ :update, :destroy]
 
   # GET /medications/rx_guide
@@ -13,8 +13,28 @@ class MedicationsController < ApplicationController
 
   # GET /medications
   def index
-    @medications = @current_user.medications 
+    @medications = @current_user.medications
     render json: @medications
+  end
+
+  # GET /medications/dashboard?date=2026-02-19
+  def dashboard
+    medications = @current_user.medications
+    date = params[:date]
+
+    if date.present?
+      occ_map = MedicationOccurrence
+        .where(medication_id: medications.select(:id), occurrence_date: date)
+        .index_by(&:medication_id)
+    else
+      occ_map = {}
+    end
+
+    result = medications.map do |med|
+      med.as_json.merge('occurrence' => occ_map[med.id]&.as_json)
+    end
+
+    render json: result
   end
 
   # GET /medications/1
@@ -75,7 +95,7 @@ class MedicationsController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def medication_params
-      params.require(:medication).permit(:name, :medication_class, :reason, :image, :time, :user_id, :is_taken, :taken_date, :icon, :icon_color, :schedule_unit, :schedule_interval, :schedule_end_date)
+      params.require(:medication).permit(:name, :medication_class, :reason, :image, :time, :user_id, :is_taken, :taken_date, :icon, :icon_color, :schedule_unit, :schedule_interval, :schedule_end_date, :skipped)
     end
 
     def converting_to_one_time?
@@ -98,11 +118,8 @@ class MedicationsController < ApplicationController
       time_source = incoming_time.present? ? Time.parse(incoming_time.to_s) : @medication.time
       params[:medication][:time] = Time.parse("#{target_date}T#{time_source.strftime('%H:%M:%S')}").iso8601
 
-      case params[:occurrence_action]
-      when 'delete_all'
+      if params[:occurrence_action] == 'delete_all'
         @medication.medication_occurrences.destroy_all
-      when 'delete_untaken'
-        @medication.medication_occurrences.where(is_taken: [false, nil]).destroy_all
       end
     end
 

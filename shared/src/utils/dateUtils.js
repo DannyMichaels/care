@@ -58,8 +58,7 @@ export function buildCalendarDays(selectedDate, futureDays = 90) {
   return days;
 }
 
-export function filterByDate(items, selectedDate, showAllDates, dateField = 'time') {
-  if (showAllDates) return items;
+export function filterByDate(items, selectedDate, dateField = 'time') {
   return items.filter((item) => {
     const val = item[dateField];
     if (!val) return false;

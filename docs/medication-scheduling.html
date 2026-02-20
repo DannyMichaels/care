@@ -295,6 +295,7 @@
     <a href="#one-time-flow">One-Time Flow</a>
     <a href="#scheduled-flow">Scheduled Flow</a>
     <a href="#occurrence-lifecycle">Occurrence Lifecycle</a>
+    <a href="#schedule-conversion">Schedule Conversion</a>
     <a href="#date-carousel">Date Carousel</a>
     <a href="#api-endpoints">API Endpoints</a>
     <a href="#schedule-math">Schedule Math</a>
@@ -462,7 +463,8 @@
             <strong>5. User can skip a day</strong>
             <small>
               <code>POST /medications/:id/occurrences</code> with <code>{ occurrence_date: "2026-02-15", skipped: true }</code>
-              <br>The med is hidden for that date only. Still appears on subsequent occurrences.
+              <br>The med remains visible with a "Skipped" badge. User can unskip from the detail/edit screen.
+              <br>Unskip: <code>DELETE /medications/:id/occurrences/:occ_id</code> removes the skipped record.
             </small>
           </div>
         </div>
@@ -497,7 +499,7 @@
   taken_date=   is_taken=F
   now
      |             |
-  <span class="gr">Taken &#10003;</span>     <span class="rd">Hidden</span>
+  <span class="gr">Taken &#10003;</span>     <span class="rd">Skipped (visible with badge)</span>
      |
   <span class="yl">Undo Taken</span>
      |
@@ -513,6 +515,60 @@
       </div>
     </section>
 
+    <!-- SCHEDULE CONVERSION -->
+    <section id="schedule-conversion">
+      <h2>Recurring &rarr; One-Time Conversion</h2>
+      <p>When a user edits a recurring medication and removes the schedule (setting it to one-time), the backend handles the conversion automatically.</p>
+
+      <h3>What the backend does</h3>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>1. Detect conversion</strong>
+            <small>If <code>schedule_unit</code> is changing from non-null to null, this is a conversion.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot yellow"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>2. Rewrite <code>time</code></strong>
+            <small>The date portion of <code>time</code> is set to <code>conversion_date</code> (the date the user was viewing), preserving time-of-day. This ensures the one-time med appears on the correct date.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>3. Transfer taken status</strong>
+            <small>If there's an occurrence on <code>conversion_date</code> with <code>is_taken: true</code>, the taken status + date are copied to the medication record.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot orange"></div></div>
+          <div class="flow-content">
+            <strong>4. Handle occurrences (user's choice)</strong>
+            <small>
+              Frontend sends <code>occurrence_action</code>:<br>
+              <code>"keep"</code> &mdash; all occurrence records are preserved<br>
+              <code>"delete_all"</code> &mdash; all occurrence records are destroyed
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <h3>Frontend params</h3>
+      <pre><code>PUT /medications/:id
+{
+  "medication": { "schedule_unit": null, ... },
+  "conversion_date": "2026-02-19",
+  "occurrence_action": "keep" | "delete_all"
+}</code></pre>
+
+      <div class="callout warn">
+        <strong>Why rewrite time?</strong> One-time meds are filtered by comparing the date portion of <code>time</code> against <code>selectedDate</code>. Without the rewrite, the med would only appear on its original creation date, not the date the user was on when converting.
+      </div>
+    </section>
+
     <!-- DATE CAROUSEL -->
     <section id="date-carousel">
       <h2>Date Carousel</h2>
@@ -524,7 +580,7 @@
         <tr><td>Future dates disabled (opacity 0.3)</td><td>All dates are selectable</td></tr>
         <tr><td>Max 7 future days</td><td>90 future days</td></tr>
         <tr><td>Calendar picker restricted to past</td><td>Calendar picker unrestricted</td></tr>
-        <tr><td>No "Today" button</td><td>"Today" icon button to jump back</td></tr>
+        <tr><td>No "Today" button</td><td>Crosshairs icon button (GPS-style "recenter") to jump back to today</td></tr>
         <tr><td>Today chip always shows "TODAY" label</td><td>When unselected: shows a small colored dot indicator</td></tr>
       </table>
     </section>
@@ -536,11 +592,44 @@
       <h3>Existing (unchanged)</h3>
       <table>
         <tr><th>Method</th><th>Path</th><th>Action</th></tr>
-        <tr><td>GET</td><td>/medications</td><td>List all user medications</td></tr>
+        <tr><td>GET</td><td>/medications</td><td>List all user medications (raw, no occurrences)</td></tr>
         <tr><td>POST</td><td>/medications</td><td>Create medication (now accepts schedule fields)</td></tr>
         <tr><td>PUT</td><td>/medications/:id</td><td>Update medication</td></tr>
         <tr><td>DELETE</td><td>/medications/:id</td><td>Delete medication + all occurrences</td></tr>
       </table>
+
+      <h3>Dashboard Endpoint</h3>
+      <table>
+        <tr><th>Method</th><th>Path</th><th>Action</th></tr>
+        <tr><td>GET</td><td>/medications/dashboard?date=YYYY-MM-DD</td><td>All user meds with occurrence data merged inline for the given date</td></tr>
+      </table>
+
+      <div class="callout">
+        <strong>Why dashboard?</strong> The <code>/medications</code> index returns raw medication records. The dashboard endpoint merges each med's <code>medication_occurrence</code> for the requested date inline as an <code>"occurrence"</code> key. This lets the client render taken/skipped status in a single request without a separate batch-occurrences call.
+      </div>
+
+      <p><strong>Example response:</strong></p>
+      <pre><code>GET /medications/dashboard?date=2026-02-20
+
+[
+  {
+    "id": 1, "name": "Ibuprofen", "time": "2026-02-20T09:00:00Z",
+    "schedule_unit": null, "is_taken": true, ...
+    "occurrence": null
+  },
+  {
+    "id": 2, "name": "Humira", "time": "2026-02-01T08:00:00Z",
+    "schedule_unit": "week", "schedule_interval": 2, ...
+    "occurrence": {
+      "id": 5, "medication_id": 2, "occurrence_date": "2026-02-20",
+      "is_taken": true, "taken_date": "2026-02-20T08:05:00Z", "skipped": false
+    }
+  }
+]</code></pre>
+
+      <div class="callout warn">
+        <strong>No date param:</strong> If <code>?date=</code> is omitted, all meds are returned with <code>"occurrence": null</code> (no occurrence lookup is performed).
+      </div>
 
       <h3>New: Occurrence Endpoints</h3>
       <table>
@@ -661,16 +750,9 @@ Response:
           </div>
         </div>
         <div class="flow-step">
-          <div class="flow-line"><div class="flow-dot red"></div><div class="flow-connector"></div></div>
+          <div class="flow-line"><div class="flow-dot green"></div><div class="flow-connector"></div></div>
           <div class="flow-content">
-            <strong>5. Exclude skipped occurrences</strong>
-            <small>Look up each scheduled med's occurrence record. If <code>skipped === true</code>, remove from the list.</small>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-line"><div class="flow-dot green"></div></div>
-          <div class="flow-content">
-            <strong>6. Determine taken status</strong>
+            <strong>5. Determine taken/skipped status</strong>
             <small>
               One-time: use <code>med.is_taken</code>.
               <br>Scheduled: look up occurrence record &mdash; <code>occurrence?.is_taken</code>.
@@ -689,23 +771,16 @@ const scheduledMeds = meds.filter(m =>
 const filteredOneTime = filterByDate(oneTimeMeds, selectedDate);
 const allVisible = [...filteredOneTime, ...scheduledMeds];
 
-// Remove skipped
-const finalMeds = allVisible.filter(med => {
-  if (!isScheduledMed(med)) return true;
+// Skipped meds stay visible — displayed with a "Skipped" badge
+// Check status per med
+const getStatus = (med) => {
   const occ = occurrences.find(
     o => o.medication_id === med.id
       && o.occurrence_date === selectedDate
   );
-  return !occ?.skipped;
-});
-
-// Check taken status
-const isTaken = (med) => {
-  if (isScheduledMed(med)) {
-    const occ = occurrences.find(...);
-    return !!occ?.is_taken;
-  }
-  return !!med.is_taken;
+  if (occ?.skipped) return 'skipped';
+  if (isScheduledMed(med)) return occ?.is_taken ? 'taken' : 'pending';
+  return med.is_taken ? 'taken' : 'pending';
 };</code></pre>
     </section>
 

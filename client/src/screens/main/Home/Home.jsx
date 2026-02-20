@@ -39,7 +39,7 @@ import NotificationBanner from '../../../components/NotificationBanner/Notificat
 
 export default function Home() {
   const [{ currentUser }] = useContext(CurrentUserContext);
-  const { selectedDate, showAllDates } = useContext(DateContext);
+  const { selectedDate } = useContext(DateContext);
   const [affirmations, setAffirmations] = useState([]);
   const [loadedAffirmation, setLoadedAffirmation] = useState(false);
   const [moodCount, setMoodCount] = useState(0);
@@ -84,8 +84,8 @@ export default function Home() {
 
   const classes = useStyles();
   const filteredAffirmations = useMemo(
-    () => filterByDate(affirmations, selectedDate, showAllDates, 'affirmation_date'),
-    [affirmations, selectedDate, showAllDates]
+    () => filterByDate(affirmations, selectedDate, 'affirmation_date'),
+    [affirmations, selectedDate]
   );
 
   const handleMoodCount = useCallback((c) => setMoodCount(c), []);

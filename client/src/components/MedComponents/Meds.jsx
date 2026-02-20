@@ -25,8 +25,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Meds({
   meds,
-  setMeds,
-  updated,
   handleDelete,
   handleCreate,
   loaded,
@@ -35,8 +33,8 @@ export default function Meds({
   createOpen,
   onCloseCreate,
   optionsOpen,
-  occurrences,
   selectedDate,
+  onOccurrenceChange,
 }) {
   const classes = useStyles();
 
@@ -59,13 +57,11 @@ export default function Meds({
           openOptions={optionsOpen}
           RXGuideMeds={RXGuideMeds}
           meds={meds}
-          setMeds={setMeds}
-          updated={updated}
           med={med}
           handleUpdate={handleUpdate}
           handleDelete={handleDelete}
-          occurrences={occurrences}
           selectedDate={selectedDate}
+          onOccurrenceChange={onOccurrenceChange}
         />
       ))
     );

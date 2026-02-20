@@ -66,6 +66,14 @@ export function getOccurrencesInRange(med, fromDate, toDate) {
   return dates;
 }
 
+export function getEffectiveTime(med, selectedDate) {
+  if (!isScheduledMed(med) || !selectedDate) return med.time;
+  const t = new Date(med.time);
+  const hh = String(t.getHours()).padStart(2, '0');
+  const mm = String(t.getMinutes()).padStart(2, '0');
+  return `${selectedDate}T${hh}:${mm}:00`;
+}
+
 export function getScheduleDescription(unit, interval) {
   if (!unit || !interval) return '';
   if (interval === 1) {

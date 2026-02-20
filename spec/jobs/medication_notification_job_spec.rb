@@ -94,5 +94,43 @@ RSpec.describe MedicationNotificationJob, type: :job do
         expect { described_class.new.perform(medication.id) }.not_to raise_error
       end
     end
+
+    context 'recurring medication with occurrence_date' do
+      let!(:recurring_med) do
+        create(:medication,
+          user: user,
+          name: 'RecurringMed',
+          schedule_unit: 'day',
+          schedule_interval: 1
+        )
+      end
+      let!(:push_token) { create(:push_token, user: user) }
+      let(:today) { Date.current.to_s }
+
+      it 'sends notification when occurrence is not handled' do
+        expect(HTTParty).to receive(:post)
+        described_class.new.perform(recurring_med.id, recurring_med.time.to_s, today)
+      end
+
+      it 'skips when occurrence is taken' do
+        create(:medication_occurrence,
+          medication: recurring_med,
+          occurrence_date: Date.current,
+          is_taken: true
+        )
+        expect(HTTParty).not_to receive(:post)
+        described_class.new.perform(recurring_med.id, recurring_med.time.to_s, today)
+      end
+
+      it 'skips when occurrence is skipped' do
+        create(:medication_occurrence,
+          medication: recurring_med,
+          occurrence_date: Date.current,
+          skipped: true
+        )
+        expect(HTTParty).not_to receive(:post)
+        described_class.new.perform(recurring_med.id, recurring_med.time.to_s, today)
+      end
+    end
   end
 end

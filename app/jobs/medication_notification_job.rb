@@ -1,10 +1,15 @@
 class MedicationNotificationJob < ApplicationJob
   queue_as :notifications
 
-  def perform(medication_id, expected_time = nil)
+  def perform(medication_id, expected_time = nil, occurrence_date = nil)
     medication = Medication.find_by(id: medication_id)
     return unless medication
-    return if medication.is_taken
+
+    if occurrence_date.present?
+      return if medication.occurrence_handled?(occurrence_date)
+    else
+      return if medication.is_taken || medication.skipped
+    end
 
     # If the med time was changed after this job was scheduled, skip it
     if expected_time.present? && medication.time.present?

@@ -124,15 +124,27 @@ class MedicationsController < ApplicationController
     end
 
     def schedule_notification(medication)
-      return if medication.is_taken
       return unless medication.time.present?
 
-      med_time = Time.parse(medication.time.to_s)
-      delay = med_time - Time.current
+      if medication.recurring?
+        today = Date.current
+        return unless medication.occurs_on_date?(today)
+        return if medication.occurrence_handled?(today)
 
-      return unless delay.positive?
+        scheduled_time = Time.current.change(hour: medication.time.hour, min: medication.time.min, sec: medication.time.sec)
+        delay = scheduled_time - Time.current
+        return unless delay.positive?
 
-      MedicationNotificationJob.set(wait: delay.seconds).perform_later(medication.id, medication.time.to_s)
+        MedicationNotificationJob.set(wait: delay.seconds).perform_later(medication.id, medication.time.to_s, today.to_s)
+      else
+        return if medication.is_taken
+
+        med_time = Time.parse(medication.time.to_s)
+        delay = med_time - Time.current
+        return unless delay.positive?
+
+        MedicationNotificationJob.set(wait: delay.seconds).perform_later(medication.id, medication.time.to_s)
+      end
     rescue ArgumentError
       # Skip scheduling if time can't be parsed
     end

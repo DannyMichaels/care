@@ -7,6 +7,7 @@ import { useDate } from '../../context/DateContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 import MedicationSuggestions from '../../components/MedicationSuggestions';
+import SchedulePicker from '../../components/SchedulePicker';
 
 export default function MedCreateScreen({ navigation }) {
   const { getSelectedDateWithTime } = useDate();
@@ -18,6 +19,9 @@ export default function MedCreateScreen({ navigation }) {
   const [time, setTime] = useState(new Date());
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [scheduleUnit, setScheduleUnit] = useState(null);
+  const [scheduleInterval, setScheduleInterval] = useState(null);
+  const [scheduleEndDate, setScheduleEndDate] = useState(null);
 
   const handleSelectSuggestion = (med) => {
     setName(med.fields.name);
@@ -38,6 +42,9 @@ export default function MedCreateScreen({ navigation }) {
         time: medTime,
         icon,
         icon_color: iconColor,
+        schedule_unit: scheduleUnit,
+        schedule_interval: scheduleInterval,
+        schedule_end_date: scheduleEndDate,
       });
       navigation.goBack();
     } catch (err) {
@@ -97,6 +104,17 @@ export default function MedCreateScreen({ navigation }) {
         mode="time"
         onConfirm={(d) => { setShowTimePicker(false); setTime(d); }}
         onDismiss={() => setShowTimePicker(false)}
+      />
+
+      <SchedulePicker
+        unit={scheduleUnit}
+        interval={scheduleInterval}
+        endDate={scheduleEndDate}
+        onChange={({ unit, interval, endDate }) => {
+          setScheduleUnit(unit);
+          setScheduleInterval(interval);
+          setScheduleEndDate(endDate);
+        }}
       />
 
       <Button

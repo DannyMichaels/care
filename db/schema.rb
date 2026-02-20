@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_19_170000) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_19_180001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -86,6 +86,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_19_170000) do
     t.index ["user_id"], name: "index_likes_on_user_id"
   end
 
+  create_table "medication_occurrences", force: :cascade do |t|
+    t.bigint "medication_id", null: false
+    t.date "occurrence_date", null: false
+    t.boolean "is_taken", default: false
+    t.datetime "taken_date"
+    t.boolean "skipped", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["medication_id", "occurrence_date"], name: "index_med_occurrences_on_med_id_and_date", unique: true
+    t.index ["medication_id"], name: "index_medication_occurrences_on_medication_id"
+  end
+
   create_table "medications", force: :cascade do |t|
     t.string "name"
     t.datetime "time", precision: nil
@@ -99,6 +111,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_19_170000) do
     t.datetime "taken_date", precision: nil
     t.string "icon", default: "pill"
     t.string "icon_color", default: "#7E57C2"
+    t.string "schedule_unit"
+    t.integer "schedule_interval"
+    t.date "schedule_end_date"
     t.index ["user_id"], name: "index_medications_on_user_id"
   end
 
@@ -179,6 +194,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_19_170000) do
   add_foreign_key "insights", "users", on_delete: :cascade
   add_foreign_key "likes", "insights", on_delete: :cascade
   add_foreign_key "likes", "users", on_delete: :cascade
+  add_foreign_key "medication_occurrences", "medications"
   add_foreign_key "medications", "users", on_delete: :cascade
   add_foreign_key "moods", "users", on_delete: :cascade
   add_foreign_key "push_tokens", "users", on_delete: :cascade

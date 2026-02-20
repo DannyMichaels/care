@@ -20,8 +20,11 @@ export default function MedDetail({
   handleDetailClose,
   onDelete,
   onTake,
+  medIsTaken,
+  occurrence,
 }) {
   const [medData, setMedData] = useState({});
+  const taken = medIsTaken !== undefined ? medIsTaken : !!med.is_taken;
 
   let currentTime = new Date();
 
@@ -90,17 +93,17 @@ export default function MedDetail({
         </Typography>
       </DialogContent>
       <div style={{ padding: "8px 16px" }}>
-        {compareDateWithCurrentTime(med?.time) < 0 && !med.is_taken ? (
+        {compareDateWithCurrentTime(med?.time) < 0 && !taken ? (
           <Typography>
             You have to take {med?.name}&nbsp;
             <Moment from={currentTime?.toISOString()}>{med?.time}</Moment>
           </Typography>
-        ) : compareDateWithCurrentTime(med?.time) === 1 && !med.is_taken ? (
+        ) : compareDateWithCurrentTime(med?.time) === 1 && !taken ? (
           <Typography>Did you take {med?.name}?</Typography>
-        ) : compareDateWithCurrentTime(med?.time) === 1 && med.is_taken ? (
+        ) : compareDateWithCurrentTime(med?.time) === 1 && taken ? (
           <Typography>
             You took {med?.name} at&nbsp;
-            <Moment format="MMM/DD/yyyy hh:mm A">{med?.taken_date}</Moment>
+            <Moment format="MMM/DD/yyyy hh:mm A">{occurrence?.taken_date || med?.taken_date}</Moment>
           </Typography>
         ) : (
           <Typography>
@@ -111,7 +114,7 @@ export default function MedDetail({
       </div>
       <DialogActions>
         {compareDateWithCurrentTime(med?.time) === 1 &&
-        med.is_taken === false ? (
+        !taken ? (
           <Button
             variant="contained"
             color="primary"
@@ -128,7 +131,7 @@ export default function MedDetail({
             <>Exit</>
           </Button>
         )}
-        {compareDateWithCurrentTime(med?.time) === 1 && !med.is_taken ? (
+        {compareDateWithCurrentTime(med?.time) === 1 && !taken ? (
           <Button
             variant="contained"
             color="secondary"

@@ -73,7 +73,7 @@ class MedicationsController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def medication_params
-      params.require(:medication).permit(:name, :medication_class, :reason, :image, :time, :user_id, :is_taken, :taken_date, :icon, :icon_color)
+      params.require(:medication).permit(:name, :medication_class, :reason, :image, :time, :user_id, :is_taken, :taken_date, :icon, :icon_color, :schedule_unit, :schedule_interval, :schedule_end_date)
     end
 
     def schedule_notification(medication)

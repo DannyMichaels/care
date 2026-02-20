@@ -13,6 +13,7 @@ import {
   DialogActions,
 } from '../../Form/DialogComponents';
 import MedIconDisplay from '../../MedComponents/MedIconDisplay';
+import SchedulePicker from '../../SchedulePicker/SchedulePicker';
 import { useFormStyles } from '../../Form/formStyles';
 
 export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
@@ -28,6 +29,9 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
     is_taken: false,
     icon: DEFAULT_ICON,
     icon_color: DEFAULT_COLOR,
+    schedule_unit: null,
+    schedule_interval: null,
+    schedule_end_date: null,
   });
 
   useEffect(() => {
@@ -78,6 +82,9 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
         is_taken: false,
         icon: DEFAULT_ICON,
         icon_color: DEFAULT_COLOR,
+        schedule_unit: null,
+        schedule_interval: null,
+        schedule_end_date: null,
       });
     } catch {
       setLoading(false);
@@ -185,6 +192,20 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
               ))}
             </div>
           </div>
+
+          <SchedulePicker
+            unit={formData.schedule_unit}
+            interval={formData.schedule_interval}
+            endDate={formData.schedule_end_date}
+            onChange={({ unit, interval, endDate }) =>
+              setFormData((prev) => ({
+                ...prev,
+                schedule_unit: unit,
+                schedule_interval: interval,
+                schedule_end_date: endDate,
+              }))
+            }
+          />
 
           <DialogActions>
             <Button type="submit" disabled={loading} variant="contained" color="primary">

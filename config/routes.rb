@@ -4,7 +4,9 @@ Rails.application.routes.draw do
     collection do
       get :rx_guide
     end
+    resources :occurrences, controller: 'medication_occurrences', only: [:index, :create, :update, :destroy]
   end
+  get 'medication_occurrences', to: 'medication_occurrences#batch_index'
   resources :foods
   resources :symptoms
   resources :affirmations

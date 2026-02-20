@@ -21,7 +21,7 @@ const SHORT_MONTHS = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
 ];
 
-export function buildCalendarDays(selectedDate, futureDays = 7) {
+export function buildCalendarDays(selectedDate, futureDays = 90) {
   const now = new Date();
   const defaultStart = new Date(now);
   defaultStart.setDate(defaultStart.getDate() - 365);
@@ -41,7 +41,6 @@ export function buildCalendarDays(selectedDate, futureDays = 7) {
       month: SHORT_MONTHS[d.getMonth()],
       year: d.getFullYear(),
       isToday: i === 0,
-      isFuture: false,
     });
   }
   for (let i = 1; i <= futureDays; i++) {
@@ -54,7 +53,6 @@ export function buildCalendarDays(selectedDate, futureDays = 7) {
       month: SHORT_MONTHS[d.getMonth()],
       year: d.getFullYear(),
       isToday: false,
-      isFuture: true,
     });
   }
   return days;

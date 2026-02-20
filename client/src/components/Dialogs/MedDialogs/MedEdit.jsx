@@ -14,6 +14,7 @@ import {
   DialogActions,
 } from '../../Form/DialogComponents';
 import MedIconDisplay from '../../MedComponents/MedIconDisplay';
+import SchedulePicker from '../../SchedulePicker/SchedulePicker';
 import { useFormStyles } from '../../Form/formStyles';
 
 export default function MedEdit({
@@ -35,6 +36,9 @@ export default function MedEdit({
     is_taken: false,
     icon: DEFAULT_ICON,
     icon_color: DEFAULT_COLOR,
+    schedule_unit: null,
+    schedule_interval: null,
+    schedule_end_date: null,
   });
 
   const { name } = formData;
@@ -43,7 +47,7 @@ export default function MedEdit({
   useEffect(() => {
     const prefillFormData = () => {
       const oneMed = meds?.find((med) => med?.id === Number(id));
-      const { name, medication_class, image, reason, time, is_taken, icon, icon_color } = oneMed;
+      const { name, medication_class, image, reason, time, is_taken, icon, icon_color, schedule_unit, schedule_interval, schedule_end_date } = oneMed;
       setFormData({
         name,
         medication_class,
@@ -53,6 +57,9 @@ export default function MedEdit({
         is_taken,
         icon: icon || DEFAULT_ICON,
         icon_color: icon_color || DEFAULT_COLOR,
+        schedule_unit: schedule_unit || null,
+        schedule_interval: schedule_interval || null,
+        schedule_end_date: schedule_end_date || null,
       });
     };
     if (meds?.length) {
@@ -228,6 +235,20 @@ export default function MedEdit({
               ))}
             </div>
           </div>
+
+          <SchedulePicker
+            unit={formData.schedule_unit}
+            interval={formData.schedule_interval}
+            endDate={formData.schedule_end_date}
+            onChange={({ unit, interval, endDate }) =>
+              setFormData((prev) => ({
+                ...prev,
+                schedule_unit: unit,
+                schedule_interval: interval,
+                schedule_end_date: endDate,
+              }))
+            }
+          />
 
           <DialogActions>
             <Button to="/" type="submit" disabled={loading} variant="contained" color="primary">

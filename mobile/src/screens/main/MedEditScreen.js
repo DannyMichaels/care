@@ -2,13 +2,16 @@ import { useState } from 'react';
 import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { Button, Text, Chip, TextInput } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { putMed, destroyMed, MED_ICONS, MED_COLORS, MED_ICON_DISPLAY_MAP, DEFAULT_ICON, DEFAULT_COLOR, getApiError } from '@care/shared';
+import { putMed, destroyMed, createOccurrence, updateOccurrence, isScheduledMed, MED_ICONS, MED_COLORS, MED_ICON_DISPLAY_MAP, DEFAULT_ICON, DEFAULT_COLOR, getApiError } from '@care/shared';
+import { useDate } from '../../context/DateContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 import MedicationSuggestions from '../../components/MedicationSuggestions';
+import SchedulePicker from '../../components/SchedulePicker';
 
 export default function MedEditScreen({ route, navigation }) {
-  const { id, item } = route.params;
+  const { id, item, occurrence } = route.params;
+  const { selectedDate } = useDate();
   const [name, setName] = useState(item.name || '');
   const [reason, setReason] = useState(item.reason || '');
   const [medClass, setMedClass] = useState(item.medication_class || '');
@@ -17,8 +20,15 @@ export default function MedEditScreen({ route, navigation }) {
   const [time, setTime] = useState(item.time ? new Date(item.time) : new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [isTaken, setIsTaken] = useState(!!item.is_taken);
+  const [isTaken, setIsTaken] = useState(
+    isScheduledMed(item) ? !!occurrence?.is_taken : !!item.is_taken
+  );
   const [loading, setLoading] = useState(false);
+  const [scheduleUnit, setScheduleUnit] = useState(item.schedule_unit || null);
+  const [scheduleInterval, setScheduleInterval] = useState(item.schedule_interval || null);
+  const [scheduleEndDate, setScheduleEndDate] = useState(item.schedule_end_date || null);
+
+  const scheduled = isScheduledMed(item);
 
   const handleSelectSuggestion = (med) => {
     setName(med.fields.name);
@@ -37,6 +47,9 @@ export default function MedEditScreen({ route, navigation }) {
         time: time.toISOString(),
         icon,
         icon_color: iconColor,
+        schedule_unit: scheduleUnit,
+        schedule_interval: scheduleInterval,
+        schedule_end_date: scheduleEndDate,
       });
       navigation.goBack();
     } catch (err) {
@@ -57,7 +70,15 @@ export default function MedEditScreen({ route, navigation }) {
           onPress: async () => {
             setLoading(true);
             try {
-              await putMed(id, { is_taken: true, taken_date: new Date().toISOString() });
+              if (scheduled) {
+                await createOccurrence(id, {
+                  occurrence_date: selectedDate,
+                  is_taken: true,
+                  taken_date: new Date().toISOString(),
+                });
+              } else {
+                await putMed(id, { is_taken: true, taken_date: new Date().toISOString() });
+              }
               setIsTaken(true);
               navigation.goBack();
             } catch (err) {
@@ -82,7 +103,11 @@ export default function MedEditScreen({ route, navigation }) {
           onPress: async () => {
             setLoading(true);
             try {
-              await putMed(id, { is_taken: false, taken_date: null });
+              if (scheduled && occurrence?.id) {
+                await updateOccurrence(id, occurrence.id, { is_taken: false, taken_date: null });
+              } else {
+                await putMed(id, { is_taken: false, taken_date: null });
+              }
               setIsTaken(false);
             } catch (err) {
               Alert.alert('Error', getApiError(err));
@@ -96,16 +121,45 @@ export default function MedEditScreen({ route, navigation }) {
   };
 
   const handleDelete = () => {
-    Alert.alert('Delete Medication', `Are you sure you want to delete ${name}?`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          try { await destroyMed(id); navigation.goBack(); } catch (err) { Alert.alert('Error', getApiError(err)); }
+    if (scheduled) {
+      Alert.alert('Medication Options', `What would you like to do with ${name}?`, [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Skip this day',
+          onPress: async () => {
+            try {
+              await createOccurrence(id, { occurrence_date: selectedDate, skipped: true });
+              navigation.goBack();
+            } catch (err) {
+              Alert.alert('Error', getApiError(err));
+            }
+          },
         },
-      },
-    ]);
+        {
+          text: 'Delete medication',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await destroyMed(id);
+              navigation.goBack();
+            } catch (err) {
+              Alert.alert('Error', getApiError(err));
+            }
+          },
+        },
+      ]);
+    } else {
+      Alert.alert('Delete Medication', `Are you sure you want to delete ${name}?`, [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try { await destroyMed(id); navigation.goBack(); } catch (err) { Alert.alert('Error', getApiError(err)); }
+          },
+        },
+      ]);
+    }
   };
 
   return (
@@ -177,6 +231,17 @@ export default function MedEditScreen({ route, navigation }) {
         mode="time"
         onConfirm={(d) => { setShowTimePicker(false); setTime(d); }}
         onDismiss={() => setShowTimePicker(false)}
+      />
+
+      <SchedulePicker
+        unit={scheduleUnit}
+        interval={scheduleInterval}
+        endDate={scheduleEndDate}
+        onChange={({ unit, interval, endDate }) => {
+          setScheduleUnit(unit);
+          setScheduleInterval(interval);
+          setScheduleEndDate(endDate);
+        }}
       />
 
       <Button mode="contained" onPress={handleUpdate} loading={loading} disabled={!name || loading} style={styles.button}>

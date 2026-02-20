@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Care - Medication Scheduling Documentation</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-dim: #8b949e;
+      --primary: #58a6ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --orange: #f0883e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    header p {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 32px;
+      display: flex;
+      gap: 24px;
+      overflow-x: auto;
+      position: sticky;
+      top: 72px;
+      z-index: 9;
+    }
+
+    nav a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      padding: 4px 0;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    nav a:hover, nav a:focus {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    section {
+      margin-bottom: 48px;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--primary);
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 20px 0 10px;
+      color: var(--text);
+    }
+
+    p { margin-bottom: 12px; }
+
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 20px 0;
+    }
+
+    .flow-step {
+      display: flex;
+      gap: 16px;
+      position: relative;
+    }
+
+    .flow-line {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 32px;
+      flex-shrink: 0;
+    }
+
+    .flow-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--primary);
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    .flow-dot.green { background: var(--green); }
+    .flow-dot.yellow { background: var(--yellow); }
+    .flow-dot.red { background: var(--red); }
+    .flow-dot.purple { background: var(--purple); }
+    .flow-dot.orange { background: var(--orange); }
+
+    .flow-connector {
+      width: 2px;
+      flex: 1;
+      background: var(--border);
+      min-height: 16px;
+    }
+
+    .flow-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      flex: 1;
+    }
+
+    .flow-content strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .flow-content small {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--surface-2);
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    td { background: var(--surface); }
+
+    code {
+      background: var(--surface-2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: var(--orange);
+    }
+
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      margin: 12px 0;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: var(--text);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .badge-green { background: var(--green); }
+    .badge-yellow { background: var(--yellow); color: #000; }
+    .badge-red { background: var(--red); }
+    .badge-blue { background: var(--primary); color: #000; }
+    .badge-purple { background: var(--purple); color: #000; }
+
+    .diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin: 16px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre;
+      color: var(--text-dim);
+    }
+
+    .diagram .hl { color: var(--primary); }
+    .diagram .gr { color: var(--green); }
+    .diagram .yl { color: var(--yellow); }
+    .diagram .rd { color: var(--red); }
+
+    .callout {
+      border-left: 3px solid var(--primary);
+      background: var(--surface);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 12px 0;
+    }
+
+    .callout.warn {
+      border-left-color: var(--yellow);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    @media (max-width: 640px) {
+      .two-col { grid-template-columns: 1fr; }
+      main { padding: 16px; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .card h4 {
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Medication Scheduling</h1>
+    <p>Care App &mdash; Feature Documentation</p>
+  </header>
+
+  <nav>
+    <a href="#overview">Overview</a>
+    <a href="#data-model">Data Model</a>
+    <a href="#one-time-flow">One-Time Flow</a>
+    <a href="#scheduled-flow">Scheduled Flow</a>
+    <a href="#occurrence-lifecycle">Occurrence Lifecycle</a>
+    <a href="#date-carousel">Date Carousel</a>
+    <a href="#api-endpoints">API Endpoints</a>
+    <a href="#schedule-math">Schedule Math</a>
+    <a href="#client-filtering">Client Filtering</a>
+  </nav>
+
+  <main>
+
+    <!-- OVERVIEW -->
+    <section id="overview">
+      <h2>Overview</h2>
+      <p>
+        Care supports two types of medications: <span class="badge badge-blue">One-time</span>
+        and <span class="badge badge-purple">Recurring</span>.
+      </p>
+
+      <div class="two-col">
+        <div class="card">
+          <h4>One-Time Medication</h4>
+          <p>A single dose on a specific date/time. Tracks taken status directly on the medication record.</p>
+          <p><code>schedule_unit = null</code></p>
+          <p>Example: <em>Ibuprofen today at 3pm</em></p>
+        </div>
+        <div class="card">
+          <h4>Recurring Medication</h4>
+          <p>Repeats on a schedule. Each occurrence is tracked via a separate <code>medication_occurrences</code> record.</p>
+          <p><code>schedule_unit = "day" | "week" | "month"</code></p>
+          <p>Example: <em>Humira every 2 weeks</em></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATA MODEL -->
+    <section id="data-model">
+      <h2>Data Model</h2>
+
+      <h3>medications table</h3>
+      <table>
+        <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+        <tr><td>name</td><td>string</td><td>Medication name</td></tr>
+        <tr><td>time</td><td>datetime</td><td>Start date + time-of-day for all occurrences</td></tr>
+        <tr><td>reason</td><td>string</td><td>Why the user takes it</td></tr>
+        <tr><td>is_taken</td><td>boolean</td><td>One-time meds only</td></tr>
+        <tr><td>taken_date</td><td>datetime</td><td>One-time meds only</td></tr>
+        <tr><td>schedule_unit</td><td>string</td><td><code>"day"</code>, <code>"week"</code>, <code>"month"</code>, or <code>null</code></td></tr>
+        <tr><td>schedule_interval</td><td>integer</td><td>1&ndash;99; e.g. 2 + "week" = biweekly</td></tr>
+        <tr><td>schedule_end_date</td><td>date</td><td>Optional; schedule stops after this date</td></tr>
+      </table>
+
+      <h3>medication_occurrences table</h3>
+      <table>
+        <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+        <tr><td>medication_id</td><td>FK &rarr; medications</td><td>Which medication</td></tr>
+        <tr><td>occurrence_date</td><td>date</td><td>The specific date</td></tr>
+        <tr><td>is_taken</td><td>boolean</td><td>Default false</td></tr>
+        <tr><td>taken_date</td><td>datetime</td><td>When taken (nullable)</td></tr>
+        <tr><td>skipped</td><td>boolean</td><td>User chose to skip this date</td></tr>
+      </table>
+
+      <div class="callout">
+        <strong>Unique constraint:</strong> <code>[medication_id, occurrence_date]</code> &mdash; only one occurrence record per med per day.
+      </div>
+
+      <div class="diagram"><span class="hl">medications</span>                    <span class="hl">medication_occurrences</span>
++--------------------+          +-------------------------+
+| id                 |&lt;---+     | id                      |
+| name               |    |     | <span class="gr">medication_id (FK)</span>      |----+
+| time (start + TOD) |    |     | occurrence_date         |
+| reason             |    |     | is_taken                |
+| schedule_unit      |    |     | taken_date              |
+| schedule_interval  |    +-----| skipped                 |
+| schedule_end_date  |          +-------------------------+
+| is_taken (1-time)  |          unique: [med_id, occ_date]
+| taken_date (1-time)|
+| user_id (FK)       |
++--------------------+</div>
+    </section>
+
+    <!-- ONE-TIME FLOW -->
+    <section id="one-time-flow">
+      <h2>One-Time Medication Flow</h2>
+      <p>This is the original behavior, unchanged. No schedule fields are set.</p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>1. User creates medication</strong>
+            <small><code>POST /medications</code> with name, time, reason. No schedule fields sent.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot yellow"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>2. Medication appears on its date</strong>
+            <small>Filtered by <code>time</code> field matching <code>selectedDate</code>. Shows countdown or "overdue".</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>3. User marks as taken</strong>
+            <small><code>PUT /medications/:id</code> with <code>{ is_taken: true, taken_date: now }</code>. Shows <span class="badge badge-green">Taken &#10003;</span></small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot red"></div></div>
+          <div class="flow-content">
+            <strong>4. Delete</strong>
+            <small><code>DELETE /medications/:id</code> &mdash; permanently removes the medication.</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCHEDULED FLOW -->
+    <section id="scheduled-flow">
+      <h2>Recurring Medication Flow</h2>
+      <p>When the user selects "Recurring" in the SchedulePicker, schedule fields are saved on the medication.</p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot purple"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>1. User creates scheduled medication</strong>
+            <small>
+              <code>POST /medications</code> with <code>schedule_unit</code> + <code>schedule_interval</code>.
+              <br>The <code>time</code> field's date portion = first occurrence, time portion = time-of-day for all occurrences.
+              <br>Example: <code>{ name: "Humira", time: "2026-02-01T09:00", schedule_unit: "week", schedule_interval: 2 }</code>
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot yellow"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>2. Medication appears on computed dates</strong>
+            <small>
+              Client computes occurrences using <code>doesOccurOnDate(med, selectedDate)</code>.
+              No server-side occurrence generation needed &mdash; dates are computed on-the-fly from the recurrence rule.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>3. User marks as taken for a specific date</strong>
+            <small>
+              <code>POST /medications/:id/occurrences</code> with <code>{ occurrence_date: "2026-02-15", is_taken: true, taken_date: now }</code>
+              <br>Creates an occurrence record. Other dates are unaffected.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot orange"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>4. User can undo taken</strong>
+            <small>
+              <code>PUT /medications/:id/occurrences/:occ_id</code> with <code>{ is_taken: false, taken_date: null }</code>
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot yellow"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>5. User can skip a day</strong>
+            <small>
+              <code>POST /medications/:id/occurrences</code> with <code>{ occurrence_date: "2026-02-15", skipped: true }</code>
+              <br>The med is hidden for that date only. Still appears on subsequent occurrences.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot red"></div></div>
+          <div class="flow-content">
+            <strong>6. Delete medication entirely</strong>
+            <small>
+              <code>DELETE /medications/:id</code> &mdash; removes the medication and all its occurrences (via <code>dependent: :destroy</code>).
+            </small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- OCCURRENCE LIFECYCLE -->
+    <section id="occurrence-lifecycle">
+      <h2>Occurrence Lifecycle</h2>
+      <p>Occurrence records are created <strong>on demand</strong>, not pre-generated. A scheduled med with no occurrence record for a date simply means "not yet acted upon".</p>
+
+      <div class="diagram"><span class="hl">Scheduled med appears on date</span>
+            |
+      No occurrence record exists
+      <span class="yl">Status: Pending (default)</span>
+            |
+     +------+------+
+     |             |
+  <span class="gr">Mark Taken</span>     <span class="rd">Skip Day</span>
+     |             |
+  CREATE occ    CREATE occ
+  is_taken=T    skipped=T
+  taken_date=   is_taken=F
+  now
+     |             |
+  <span class="gr">Taken &#10003;</span>     <span class="rd">Hidden</span>
+     |
+  <span class="yl">Undo Taken</span>
+     |
+  UPDATE occ
+  is_taken=F
+  taken_date=
+  null
+     |
+  <span class="yl">Pending again</span></div>
+
+      <div class="callout warn">
+        <strong>Key insight:</strong> The absence of an occurrence record means "pending". Records are only created when the user takes an action (mark taken or skip).
+      </div>
+    </section>
+
+    <!-- DATE CAROUSEL -->
+    <section id="date-carousel">
+      <h2>Date Carousel</h2>
+      <p>The DateCarousel now supports browsing up to 90 days into the future, enabling users to preview upcoming scheduled medications.</p>
+
+      <h3>Changes from previous behavior</h3>
+      <table>
+        <tr><th>Before</th><th>After</th></tr>
+        <tr><td>Future dates disabled (opacity 0.3)</td><td>All dates are selectable</td></tr>
+        <tr><td>Max 7 future days</td><td>90 future days</td></tr>
+        <tr><td>Calendar picker restricted to past</td><td>Calendar picker unrestricted</td></tr>
+        <tr><td>No "Today" button</td><td>"Today" icon button to jump back</td></tr>
+        <tr><td>Today chip always shows "TODAY" label</td><td>When unselected: shows a small colored dot indicator</td></tr>
+      </table>
+    </section>
+
+    <!-- API ENDPOINTS -->
+    <section id="api-endpoints">
+      <h2>API Endpoints</h2>
+
+      <h3>Existing (unchanged)</h3>
+      <table>
+        <tr><th>Method</th><th>Path</th><th>Action</th></tr>
+        <tr><td>GET</td><td>/medications</td><td>List all user medications</td></tr>
+        <tr><td>POST</td><td>/medications</td><td>Create medication (now accepts schedule fields)</td></tr>
+        <tr><td>PUT</td><td>/medications/:id</td><td>Update medication</td></tr>
+        <tr><td>DELETE</td><td>/medications/:id</td><td>Delete medication + all occurrences</td></tr>
+      </table>
+
+      <h3>New: Occurrence Endpoints</h3>
+      <table>
+        <tr><th>Method</th><th>Path</th><th>Action</th></tr>
+        <tr><td>GET</td><td>/medications/:id/occurrences?from=&amp;to=</td><td>List occurrences for one med in date range</td></tr>
+        <tr><td>POST</td><td>/medications/:id/occurrences</td><td>Create occurrence (mark taken or skip)</td></tr>
+        <tr><td>PUT</td><td>/medications/:id/occurrences/:occ_id</td><td>Update occurrence (toggle taken/skipped)</td></tr>
+        <tr><td>DELETE</td><td>/medications/:id/occurrences/:occ_id</td><td>Remove occurrence record</td></tr>
+        <tr><td>GET</td><td>/medication_occurrences?from=&amp;to=</td><td>Batch: all user's occurrences in date range</td></tr>
+      </table>
+
+      <h3>Request/Response Examples</h3>
+
+      <p><strong>Create a scheduled medication:</strong></p>
+      <pre><code>POST /medications
+{
+  "medication": {
+    "name": "Humira",
+    "time": "2026-02-01T09:00:00Z",
+    "reason": "Autoimmune",
+    "schedule_unit": "week",
+    "schedule_interval": 2,
+    "schedule_end_date": null
+  }
+}</code></pre>
+
+      <p><strong>Mark as taken for a date:</strong></p>
+      <pre><code>POST /medications/42/occurrences
+{
+  "occurrence_date": "2026-02-15",
+  "is_taken": true,
+  "taken_date": "2026-02-15T09:05:00Z"
+}</code></pre>
+
+      <p><strong>Skip a day:</strong></p>
+      <pre><code>POST /medications/42/occurrences
+{
+  "occurrence_date": "2026-02-15",
+  "skipped": true
+}</code></pre>
+
+      <p><strong>Batch fetch occurrences:</strong></p>
+      <pre><code>GET /medication_occurrences?from=2026-02-15&to=2026-02-15
+
+Response:
+[
+  { "id": 1, "medication_id": 42, "occurrence_date": "2026-02-15", "is_taken": true, "taken_date": "...", "skipped": false },
+  { "id": 2, "medication_id": 55, "occurrence_date": "2026-02-15", "is_taken": false, "taken_date": null, "skipped": true }
+]</code></pre>
+    </section>
+
+    <!-- SCHEDULE MATH -->
+    <section id="schedule-math">
+      <h2>Schedule Math</h2>
+      <p>Occurrence dates are computed client-side using <code>scheduleUtils.js</code>. No server-side cron or pre-generation.</p>
+
+      <h3>doesOccurOnDate(med, dateStr)</h3>
+      <p>Returns <code>true</code> if the medication occurs on the given date.</p>
+
+      <table>
+        <tr><th>Unit</th><th>Logic</th></tr>
+        <tr><td><code>day</code></td><td><code>(daysDiff from start) % interval === 0</code></td></tr>
+        <tr><td><code>week</code></td><td><code>(daysDiff from start) % (interval * 7) === 0</code></td></tr>
+        <tr><td><code>month</code></td><td>Same day-of-month + <code>monthDiff % interval === 0</code></td></tr>
+      </table>
+
+      <p>Additional checks:</p>
+      <ul style="margin: 8px 0 16px 24px;">
+        <li>Returns <code>false</code> if target date is before <code>med.time</code></li>
+        <li>Returns <code>false</code> if target date is after <code>med.schedule_end_date</code></li>
+        <li>Returns <code>false</code> if <code>schedule_unit</code> is null (one-time med)</li>
+      </ul>
+
+      <h3>Schedule Presets</h3>
+      <table>
+        <tr><th>Preset</th><th>Unit</th><th>Interval</th></tr>
+        <tr><td>Daily</td><td>day</td><td>1</td></tr>
+        <tr><td>Weekly</td><td>week</td><td>1</td></tr>
+        <tr><td>Biweekly</td><td>week</td><td>2</td></tr>
+        <tr><td>Monthly</td><td>month</td><td>1</td></tr>
+      </table>
+
+      <p>Advanced mode allows custom combinations, e.g. "Every 3 days" or "Every 2 months".</p>
+    </section>
+
+    <!-- CLIENT FILTERING -->
+    <section id="client-filtering">
+      <h2>Client-Side Filtering Logic</h2>
+      <p>When the user selects a date, the client determines which medications to show:</p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>1. Separate medications into one-time and scheduled</strong>
+            <small><code>isScheduledMed(med)</code> checks if <code>schedule_unit</code> is present.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>2. Filter one-time meds by date</strong>
+            <small><code>filterByDate(oneTimeMeds, selectedDate, false, 'time')</code> &mdash; matches <code>time</code> field to selected date.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot purple"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>3. Filter scheduled meds by recurrence</strong>
+            <small><code>doesOccurOnDate(med, selectedDate)</code> &mdash; computes whether the date falls on the recurrence pattern.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>4. Merge both lists</strong>
+            <small>Combine filtered one-time and scheduled meds.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot red"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>5. Exclude skipped occurrences</strong>
+            <small>Look up each scheduled med's occurrence record. If <code>skipped === true</code>, remove from the list.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div></div>
+          <div class="flow-content">
+            <strong>6. Determine taken status</strong>
+            <small>
+              One-time: use <code>med.is_taken</code>.
+              <br>Scheduled: look up occurrence record &mdash; <code>occurrence?.is_taken</code>.
+              <br>No occurrence record = pending (not taken).
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <pre><code>// Pseudocode
+const oneTimeMeds = meds.filter(m => !isScheduledMed(m));
+const scheduledMeds = meds.filter(m =>
+  isScheduledMed(m) && doesOccurOnDate(m, selectedDate)
+);
+
+const filteredOneTime = filterByDate(oneTimeMeds, selectedDate);
+const allVisible = [...filteredOneTime, ...scheduledMeds];
+
+// Remove skipped
+const finalMeds = allVisible.filter(med => {
+  if (!isScheduledMed(med)) return true;
+  const occ = occurrences.find(
+    o => o.medication_id === med.id
+      && o.occurrence_date === selectedDate
+  );
+  return !occ?.skipped;
+});
+
+// Check taken status
+const isTaken = (med) => {
+  if (isScheduledMed(med)) {
+    const occ = occurrences.find(...);
+    return !!occ?.is_taken;
+  }
+  return !!med.is_taken;
+};</code></pre>
+    </section>
+
+  </main>
+</body>
+</html>

@@ -76,6 +76,62 @@ RSpec.describe 'Medications', type: :request do
     end
   end
 
+  describe 'POST /medications (with schedule)' do
+    it 'creates a scheduled medication' do
+      params = {
+        medication: {
+          name: 'Humira',
+          time: Time.current.iso8601,
+          reason: 'Autoimmune',
+          schedule_unit: 'week',
+          schedule_interval: 2,
+        }
+      }
+
+      post '/medications', params: params, headers: headers
+
+      expect(response).to have_http_status(:created)
+      json = JSON.parse(response.body)
+      expect(json['schedule_unit']).to eq('week')
+      expect(json['schedule_interval']).to eq(2)
+    end
+
+    it 'creates a scheduled medication with end date' do
+      params = {
+        medication: {
+          name: 'Prednisone',
+          time: Time.current.iso8601,
+          reason: 'Short course',
+          schedule_unit: 'day',
+          schedule_interval: 1,
+          schedule_end_date: '2026-03-19',
+        }
+      }
+
+      post '/medications', params: params, headers: headers
+
+      expect(response).to have_http_status(:created)
+      json = JSON.parse(response.body)
+      expect(json['schedule_end_date']).to eq('2026-03-19')
+    end
+
+    it 'rejects invalid schedule_unit' do
+      params = {
+        medication: {
+          name: 'Test',
+          time: Time.current.iso8601,
+          reason: 'Test',
+          schedule_unit: 'year',
+          schedule_interval: 1,
+        }
+      }
+
+      post '/medications', params: params, headers: headers
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
+
   describe 'DELETE /medications/:id' do
     let!(:medication) { create(:medication, user: user) }
 

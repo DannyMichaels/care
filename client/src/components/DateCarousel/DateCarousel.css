@@ -133,11 +133,21 @@
   color: #000;
 }
 
-/* Future (disabled) chips */
-.date-carousel__chip--future {
-  opacity: 0.3;
-  cursor: default;
-  pointer-events: none;
+/* Today chip when unselected */
+.date-carousel__chip--today-unselected {
+  border: 1.5px solid currentColor;
+}
+
+.date-carousel__chip-today-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #1e88e5;
+  margin-top: 2px;
+}
+
+.date-carousel__chip--dark .date-carousel__chip-today-dot {
+  background-color: #fdd835;
 }
 
 /* Chip text */

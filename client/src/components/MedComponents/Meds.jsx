@@ -35,6 +35,8 @@ export default function Meds({
   createOpen,
   onCloseCreate,
   optionsOpen,
+  occurrences,
+  selectedDate,
 }) {
   const classes = useStyles();
 
@@ -62,6 +64,8 @@ export default function Meds({
           med={med}
           handleUpdate={handleUpdate}
           handleDelete={handleDelete}
+          occurrences={occurrences}
+          selectedDate={selectedDate}
         />
       ))
     );

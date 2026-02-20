@@ -30,6 +30,7 @@ export { toTitleCase } from './utils/toTitleCase';
 export { checkValidity } from './utils/checkValidity';
 export * from './utils/medConstants';
 export { getApiError } from './utils/getApiError';
+export * from './utils/scheduleUtils';
 
 // Reducers
 export { default as currentUserReducer, initialState } from './reducers/currentUserReducer';

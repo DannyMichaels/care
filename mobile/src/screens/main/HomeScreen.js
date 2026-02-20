@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { View, ScrollView, Image, StyleSheet } from 'react-native';
 import { List, Text, Badge, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { getAllMeds, getAllMoods, getAllFoods, getAllSymptoms, getAllAffirmations, filterByDate, MED_ICON_DISPLAY_MAP } from '@care/shared';
+import { getAllMeds, getAllMoods, getAllFoods, getAllSymptoms, getAllAffirmations, getBatchOccurrences, filterByDate, isScheduledMed, doesOccurOnDate, MED_ICON_DISPLAY_MAP } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import { useDate } from '../../context/DateContext';
 import DateCarousel from '../../components/DateCarousel';
@@ -20,6 +20,7 @@ export default function HomeScreen({ navigation }) {
   const [foods, setFoods] = useState([]);
   const [symptoms, setSymptoms] = useState([]);
   const [affirmations, setAffirmations] = useState([]);
+  const [occurrences, setOccurrences] = useState([]);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -38,22 +39,66 @@ export default function HomeScreen({ navigation }) {
     const unsubscribe = navigation.addListener('focus', fetchAll);
     return () => {
       unsubscribe();
-    }
+    };
   }, [navigation, fetchAll]);
 
-  const filteredMeds = useMemo(() => filterByDate(meds, selectedDate, false, 'time'), [meds, selectedDate]);
+  // Fetch occurrences when selectedDate or meds change
+  useEffect(() => {
+    const hasScheduled = meds.some(isScheduledMed);
+    if (!hasScheduled) {
+      setOccurrences([]);
+      return;
+    }
+    const fetchOccurrences = async () => {
+      try {
+        const from = selectedDate;
+        const to = selectedDate;
+        const data = await getBatchOccurrences(from, to);
+        setOccurrences(data || []);
+      } catch {}
+    };
+    fetchOccurrences();
+  }, [selectedDate, meds]);
+
+  const getOccurrenceForMed = (medId) => {
+    return occurrences.find(
+      (o) => o.medication_id === medId && o.occurrence_date === selectedDate
+    );
+  };
+
+  const filteredMeds = useMemo(() => {
+    const oneTimeMeds = meds.filter((med) => !isScheduledMed(med));
+    const scheduledMeds = meds.filter((med) => isScheduledMed(med) && doesOccurOnDate(med, selectedDate));
+    const filteredOneTime = filterByDate(oneTimeMeds, selectedDate, false, 'time');
+    const allVisible = [...filteredOneTime, ...scheduledMeds];
+    // Exclude skipped occurrences
+    return allVisible.filter((med) => {
+      if (!isScheduledMed(med)) return true;
+      const occ = getOccurrenceForMed(med.id);
+      return !occ?.skipped;
+    });
+  }, [meds, selectedDate, occurrences]);
+
   const filteredMoods = useMemo(() => filterByDate(moods, selectedDate, false, 'time'), [moods, selectedDate]);
   const filteredFoods = useMemo(() => filterByDate(foods, selectedDate, false, 'time'), [foods, selectedDate]);
   const filteredSymptoms = useMemo(() => filterByDate(symptoms, selectedDate, false, 'time'), [symptoms, selectedDate]);
   const filteredAffirmations = useMemo(() => filterByDate(affirmations, selectedDate, false, 'affirmation_date'), [affirmations, selectedDate]);
 
+  const isMedTaken = (med) => {
+    if (isScheduledMed(med)) {
+      const occ = getOccurrenceForMed(med.id);
+      return !!occ?.is_taken;
+    }
+    return !!med.is_taken;
+  };
+
   const hasUrgentMed = useMemo(() => {
     return filteredMeds?.some?.((med) => {
-      if (med.is_taken || !med.time) return false;
+      if (isMedTaken(med) || !med.time) return false;
       const diff = new Date(med.time) - now;
       return diff > 0 && diff < 60000;
     });
-  }, [filteredMeds, now]);
+  }, [filteredMeds, now, occurrences]);
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), hasUrgentMed ? 1000 : 60000);
@@ -64,12 +109,22 @@ export default function HomeScreen({ navigation }) {
     switch (section.type) {
       case 'med':
         return () => (
-          <MaterialCommunityIcons
-            name={MED_ICON_DISPLAY_MAP[item.icon] || 'pill'}
-            size={24}
-            color={item.icon_color || '#7E57C2'}
-            style={styles.itemIcon}
-          />
+          <View style={styles.medIconWrap}>
+            <MaterialCommunityIcons
+              name={MED_ICON_DISPLAY_MAP[item.icon] || 'pill'}
+              size={24}
+              color={item.icon_color || '#7E57C2'}
+              style={styles.itemIcon}
+            />
+            {isScheduledMed(item) && (
+              <MaterialCommunityIcons
+                name="repeat"
+                size={10}
+                color={theme.colors.onSurfaceVariant}
+                style={styles.repeatIcon}
+              />
+            )}
+          </View>
         );
       case 'mood': {
         const mood = MOOD_ICON_MAP[item.status?.toLowerCase()] || MOOD_ICON_MAP.okay;
@@ -129,7 +184,9 @@ export default function HomeScreen({ navigation }) {
               {section.data.map((item) => {
                 const isMed = section.type === 'med';
                 const time = formatMedTime(item.time);
-                const countdown = isMed && !item.is_taken ? getCountdown(item.time, now) : null;
+                const taken = isMed && isMedTaken(item);
+                const countdown = isMed && !taken ? getCountdown(item.time, now) : null;
+                const occ = isMed ? getOccurrenceForMed(item.id) : null;
                 return (
                   <List.Item
                     key={item.id}
@@ -137,7 +194,7 @@ export default function HomeScreen({ navigation }) {
                     left={getSectionIcon(section, item)}
                     right={(isMed || time) ? () => (
                       <View style={styles.medBadges}>
-                        {isMed && item.is_taken ? (
+                        {isMed && taken ? (
                           <View style={[styles.badge, styles.takenBadge]}>
                             <Text style={styles.badgeText}>Taken ✓</Text>
                           </View>
@@ -153,7 +210,7 @@ export default function HomeScreen({ navigation }) {
                         )}
                       </View>
                     ) : undefined}
-                    onPress={() => navigation.navigate(section.editScreen, { id: item.id, item })}
+                    onPress={() => navigation.navigate(section.editScreen, { id: item.id, item, occurrence: occ })}
                   />
                 );
               })}
@@ -191,9 +248,17 @@ const styles = StyleSheet.create({
   accordionHeader: {
     borderRadius: 12,
   },
+  medIconWrap: {
+    alignSelf: 'center',
+    marginLeft: 16,
+    alignItems: 'center',
+  },
   itemIcon: {
     alignSelf: 'center',
     marginLeft: 16,
+  },
+  repeatIcon: {
+    marginTop: -2,
   },
   foodEmoji: {
     fontSize: 22,

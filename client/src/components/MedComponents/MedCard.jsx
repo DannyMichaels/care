@@ -11,7 +11,7 @@ import MedEdit from '../Dialogs/MedDialogs/MedEdit';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import MedDetail from '../Dialogs/MedDialogs/MedDetail';
 import Typography from '@material-ui/core/Typography';
-import { compareDateWithCurrentTime } from '@care/shared';
+import { compareDateWithCurrentTime, isScheduledMed } from '@care/shared';
 import MedImage from './MedImage';
 import GlassCard from '../shared/GlassCard';
 
@@ -51,6 +51,8 @@ export default function MedCard({
   openOptions,
   handleDelete,
   RXGuideMeds,
+  occurrences = [],
+  selectedDate,
 }) {
   const classes = useStyles();
   const [isRefreshed, setIsRefreshed] = useState(false);
@@ -59,6 +61,12 @@ export default function MedCard({
   const [rerender, toggleRerender] = useState(false);
 
   let timerId = useRef(null);
+
+  const scheduled = isScheduledMed(med);
+  const occurrence = occurrences.find(
+    (o) => o.medication_id === med.id && o.occurrence_date === selectedDate
+  );
+  const medIsTaken = scheduled ? !!occurrence?.is_taken : !!med.is_taken;
 
   const onSave = (id, formData) => {
     handleUpdate(id, formData);
@@ -137,14 +145,14 @@ export default function MedCard({
               <CircularProgress style={{ height: '80px', width: '80px' }} />
             </div>
           )}
-          {!med.is_taken && compareDateWithCurrentTime(med.time) < 0 ? (
+          {!medIsTaken && compareDateWithCurrentTime(med.time) < 0 ? (
             <div onClick={handleDetailOpen} className={classes.clickArea}>
               <Typography variant="body2">
                 You have to take {med?.name} at <br />
                 <Moment format="MMM/DD/yyyy hh:mm A">{med?.time}</Moment>
               </Typography>
             </div>
-          ) : !med.is_taken && compareDateWithCurrentTime(med.time) === 1 ? (
+          ) : !medIsTaken && compareDateWithCurrentTime(med.time) === 1 ? (
             <div onClick={handleDetailOpen} className={classes.clickArea}>
               <Typography variant="body2">
                 You were supposed to take {med?.name} at <br />
@@ -155,7 +163,7 @@ export default function MedCard({
             <div onClick={handleDetailOpen} className={classes.clickArea}>
               <Typography variant="body2">
                 You took {med?.name} at <br />
-                <Moment format="MMM/DD/yyyy hh:mm A">{med?.taken_date}</Moment>
+                <Moment format="MMM/DD/yyyy hh:mm A">{scheduled ? occurrence?.taken_date : med?.taken_date}</Moment>
               </Typography>
             </div>
           )}
@@ -191,6 +199,8 @@ export default function MedCard({
             onDelete={onDelete}
             onTake={onTake}
             handleDetailClose={handleDetailClose}
+            medIsTaken={medIsTaken}
+            occurrence={occurrence}
           />
         )}
       </GlassCard>

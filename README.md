@@ -415,3 +415,4 @@ if the user's input DOESN"T match one of the names in the foodRegex, it will ret
 - added backend blocking for insight content that might be inappropriate, uses OpenAI to review the content.
 - updated browser version UI to have a slightly more modern look but still in-large keep as is.
 - create/edit insights using markdown editor and markdown reader for detail page
+- added med scheduling

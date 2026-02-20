@@ -9,20 +9,19 @@ const CARD_W = 56;
 const CARD_MX = 4;
 const CARD_TOTAL = CARD_W + CARD_MX * 2;
 
-const DayCard = memo(function DayCard({ day, isSelected, colors, onSelect }) {
+const DayCard = memo(function DayCard({ day, isSelected, isTodayUnselected, colors, onSelect }) {
   return (
     <TouchableOpacity
-      activeOpacity={day.isFuture ? 1 : 0.7}
+      activeOpacity={0.7}
       style={[
         styles.card,
         { backgroundColor: colors.surfaceVariant },
-        day.isFuture && styles.futureCard,
         isSelected && { backgroundColor: colors.primary },
       ]}
-      onPress={() => !day.isFuture && onSelect(day.dateStr)}
+      onPress={() => onSelect(day.dateStr)}
     >
-      {day.isToday && (
-        <Text style={[styles.todayLabel, isSelected && { color: colors.onPrimary }]}>
+      {day.isToday && isSelected && (
+        <Text style={[styles.todayLabel, { color: colors.onPrimary }]}>
           TODAY
         </Text>
       )}
@@ -53,11 +52,15 @@ const DayCard = memo(function DayCard({ day, isSelected, colors, onSelect }) {
       >
         {day.month}
       </Text>
+      {isTodayUnselected && (
+        <View style={[styles.todayDot, { backgroundColor: colors.primary }]} />
+      )}
     </TouchableOpacity>
   );
 }, (prev, next) => (
   prev.day.dateStr === next.day.dateStr
   && prev.isSelected === next.isSelected
+  && prev.isTodayUnselected === next.isTodayUnselected
 ));
 
 export default function DateCarousel() {
@@ -70,6 +73,7 @@ export default function DateCarousel() {
     () => parseInt(selectedDate.substring(0, 4), 10)
   );
   const hasMounted = useRef(false);
+  const todayStr = useMemo(() => new Date().toLocaleDateString('en-CA'), []);
 
   useEffect(() => {
     const idx = days.findIndex((d) => d.dateStr === selectedDate);
@@ -96,6 +100,10 @@ export default function DateCarousel() {
     setSelectedDate(date.toLocaleDateString('en-CA'));
   };
 
+  const handleGoToToday = () => {
+    setSelectedDate(todayStr);
+  };
+
   return (
     <View>
       <View style={styles.header}>
@@ -103,13 +111,13 @@ export default function DateCarousel() {
         <Text variant="labelMedium" style={[styles.year, { color: colors.onSurface }]}>
           {visibleYear}
         </Text>
+        <IconButton icon="calendar-today" size={20} onPress={handleGoToToday} />
       </View>
 
       <DatePickerModal
         visible={showPicker}
         value={new Date(selectedDate + 'T00:00:00')}
         mode="date"
-        maximumDate={new Date()}
         onConfirm={handlePickerConfirm}
         onDismiss={() => setShowPicker(false)}
       />
@@ -128,6 +136,7 @@ export default function DateCarousel() {
             key={day.dateStr}
             day={day}
             isSelected={day.dateStr === selectedDate}
+            isTodayUnselected={day.isToday && day.dateStr !== selectedDate}
             colors={colors}
             onSelect={setSelectedDate}
           />
@@ -159,12 +168,17 @@ const styles = StyleSheet.create({
     marginHorizontal: CARD_MX,
     paddingVertical: 6,
   },
-  futureCard: { opacity: 0.3 },
   todayLabel: {
     fontSize: 8,
     fontWeight: '700',
     letterSpacing: 0.3,
     textTransform: 'uppercase',
+  },
+  todayDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginTop: 2,
   },
   dayText: {
     fontSize: 10,

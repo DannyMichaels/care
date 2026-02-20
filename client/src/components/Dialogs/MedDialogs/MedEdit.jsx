@@ -67,17 +67,25 @@ export default function MedEdit({
     }
   }, [meds, id]);
 
-  const medOptions = RXGuideMeds.map((m) => m.fields.name);
+  const medOptions = (() => {
+    const rxNames = RXGuideMeds.map((m) => m.fields.name);
+    const seen = new Set(rxNames.map((n) => n.toLowerCase()));
+    const userNames = (meds || [])
+      .filter((m) => m.name && !seen.has(m.name.toLowerCase()))
+      .map((m) => m.name);
+    return [...rxNames, ...userNames];
+  })();
 
   const handleAutocompleteChange = (e, value) => {
-    const match = RXGuideMeds.find((m) => m.fields.name === value);
+    const rxMatch = RXGuideMeds.find((m) => m.fields.name === value);
+    const userMatch = !rxMatch && meds?.find((m) => m.name?.toLowerCase() === value?.toLowerCase());
     setFormData((prev) => ({
       ...prev,
       name: value || '',
-      image: match?.fields.image || prev.image,
-      medication_class: match?.fields.medClass || prev.medication_class,
-      icon: match?.fields.icon || prev.icon,
-      icon_color: match?.fields.iconColor || prev.icon_color,
+      image: rxMatch?.fields.image || prev.image,
+      medication_class: rxMatch?.fields.medClass || userMatch?.medication_class || prev.medication_class,
+      icon: rxMatch?.fields.icon || userMatch?.icon || prev.icon,
+      icon_color: rxMatch?.fields.iconColor || userMatch?.icon_color || prev.icon_color,
     }));
   };
 

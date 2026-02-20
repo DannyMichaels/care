@@ -2,24 +2,35 @@ import { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, List } from 'react-native-paper';
 import { useTheme } from 'react-native-paper';
-import { getRXGuideMeds } from '@care/shared';
+import { getRXGuideMeds, getAllMeds } from '@care/shared';
 
 export default function MedicationSuggestions({ name, onNameChange, onSelect }) {
   const theme = useTheme();
   const [rxGuide, setRxGuide] = useState([]);
+  const [userMeds, setUserMeds] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
     getRXGuideMeds().then(setRxGuide).catch(() => {});
+    getAllMeds().then((m) => setUserMeds(m || [])).catch(() => {});
   }, []);
 
   const handleChange = (text) => {
     onNameChange(text);
     if (text.length > 0) {
-      const filtered = rxGuide.filter((m) =>
-        m.fields.name?.toLowerCase().includes(text.toLowerCase())
+      const query = text.toLowerCase();
+      const rxMatches = rxGuide.filter((m) =>
+        m.fields.name?.toLowerCase().includes(query)
       );
+      const seen = new Set(rxMatches.map((m) => m.fields.name?.toLowerCase()));
+      const userMatches = userMeds
+        .filter((m) => m.name?.toLowerCase().includes(query) && !seen.has(m.name?.toLowerCase()))
+        .map((m) => ({
+          id: 'user-' + m.id,
+          fields: { name: m.name, medClass: m.medication_class, icon: m.icon, iconColor: m.icon_color },
+        }));
+      const filtered = [...rxMatches, ...userMatches];
       setSuggestions(filtered);
       setShowSuggestions(filtered.length > 0);
     } else {

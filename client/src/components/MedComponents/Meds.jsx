@@ -74,6 +74,7 @@ export default function Meds({
     <>
       <MedCreate
         RXGuideMeds={RXGuideMeds}
+        userMeds={meds}
         open={createOpen}
         onSave={onSave}
         handleClose={onCloseCreate}

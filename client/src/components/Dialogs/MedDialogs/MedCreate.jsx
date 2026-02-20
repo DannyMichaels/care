@@ -16,7 +16,7 @@ import MedIconDisplay from '../../MedComponents/MedIconDisplay';
 import SchedulePicker from '../../SchedulePicker/SchedulePicker';
 import { useFormStyles } from '../../Form/formStyles';
 
-export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
+export default function MedCreate({ RXGuideMeds, userMeds = [], open, onSave, handleClose }) {
   const { selectedDate } = useContext(DateContext);
   const [loading, setLoading] = useState(false);
   const classes = useFormStyles();
@@ -44,17 +44,25 @@ export default function MedCreate({ RXGuideMeds, open, onSave, handleClose }) {
     }
   }, [open, selectedDate]);
 
-  const medOptions = RXGuideMeds.map((m) => m.fields.name);
+  const medOptions = (() => {
+    const rxNames = RXGuideMeds.map((m) => m.fields.name);
+    const seen = new Set(rxNames.map((n) => n.toLowerCase()));
+    const userNames = userMeds
+      .filter((m) => m.name && !seen.has(m.name.toLowerCase()))
+      .map((m) => m.name);
+    return [...rxNames, ...userNames];
+  })();
 
   const handleAutocompleteChange = (e, value) => {
-    const match = RXGuideMeds.find((m) => m.fields.name.toLowerCase().includes(value.toLowerCase()));
+    const rxMatch = RXGuideMeds.find((m) => m.fields.name.toLowerCase().includes(value.toLowerCase()));
+    const userMatch = !rxMatch && userMeds.find((m) => m.name?.toLowerCase() === value?.toLowerCase());
     setFormData((prev) => ({
       ...prev,
       name: value || '',
-      image: match?.fields.image || '',
-      medication_class: match?.fields.medClass || '',
-      icon: match?.fields.icon || prev.icon,
-      icon_color: match?.fields.iconColor || prev.icon_color,
+      image: rxMatch?.fields.image || '',
+      medication_class: rxMatch?.fields.medClass || userMatch?.medication_class || '',
+      icon: rxMatch?.fields.icon || userMatch?.icon || prev.icon,
+      icon_color: rxMatch?.fields.iconColor || userMatch?.icon_color || prev.icon_color,
     }));
   };
 

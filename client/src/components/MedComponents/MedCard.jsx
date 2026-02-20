@@ -68,6 +68,14 @@ export default function MedCard({
   );
   const medIsTaken = scheduled ? !!occurrence?.is_taken : !!med.is_taken;
 
+  const effectiveTime = (() => {
+    if (!scheduled || !selectedDate) return med.time;
+    const t = new Date(med.time);
+    const hh = String(t.getHours()).padStart(2, '0');
+    const mm = String(t.getMinutes()).padStart(2, '0');
+    return `${selectedDate}T${hh}:${mm}:00`;
+  })();
+
   const onSave = (id, formData) => {
     handleUpdate(id, formData);
     setIsRefreshed(true);
@@ -105,8 +113,8 @@ export default function MedCard({
   };
 
   useEffect(() => {
-    if (compareDateWithCurrentTime(med.time) === -1) {
-      let delay = new Date(med.time).getTime() - Date.now();
+    if (compareDateWithCurrentTime(effectiveTime) === -1) {
+      let delay = new Date(effectiveTime).getTime() - Date.now();
       if (timerId.current) {
         clearTimeout(timerId.current);
       }
@@ -115,7 +123,7 @@ export default function MedCard({
       }, delay);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [med?.time]);
+  }, [effectiveTime]);
 
   return (
     <>
@@ -145,18 +153,18 @@ export default function MedCard({
               <CircularProgress style={{ height: '80px', width: '80px' }} />
             </div>
           )}
-          {!medIsTaken && compareDateWithCurrentTime(med.time) < 0 ? (
+          {!medIsTaken && compareDateWithCurrentTime(effectiveTime) < 0 ? (
             <div onClick={handleDetailOpen} className={classes.clickArea}>
               <Typography variant="body2">
                 You have to take {med?.name} at <br />
-                <Moment format="MMM/DD/yyyy hh:mm A">{med?.time}</Moment>
+                <Moment format="MMM/DD/yyyy hh:mm A">{effectiveTime}</Moment>
               </Typography>
             </div>
-          ) : !medIsTaken && compareDateWithCurrentTime(med.time) === 1 ? (
+          ) : !medIsTaken && compareDateWithCurrentTime(effectiveTime) === 1 ? (
             <div onClick={handleDetailOpen} className={classes.clickArea}>
               <Typography variant="body2">
                 You were supposed to take {med?.name} at <br />
-                <Moment format="MMM/DD/yyyy hh:mm A">{med?.time}</Moment>
+                <Moment format="MMM/DD/yyyy hh:mm A">{effectiveTime}</Moment>
               </Typography>
             </div>
           ) : (

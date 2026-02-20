@@ -92,13 +92,19 @@ export default function HomeScreen({ navigation }) {
     return !!med.is_taken;
   };
 
+  const getEffectiveTime = (med) => {
+    if (!isScheduledMed(med)) return med.time;
+    const t = new Date(med.time);
+    return `${selectedDate}T${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}:00`;
+  };
+
   const hasUrgentMed = useMemo(() => {
     return filteredMeds?.some?.((med) => {
       if (isMedTaken(med) || !med.time) return false;
-      const diff = new Date(med.time) - now;
+      const diff = new Date(getEffectiveTime(med)) - now;
       return diff > 0 && diff < 60000;
     });
-  }, [filteredMeds, now, occurrences]);
+  }, [filteredMeds, now, occurrences, selectedDate]);
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), hasUrgentMed ? 1000 : 60000);
@@ -183,9 +189,10 @@ export default function HomeScreen({ navigation }) {
             >
               {section.data.map((item) => {
                 const isMed = section.type === 'med';
-                const time = formatMedTime(item.time);
+                const effectiveTime = isMed ? getEffectiveTime(item) : item.time;
+                const time = formatMedTime(effectiveTime);
                 const taken = isMed && isMedTaken(item);
-                const countdown = isMed && !taken ? getCountdown(item.time, now) : null;
+                const countdown = isMed && !taken ? getCountdown(effectiveTime, now) : null;
                 const occ = isMed ? getOccurrenceForMed(item.id) : null;
                 return (
                   <List.Item

@@ -36,8 +36,7 @@
 
 **Care**
 
-Care is a Full-Stack React & Rails crud app with authentication where the user can track his mood, symptoms, log food, track medications, and share insights with the community.
-So far there are 10 tables all with full crud and associations
+Care is a full-stack health tracking platform built with React and Rails. Users can log medications with recurring schedules and push notification reminders, track moods, symptoms, and food intake over time, and share insights with the community. Features include email verification, scheduled medication notifications powered by Sidekiq and Redis, web and mobile push notifications, content moderation, and a React Native mobile app.
 
 <br>
 

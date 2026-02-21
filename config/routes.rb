@@ -17,7 +17,11 @@ Rails.application.routes.draw do
       get :rx_guide
       get :dashboard
     end
-    resources :occurrences, controller: 'medication_occurrences', only: [:index, :create, :update, :destroy]
+    resources :occurrences, controller: 'medication_occurrences', only: [:index, :create, :update, :destroy] do
+      collection do
+        delete :destroy_untaken
+      end
+    end
   end
   get 'medication_occurrences', to: 'medication_occurrences#batch_index'
   resources :foods

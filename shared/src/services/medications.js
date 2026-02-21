@@ -63,3 +63,8 @@ export const deleteOccurrence = async (medId, occId) => {
   const resp = await api.delete(`/medications/${medId}/occurrences/${occId}`);
   return resp;
 };
+
+export const deleteUntakenOccurrences = async (medId) => {
+  const resp = await api.delete(`/medications/${medId}/occurrences/destroy_untaken`);
+  return resp.data;
+};

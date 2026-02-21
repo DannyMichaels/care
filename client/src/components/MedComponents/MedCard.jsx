@@ -11,9 +11,10 @@ import MedEdit from '../Dialogs/MedDialogs/MedEdit';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import MedDetail from '../Dialogs/MedDialogs/MedDetail';
 import Typography from '@material-ui/core/Typography';
-import { compareDateWithCurrentTime, isScheduledMed, getEffectiveTime, createOccurrence, deleteOccurrence } from '@care/shared';
+import { compareDateWithCurrentTime, isScheduledMed, getEffectiveTime, createOccurrence, deleteOccurrence, deleteUntakenOccurrences } from '@care/shared';
 import MedImage from './MedImage';
 import GlassCard from '../shared/GlassCard';
+import DeleteMedDialog from '../Dialogs/MedDialogs/DeleteMedDialog';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -57,6 +58,7 @@ export default function MedCard({
   const [isRefreshed, setIsRefreshed] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [rerender, toggleRerender] = useState(false);
 
   const timerId = useRef(null);
@@ -116,13 +118,43 @@ export default function MedCard({
     }
   };
 
-  const onDelete = (id) => {
-    handleDelete(id);
+  const onDelete = () => {
     setOpenDetail(false);
+    setOpenDeleteDialog(true);
   };
 
-  const onTake = (id, medData) => {
-    handleUpdate(id, medData);
+  const onSkipDay = async () => {
+    if (scheduled) {
+      await createOccurrence(med.id, { occurrence_date: selectedDate, skipped: true });
+      onOccurrenceChange?.();
+    } else {
+      await handleUpdate(med.id, { skipped: true });
+    }
+    setOpenDeleteDialog(false);
+  };
+
+  const onDeleteUntaken = async () => {
+    await deleteUntakenOccurrences(med.id);
+    onOccurrenceChange?.();
+    setOpenDeleteDialog(false);
+  };
+
+  const onDeleteMed = async () => {
+    await handleDelete(med.id);
+    setOpenDeleteDialog(false);
+  };
+
+  const onTake = async (id, medData) => {
+    if (scheduled) {
+      await createOccurrence(med.id, {
+        occurrence_date: selectedDate,
+        is_taken: true,
+        taken_date: new Date().toISOString(),
+      });
+      onOccurrenceChange?.();
+    } else {
+      handleUpdate(id, medData);
+    }
     setOpenDetail(false);
   };
 
@@ -204,7 +236,7 @@ export default function MedCard({
                 <IconButton
                   color="secondary"
                   size="small"
-                  onClick={() => handleDelete(med.id)}
+                  onClick={() => setOpenDeleteDialog(true)}
                 >
                   <DeleteIcon fontSize="small" />
                 </IconButton>
@@ -229,6 +261,16 @@ export default function MedCard({
         )}
       </GlassCard>
 
+      <DeleteMedDialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+        med={med}
+        scheduled={scheduled}
+        onSkipDay={onSkipDay}
+        onDeleteUntaken={onDeleteUntaken}
+        onDeleteMed={onDeleteMed}
+      />
+
       {openEdit && (
         <Switch>
           <Route path="/medications/:id/edit">
@@ -241,6 +283,9 @@ export default function MedCard({
               handleUpdate={handleUpdate}
               setOpenEdit={setOpenEdit}
               handleClose={() => setOpenEdit(false)}
+              selectedDate={selectedDate}
+              occurrence={occurrence}
+              onOccurrenceChange={onOccurrenceChange}
             />
           </Route>
         </Switch>

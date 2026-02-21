@@ -54,7 +54,7 @@ export default function RootNavigator({ navigationRef }) {
               screen: 'Home',
               params: {
                 screen: 'MedEdit',
-                params: { id: med.id, item: med },
+                params: { id: med.id, item: med, occurrence: med.occurrence || null },
               },
             });
             return;

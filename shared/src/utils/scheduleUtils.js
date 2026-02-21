@@ -68,6 +68,7 @@ export function getOccurrencesInRange(med, fromDate, toDate) {
 
 export function getEffectiveTime(med, selectedDate) {
   if (!isScheduledMed(med) || !selectedDate) return med.time;
+  if (med.occurrence?.time) return med.occurrence.time;
   const t = new Date(med.time);
   const hh = String(t.getHours()).padStart(2, '0');
   const mm = String(t.getMinutes()).padStart(2, '0');

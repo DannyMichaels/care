@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { Button, Text, Chip, TextInput } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { putMed, destroyMed, createOccurrence, updateOccurrence, deleteOccurrence, isScheduledMed, MED_ICONS, MED_COLORS, MED_ICON_DISPLAY_MAP, DEFAULT_ICON, DEFAULT_COLOR, getApiError } from '@care/shared';
+import { putMed, destroyMed, createOccurrence, updateOccurrence, deleteOccurrence, deleteUntakenOccurrences, isScheduledMed, MED_ICONS, MED_COLORS, MED_ICON_DISPLAY_MAP, DEFAULT_ICON, DEFAULT_COLOR, getApiError } from '@care/shared';
 import { useDate } from '../../context/DateContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
@@ -61,31 +61,73 @@ export default function MedEditScreen({ route, navigation }) {
     }
   };
 
+  const timeChanged = () => {
+    if (!item.time) return false;
+    const orig = new Date(item.time);
+    return orig.getHours() !== time.getHours() || orig.getMinutes() !== time.getMinutes();
+  };
+
   const handleUpdate = () => {
     const wasScheduled = isScheduledMed(item);
     const becomingOneTime = wasScheduled && !scheduleUnit;
 
-    if (!becomingOneTime) {
-      saveMed();
+    if (becomingOneTime) {
+      Alert.alert(
+        'Convert to One-Time',
+        'What would you like to do with past occurrence records?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Keep history',
+            onPress: () => saveMed({ conversion_date: selectedDate, occurrence_action: 'keep' }),
+          },
+          {
+            text: 'Delete all',
+            style: 'destructive',
+            onPress: () => saveMed({ conversion_date: selectedDate, occurrence_action: 'delete_all' }),
+          },
+        ]
+      );
       return;
     }
 
-    Alert.alert(
-      'Convert to One-Time',
-      'What would you like to do with past occurrence records?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Keep history',
-          onPress: () => saveMed({ conversion_date: selectedDate, occurrence_action: 'keep' }),
-        },
-        {
-          text: 'Delete all',
-          style: 'destructive',
-          onPress: () => saveMed({ conversion_date: selectedDate, occurrence_action: 'delete_all' }),
-        },
-      ]
-    );
+    if (wasScheduled && timeChanged()) {
+      Alert.alert(
+        'Change Time',
+        'Change the time for all occurrences or just this day?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'All occurrences',
+            onPress: () => saveMed(),
+          },
+          {
+            text: 'Just this day',
+            onPress: async () => {
+              setLoading(true);
+              try {
+                const medData = { ...buildMedData(), time: item.time };
+                await putMed(id, medData);
+                const newTime = time.toISOString();
+                if (occurrence?.id) {
+                  await updateOccurrence(id, occurrence.id, { time: newTime });
+                } else {
+                  await createOccurrence(id, { occurrence_date: selectedDate, time: newTime });
+                }
+                navigation.goBack();
+              } catch (err) {
+                Alert.alert('Error', getApiError(err));
+              } finally {
+                setLoading(false);
+              }
+            },
+          },
+        ]
+      );
+      return;
+    }
+
+    saveMed();
   };
 
   const handleMarkTaken = () => {
@@ -158,6 +200,17 @@ export default function MedEditScreen({ route, navigation }) {
           onPress: async () => {
             try {
               await createOccurrence(id, { occurrence_date: selectedDate, skipped: true });
+              navigation.goBack();
+            } catch (err) {
+              Alert.alert('Error', getApiError(err));
+            }
+          },
+        },
+        {
+          text: 'Delete untaken occurrences',
+          onPress: async () => {
+            try {
+              await deleteUntakenOccurrences(id);
               navigation.goBack();
             } catch (err) {
               Alert.alert('Error', getApiError(err));

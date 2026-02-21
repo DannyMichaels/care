@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_20_180000) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_21_163356) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -94,6 +94,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_20_180000) do
     t.boolean "skipped", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "time"
     t.index ["medication_id", "occurrence_date"], name: "index_med_occurrences_on_med_id_and_date", unique: true
     t.index ["medication_id"], name: "index_medication_occurrences_on_medication_id"
   end

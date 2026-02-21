@@ -132,7 +132,7 @@ export default function MedDetail({
           variant="contained"
           color="secondary"
           className="delete-button"
-          onClick={() => onDelete(med.id)}
+          onClick={onDelete}
         >
           Delete
         </Button>

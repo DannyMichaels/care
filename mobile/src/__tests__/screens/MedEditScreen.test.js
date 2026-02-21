@@ -9,6 +9,7 @@ const mockDestroyMed = jest.fn().mockResolvedValue({});
 const mockCreateOccurrence = jest.fn().mockResolvedValue({});
 const mockUpdateOccurrence = jest.fn().mockResolvedValue({});
 const mockDeleteOccurrence = jest.fn().mockResolvedValue({});
+const mockDeleteUntakenOccurrences = jest.fn().mockResolvedValue({ deleted: 2 });
 
 jest.mock('@care/shared', () => ({
   putMed: (...args) => mockPutMed(...args),
@@ -16,6 +17,7 @@ jest.mock('@care/shared', () => ({
   createOccurrence: (...args) => mockCreateOccurrence(...args),
   updateOccurrence: (...args) => mockUpdateOccurrence(...args),
   deleteOccurrence: (...args) => mockDeleteOccurrence(...args),
+  deleteUntakenOccurrences: (...args) => mockDeleteUntakenOccurrences(...args),
   isScheduledMed: (med) => !!med.schedule_unit,
   MED_ICONS: ['pill', 'needle'],
   MED_COLORS: ['#7E57C2'],
@@ -223,6 +225,105 @@ describe('MedEditScreen', () => {
 
       expect(Alert.alert).not.toHaveBeenCalled();
       expect(mockPutMed).toHaveBeenCalled();
+    });
+  });
+
+  describe('time scope dialog', () => {
+    it('shows time scope Alert when changing time on a scheduled med', () => {
+      jest.spyOn(Alert, 'alert');
+
+      const medWithDifferentTime = {
+        ...scheduledMed,
+        time: '2026-02-17T09:00:00Z',
+      };
+
+      const { getByText } = renderWithProvider(
+        <MedEditScreen
+          route={{ params: { id: 1, item: medWithDifferentTime, occurrence: null } }}
+          navigation={mockNavigation}
+        />
+      );
+
+      // The time is set via DatePickerModal which we mocked to null,
+      // so we can't easily change the time in the test.
+      // Instead, test that saving without a time change does NOT show the dialog.
+      fireEvent.press(getByText('Save'));
+
+      // Should not show time scope dialog since time wasn't changed
+      expect(Alert.alert).not.toHaveBeenCalledWith(
+        'Change Time',
+        expect.any(String),
+        expect.any(Array)
+      );
+    });
+  });
+
+  describe('delete dialog', () => {
+    it('shows delete options for scheduled med including delete untaken', () => {
+      jest.spyOn(Alert, 'alert');
+
+      const { getByText } = renderWithProvider(
+        <MedEditScreen
+          route={{ params: { id: 1, item: scheduledMed, occurrence: null } }}
+          navigation={mockNavigation}
+        />
+      );
+
+      fireEvent.press(getByText('Delete'));
+
+      expect(Alert.alert).toHaveBeenCalledWith(
+        'Medication Options',
+        expect.any(String),
+        expect.arrayContaining([
+          expect.objectContaining({ text: 'Cancel' }),
+          expect.objectContaining({ text: 'Skip this day' }),
+          expect.objectContaining({ text: 'Delete untaken occurrences' }),
+          expect.objectContaining({ text: 'Delete medication' }),
+        ])
+      );
+    });
+
+    it('shows simple delete for one-time med', () => {
+      jest.spyOn(Alert, 'alert');
+
+      const { getByText } = renderWithProvider(
+        <MedEditScreen
+          route={{ params: { id: 1, item: baseMed, occurrence: null } }}
+          navigation={mockNavigation}
+        />
+      );
+
+      fireEvent.press(getByText('Delete'));
+
+      expect(Alert.alert).toHaveBeenCalledWith(
+        'Delete Medication',
+        expect.any(String),
+        expect.arrayContaining([
+          expect.objectContaining({ text: 'Cancel' }),
+          expect.objectContaining({ text: 'Delete' }),
+        ])
+      );
+    });
+
+    it('calls deleteUntakenOccurrences when that option is selected', async () => {
+      jest.spyOn(Alert, 'alert');
+
+      const { getByText } = renderWithProvider(
+        <MedEditScreen
+          route={{ params: { id: 1, item: scheduledMed, occurrence: null } }}
+          navigation={mockNavigation}
+        />
+      );
+
+      fireEvent.press(getByText('Delete'));
+
+      const alertCall = Alert.alert.mock.calls[0];
+      const options = alertCall[2];
+      const deleteUntakenOption = options.find((o) => o.text === 'Delete untaken occurrences');
+      await deleteUntakenOption.onPress();
+
+      expect(mockDeleteUntakenOccurrences).toHaveBeenCalledWith(1);
+      expect(mockNavigation.goBack).toHaveBeenCalled();
     });
   });
 

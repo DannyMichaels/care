@@ -139,6 +139,84 @@ RSpec.describe 'MedicationOccurrences', type: :request do
     end
   end
 
+  describe 'DELETE /medications/:medication_id/occurrences/destroy_untaken' do
+    it 'deletes all untaken occurrences for the medication' do
+      create(:medication_occurrence, medication: medication, occurrence_date: '2026-02-19', is_taken: false)
+      create(:medication_occurrence, medication: medication, occurrence_date: '2026-02-20', is_taken: false, skipped: true)
+      create(:medication_occurrence, medication: medication, occurrence_date: '2026-02-21', is_taken: true, taken_date: Time.current)
+
+      expect {
+        delete "/medications/#{medication.id}/occurrences/destroy_untaken", headers: headers
+      }.to change(MedicationOccurrence, :count).by(-2)
+
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json['deleted']).to eq(2)
+    end
+
+    it 'preserves taken occurrences' do
+      taken = create(:medication_occurrence, medication: medication, occurrence_date: '2026-02-19', is_taken: true, taken_date: Time.current)
+
+      delete "/medications/#{medication.id}/occurrences/destroy_untaken", headers: headers
+
+      expect(MedicationOccurrence.exists?(taken.id)).to be true
+    end
+
+    it 'returns zero when no untaken occurrences exist' do
+      create(:medication_occurrence, medication: medication, occurrence_date: '2026-02-19', is_taken: true, taken_date: Time.current)
+
+      delete "/medications/#{medication.id}/occurrences/destroy_untaken", headers: headers
+
+      json = JSON.parse(response.body)
+      expect(json['deleted']).to eq(0)
+    end
+
+    it 'requires authentication' do
+      delete "/medications/#{medication.id}/occurrences/destroy_untaken"
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'occurrence time override' do
+    it 'creates an occurrence with a custom time' do
+      post "/medications/#{medication.id}/occurrences",
+        params: { occurrence_date: '2026-02-19', time: '2026-02-19T14:30:00Z' },
+        headers: headers
+
+      expect(response).to have_http_status(:created)
+      json = JSON.parse(response.body)
+      expect(json['time']).to be_present
+    end
+
+    it 'updates an occurrence time' do
+      occ = create(:medication_occurrence, medication: medication, occurrence_date: '2026-02-19')
+
+      put "/medications/#{medication.id}/occurrences/#{occ.id}",
+        params: { time: '2026-02-19T15:00:00Z' },
+        headers: headers
+
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json['time']).to be_present
+    end
+
+    it 'includes time in dashboard occurrence' do
+      today = Date.current.to_s
+      occ = create(:medication_occurrence,
+        medication: medication,
+        occurrence_date: today,
+        time: Time.parse("#{today}T14:30:00Z"))
+
+      get "/medications/dashboard?date=#{today}", headers: headers
+
+      json = JSON.parse(response.body)
+      med = json.find { |m| m['id'] == medication.id }
+      expect(med).to be_present
+      expect(med['occurrence']).to be_present
+      expect(med['occurrence']['time']).to be_present
+    end
+  end
+
   describe 'dependent destroy' do
     it 'destroys occurrences when medication is deleted' do
       create(:medication_occurrence, medication: medication, occurrence_date: '2026-02-19')

@@ -18,6 +18,7 @@ gem 'httparty'
 gem 'web-push', '1.0.0'
 gem 'resend'
 gem 'ruby-openai'
+gem 'connection_pool', '~> 2.4'
 gem 'sidekiq', '~> 7.3'
 gem 'sidekiq-cron', '~> 2.0'
 

@@ -277,6 +277,7 @@
     <a href="#daily-scheduler">Daily Scheduler</a>
     <a href="#notification-flow">Notification Flow</a>
     <a href="#configuration">Configuration</a>
+    <a href="#local-dev">Local Development</a>
     <a href="#deployment">Deployment</a>
     <a href="#monitoring">Monitoring</a>
   </nav>
@@ -526,6 +527,80 @@ Sidekiq.configure_client do |config|
 end</code></pre>
     </section>
 
+    <!-- LOCAL DEV -->
+    <section id="local-dev">
+      <h2>Local Development</h2>
+      <p>
+        Sidekiq runs as a separate process from your Rails server. You need <strong>both</strong>
+        running for background jobs to work locally.
+      </p>
+
+      <h3>Option 1: Foreman (recommended)</h3>
+      <p>Foreman reads the <code>Procfile</code> and starts both processes in one terminal.</p>
+
+      <pre><code># Install (one time)
+gem install foreman
+
+# Start both web + worker
+foreman start</code></pre>
+
+      <p>Foreman uses <code>.foreman</code> for config:</p>
+      <pre><code># .foreman
+port: 3005</code></pre>
+
+      <p>You'll see logs from both processes, prefixed to tell them apart:</p>
+      <pre><code><span style="color: var(--green);">web.1    |</span> Puma starting in single mode...
+<span style="color: var(--green);">web.1    |</span> * Listening on http://0.0.0.0:3005
+<span style="color: var(--purple);">worker.1 |</span> Sidekiq 7.3.9 connecting to Redis...
+<span style="color: var(--purple);">worker.1 |</span> Starting processing, hit Ctrl-C to stop</code></pre>
+
+      <div class="callout">
+        <strong>Ctrl+C</strong> stops both processes at once.
+      </div>
+
+      <h3>Option 2: Two terminals</h3>
+      <p>If you prefer running them separately (e.g., for debugging in RubyMine):</p>
+
+      <pre><code># Terminal 1 — Rails server
+rails s -p 3005
+
+# Terminal 2 — Sidekiq worker
+bundle exec sidekiq -C config/sidekiq.yml</code></pre>
+
+      <div class="callout warn">
+        <strong>Without the Sidekiq process running,</strong> jobs will be enqueued to Redis but never executed.
+        You'll see them pile up as "Scheduled" or "Enqueued" in the Sidekiq Web UI at
+        <code>/sidekiq</code> but nothing will happen until you start the worker.
+      </div>
+
+      <h3>Redis for local dev</h3>
+      <p>You have two options:</p>
+      <table>
+        <tr><th>Option</th><th>Setup</th><th>Pros</th><th>Cons</th></tr>
+        <tr>
+          <td>Upstash (remote)</td>
+          <td>Set <code>REDIS_URL</code> in <code>.env</code> to your Upstash URL</td>
+          <td>No local install needed</td>
+          <td>~50ms latency vs ~1ms</td>
+        </tr>
+        <tr>
+          <td>Local Redis</td>
+          <td>Install Redis, use <code>redis://localhost:6379/0</code></td>
+          <td>Fastest, works offline</td>
+          <td>Requires install</td>
+        </tr>
+      </table>
+
+      <h3>Sidekiq Web UI</h3>
+      <p>
+        Visit <code>http://localhost:3005/sidekiq</code> to see the dashboard.
+        <br>Login with the credentials from your <code>.env</code>:
+      </p>
+      <pre><code>SIDEKIQ_USERNAME=admin
+SIDEKIQ_PASSWORD=admin</code></pre>
+      <p>The dashboard shows queues, scheduled jobs, retries, dead jobs, and the Cron tab for the daily scheduler.</p>
+    </section>
+
     <!-- DEPLOYMENT -->
     <section id="deployment">
       <h2>Deployment (Render)</h2>
@@ -596,8 +671,8 @@ worker: bundle exec sidekiq -C config/sidekiq.yml</code></pre>
       </table>
 
       <div class="callout">
-        <strong>Sidekiq Web UI:</strong> Not currently mounted. To enable, add
-        <code>mount Sidekiq::Web => '/sidekiq'</code> in <code>routes.rb</code> behind admin authentication.
+        <strong>Sidekiq Web UI:</strong> Mounted at <code>/sidekiq</code> with HTTP Basic Auth.
+        Set <code>SIDEKIQ_USERNAME</code> and <code>SIDEKIQ_PASSWORD</code> env vars on Render to secure it in production.
       </div>
     </section>
 

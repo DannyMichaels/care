@@ -89,20 +89,17 @@ export default function DateCarousel() {
 
   return (
     <div className="date-carousel">
-      <div className="date-carousel__cal" style={{ position: 'relative' }}>
+      <div className="date-carousel__year">
         <IconButton size="small" onClick={handleCalendarClick}>
           <EventIcon />
         </IconButton>
         <input
-          ref={pickerRef}
-          type="date"
-          className="date-carousel__picker-input"
-          value={selectedDate}
-          onChange={handlePickerChange}
+            ref={pickerRef}
+            type="date"
+            className="date-carousel__picker-input"
+            value={selectedDate}
+            onChange={handlePickerChange}
         />
-      </div>
-
-      <div className="date-carousel__year">
         {visibleYear}
         <IconButton
           size="small"

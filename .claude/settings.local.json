@@ -50,7 +50,8 @@
       "Bash(npm test:*)",
       "WebSearch",
       "WebFetch(domain:rubygems.org)",
-      "WebFetch(domain:support.google.com)"
+      "WebFetch(domain:support.google.com)",
+      "Bash(gem install:*)"
     ]
   }
 }

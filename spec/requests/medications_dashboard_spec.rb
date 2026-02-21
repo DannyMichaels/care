@@ -55,11 +55,7 @@ RSpec.describe 'Medications Dashboard', type: :request do
       expect(humira['occurrence']).to be_nil
     end
 
-    it 'returns empty occurrences when no date param is provided' do
-      create(:medication_occurrence,
-        medication: scheduled_med, occurrence_date: today,
-        is_taken: true, taken_date: Time.current)
-
+    it 'returns all medications when no date param is provided' do
       get '/medications/dashboard', headers: headers
 
       json = JSON.parse(response.body)
@@ -70,12 +66,33 @@ RSpec.describe 'Medications Dashboard', type: :request do
     it 'does not return medications from other users' do
       other_user = create(:user, email: 'other@example.com')
       create(:medication, user: other_user, name: 'OtherMed',
-        time: Time.current, reason: 'Other')
+        time: Time.parse("#{today}T10:00:00"), reason: 'Other')
 
       get "/medications/dashboard?date=#{today}", headers: headers
 
       json = JSON.parse(response.body)
       expect(json.map { |m| m['name'] }).not_to include('OtherMed')
+    end
+
+    it 'excludes one-time meds on a different date' do
+      create(:medication, user: user, name: 'Tomorrow Med',
+        time: Time.parse('2026-02-21T09:00:00'), reason: 'Test')
+
+      get "/medications/dashboard?date=#{today}", headers: headers
+
+      json = JSON.parse(response.body)
+      expect(json.map { |m| m['name'] }).not_to include('Tomorrow Med')
+    end
+
+    it 'excludes recurring meds that do not occur on the date' do
+      create(:medication, user: user, name: 'Weekly Other Day',
+        time: Time.parse('2026-02-19T08:00:00'), reason: 'Test',
+        schedule_unit: 'week', schedule_interval: 1)
+
+      get "/medications/dashboard?date=#{today}", headers: headers
+
+      json = JSON.parse(response.body)
+      expect(json.map { |m| m['name'] }).not_to include('Weekly Other Day')
     end
   end
 end

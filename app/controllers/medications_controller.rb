@@ -23,14 +23,25 @@ class MedicationsController < ApplicationController
     date = params[:date]
 
     if date.present?
+      parsed_date = Date.parse(date)
+
       occ_map = MedicationOccurrence
         .where(medication_id: medications.select(:id), occurrence_date: date)
         .index_by(&:medication_id)
+
+      filtered = medications.select do |med|
+        if med.recurring?
+          med.occurs_on_date?(parsed_date)
+        else
+          med.time.present? && med.time.to_date == parsed_date
+        end
+      end
     else
       occ_map = {}
+      filtered = medications
     end
 
-    result = medications.map do |med|
+    result = filtered.map do |med|
       med.as_json.merge('occurrence' => occ_map[med.id]&.as_json)
     end
 

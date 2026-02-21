@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Care - How Redis, Rails & Sidekiq Connect</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-dim: #8b949e;
+      --primary: #58a6ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --orange: #f0883e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 { font-size: 1.5rem; font-weight: 600; }
+    header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 4px; }
+
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 32px;
+      display: flex;
+      gap: 24px;
+      overflow-x: auto;
+      position: sticky;
+      top: 72px;
+      z-index: 9;
+    }
+
+    nav a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      padding: 4px 0;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    nav a:hover, nav a:focus {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    main { max-width: 900px; margin: 0 auto; padding: 32px; }
+    section { margin-bottom: 48px; }
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--primary);
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 20px 0 10px;
+      color: var(--text);
+    }
+
+    p { margin-bottom: 12px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--surface-2);
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    td { background: var(--surface); }
+
+    code {
+      background: var(--surface-2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: var(--orange);
+    }
+
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      margin: 12px 0;
+    }
+
+    pre code { background: none; padding: 0; color: var(--text); }
+
+    .diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin: 16px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre;
+      color: var(--text-dim);
+    }
+
+    .diagram .hl { color: var(--primary); }
+    .diagram .gr { color: var(--green); }
+    .diagram .yl { color: var(--yellow); }
+    .diagram .rd { color: var(--red); }
+    .diagram .pr { color: var(--purple); }
+    .diagram .or { color: var(--orange); }
+
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 20px 0;
+    }
+
+    .flow-step {
+      display: flex;
+      gap: 16px;
+      position: relative;
+    }
+
+    .flow-line {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 32px;
+      flex-shrink: 0;
+    }
+
+    .flow-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--primary);
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    .flow-dot.green { background: var(--green); }
+    .flow-dot.yellow { background: var(--yellow); }
+    .flow-dot.red { background: var(--red); }
+    .flow-dot.purple { background: var(--purple); }
+    .flow-dot.orange { background: var(--orange); }
+
+    .flow-connector {
+      width: 2px;
+      flex: 1;
+      background: var(--border);
+      min-height: 16px;
+    }
+
+    .flow-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      flex: 1;
+    }
+
+    .flow-content strong { display: block; margin-bottom: 4px; }
+    .flow-content small { color: var(--text-dim); font-size: 0.85rem; }
+
+    .callout {
+      border-left: 3px solid var(--primary);
+      background: var(--surface);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 12px 0;
+    }
+
+    .callout.warn { border-left-color: var(--yellow); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    @media (max-width: 640px) {
+      .two-col, .three-col { grid-template-columns: 1fr; }
+      main { padding: 16px; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .card h4 { margin-bottom: 8px; color: var(--primary); }
+
+    ul { margin: 8px 0 16px 24px; }
+    li { margin-bottom: 4px; }
+
+    a { color: var(--primary); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>How Redis, Rails & Sidekiq Connect</h1>
+    <p>Care App &mdash; Architecture Documentation</p>
+  </header>
+
+  <nav>
+    <a href="#big-picture">Big Picture</a>
+    <a href="#three-processes">Three Processes</a>
+    <a href="#connection-config">Connection Config</a>
+    <a href="#enqueue-flow">Enqueue Flow</a>
+    <a href="#execute-flow">Execute Flow</a>
+    <a href="#cron-flow">Cron Flow</a>
+    <a href="#retry-flow">Retry Flow</a>
+    <a href="#all-together">All Together</a>
+    <a href="#files-map">Files Map</a>
+  </nav>
+
+  <main>
+
+    <!-- BIG PICTURE -->
+    <section id="big-picture">
+      <h2>The Big Picture</h2>
+      <p>
+        Care runs as three separate processes that communicate through Redis. Understanding how
+        they connect is key to understanding the entire background job system.
+      </p>
+
+      <div class="diagram"><span class="hl">Care Production Architecture</span>
+
+   <span class="gr">Process 1: Web (Puma)</span>              <span class="yl">Process 2: Redis</span>              <span class="pr">Process 3: Worker (Sidekiq)</span>
+  +-------------------------+        +---------------------+        +---------------------------+
+  |                         |        |                     |        |                           |
+  |  Rails App              |        |  In-Memory Store    |        |  Sidekiq Process          |
+  |                         |        |                     |        |                           |
+  |  Handles HTTP requests  | WRITE  |  queue:default  [ ] | READ   |  Polls queues for jobs    |
+  |  Saves to PostgreSQL    |------->|  queue:notif.   [ ] |------->|  Executes job classes      |
+  |  Enqueues jobs          |        |  schedule       { } |        |  Reads from PostgreSQL    |
+  |  Sends JSON responses   |        |  retry          { } |        |  Sends push notifications |
+  |                         |        |  cron_job:*     { } |        |  Sends emails             |
+  +----------+--------------+        +---------------------+        +-------------+-------------+
+             |                                                                    |
+             |                    +---------------------+                         |
+             +------------------->|    <span class="hl">PostgreSQL</span>        |<------------------------+
+                                  |                     |
+                                  |  users, medications |
+                                  |  occurrences, etc.  |
+                                  +---------------------+</div>
+
+      <div class="callout">
+        <strong>Key insight:</strong> The web process and worker process never talk to each other directly.
+        Redis is the only communication channel between them. The web process writes jobs to Redis;
+        the worker process reads jobs from Redis.
+      </div>
+    </section>
+
+    <!-- THREE PROCESSES -->
+    <section id="three-processes">
+      <h2>The Three Processes</h2>
+
+      <div class="three-col">
+        <div class="card">
+          <h4>Web (Puma)</h4>
+          <p><code>bundle exec puma</code></p>
+          <ul>
+            <li>Handles all HTTP requests</li>
+            <li>Runs your Rails controllers</li>
+            <li>Writes jobs to Redis</li>
+            <li>Never executes jobs itself</li>
+            <li>Returns responses immediately</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Redis</h4>
+          <p><code>redis-server</code></p>
+          <ul>
+            <li>Stores job data in memory</li>
+            <li>Acts as a message broker</li>
+            <li>Maintains queue ordering</li>
+            <li>Tracks scheduled job times</li>
+            <li>Persists data to disk periodically</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Worker (Sidekiq)</h4>
+          <p><code>bundle exec sidekiq</code></p>
+          <ul>
+            <li>Loads the full Rails app</li>
+            <li>Polls Redis for jobs</li>
+            <li>Executes job code (your job classes)</li>
+            <li>Has access to models, mailers, etc.</li>
+            <li>Runs with configurable concurrency</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>Important:</strong> The Sidekiq worker loads your entire Rails application. It can access
+        models, query PostgreSQL, send emails, make HTTP requests &mdash; everything your web process can do.
+        It just doesn't handle HTTP requests.
+      </div>
+    </section>
+
+    <!-- CONNECTION CONFIG -->
+    <section id="connection-config">
+      <h2>Connection Configuration</h2>
+      <p>Both the web process (Puma) and worker process (Sidekiq) connect to the same Redis instance. Here's how:</p>
+
+      <h3>config/initializers/sidekiq.rb</h3>
+      <pre><code># The WORKER connects to Redis to READ jobs
+Sidekiq.configure_server do |config|
+  config.redis = { url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0') }
+
+  # Register cron jobs on worker startup
+  config.on(:startup) do
+    Sidekiq::Cron::Job.create(
+      name: 'DailyMedicationScheduler',
+      cron: '0 4 * * *',
+      class: 'DailyMedicationSchedulerJob'
+    )
+  end
+end
+
+# The WEB PROCESS connects to Redis to WRITE jobs
+Sidekiq.configure_client do |config|
+  config.redis = { url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0') }
+end</code></pre>
+
+      <div class="diagram"><span class="hl">Who calls what?</span>
+
+<span class="gr">configure_server</span> &rarr; Called when <span class="pr">Sidekiq worker</span> boots
+  - Sets up Redis connection for reading/processing jobs
+  - Registers cron schedules
+  - Runs inside: <code>bundle exec sidekiq</code>
+
+<span class="yl">configure_client</span> &rarr; Called when <span class="gr">Rails web app</span> boots
+  - Sets up Redis connection for writing/enqueuing jobs
+  - Runs inside: <code>bundle exec puma</code>
+  - Also runs inside Sidekiq (workers can enqueue new jobs too)</div>
+
+      <h3>config/application.rb</h3>
+      <pre><code># Tell Rails ActiveJob to use Sidekiq as its backend
+config.active_job.queue_adapter = :sidekiq</code></pre>
+      <p>
+        This single line is what connects Rails' <code>ActiveJob</code> framework to Sidekiq.
+        When any code calls <code>.perform_later</code>, ActiveJob serializes the job and hands it
+        to Sidekiq, which writes it to Redis.
+      </p>
+
+      <h3>config/sidekiq.yml</h3>
+      <pre><code>:concurrency: 5       # 5 threads processing jobs simultaneously
+:queues:
+  - [default, 5]       # Priority 5 (highest) - mailers
+  - [notifications, 3] # Priority 3 - push notifications
+  - [scheduled, 1]     # Priority 1 (lowest) - daily scheduler</code></pre>
+
+      <div class="callout">
+        <strong>Concurrency:</strong> Sidekiq runs 5 threads inside 1 process. Each thread can
+        execute one job at a time. So up to 5 jobs run in parallel. This is much more efficient
+        than spawning separate processes for each job.
+      </div>
+    </section>
+
+    <!-- ENQUEUE FLOW -->
+    <section id="enqueue-flow">
+      <h2>Enqueue Flow (Rails &rarr; Redis)</h2>
+      <p>What happens when your Rails code enqueues a job:</p>
+
+      <pre><code># In medications_controller.rb
+MedicationNotificationJob.set(wait: delay.seconds)
+  .perform_later(medication.id, medication.time.to_s, today.to_s)</code></pre>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>1. <code>.perform_later()</code> called</strong>
+            <small>ActiveJob receives the method call with the job's arguments.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot yellow"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>2. ActiveJob serializes the job</strong>
+            <small>
+              Converts to a hash: <code>{ job_class, job_id, arguments, queue_name }</code>.
+              <br>Arguments are serialized &mdash; ActiveRecord objects become <code>[class_name, id]</code> pairs.
+              <br>This is why you pass <code>medication.id</code> (integer) not the medication object.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot purple"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>3. Sidekiq adapter wraps it</strong>
+            <small>
+              Adds Sidekiq-specific fields: <code>jid</code> (job ID), <code>retry</code> count, <code>at</code> (scheduled time).
+              <br>The <code>.set(wait: 30.minutes)</code> becomes <code>"at": 1740049200.0</code> (Unix timestamp).
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div></div>
+          <div class="flow-content">
+            <strong>4. Written to Redis</strong>
+            <small>
+              <strong>Immediate job:</strong> <code>LPUSH queue:notifications "{...}"</code> &mdash; pushed to the queue list.
+              <br><strong>Scheduled job:</strong> <code>ZADD schedule 1740049200.0 "{...}"</code> &mdash; added to sorted set with timestamp as score.
+              <br>The controller method returns immediately. The user gets their response without waiting.
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="diagram"><span class="hl">Redis after enqueuing a scheduled notification job</span>
+
+SORTED SET "schedule":
+  Score (run at)     | Value (job payload)
+  -------------------|--------------------------------------------------
+  <span class="yl">1740049200.0</span>       | <span class="gr">{"class":"MedicationNotificationJob",
+                     |  "args":[{"arguments":[42,"2026-02-20T09:00","2026-02-20"]}],
+                     |  "queue":"notifications","retry":25}</span></div>
+    </section>
+
+    <!-- EXECUTE FLOW -->
+    <section id="execute-flow">
+      <h2>Execute Flow (Redis &rarr; Sidekiq)</h2>
+      <p>What happens when Sidekiq picks up and runs a job:</p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot purple"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>1. Sidekiq scheduler thread polls</strong>
+            <small>
+              Every 5 seconds, checks the "schedule" sorted set: <code>ZRANGEBYSCORE schedule -inf {now}</code>.
+              <br>Finds all jobs whose <code>at</code> timestamp is in the past &mdash; these are due.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot yellow"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>2. Moves job to queue</strong>
+            <small>
+              Removes from "schedule" sorted set, pushes to <code>queue:notifications</code> list.
+              <br><code>ZREM schedule "{...}"</code> then <code>LPUSH queue:notifications "{...}"</code>
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>3. Worker thread picks up job</strong>
+            <small>
+              One of the 5 worker threads does <code>BRPOP queue:notifications</code> (blocking pop).
+              <br>It blocks until a job appears, then grabs it. The job is atomically removed from the queue.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>4. Deserializes and instantiates</strong>
+            <small>
+              Sidekiq reads <code>"class":"MedicationNotificationJob"</code>, creates an instance,
+              and calls <code>#perform(42, "2026-02-20T09:00", "2026-02-20")</code> with the deserialized arguments.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div></div>
+          <div class="flow-content">
+            <strong>5. Job executes</strong>
+            <small>
+              Your job code runs: queries PostgreSQL for the medication, checks if it's been taken,
+              sends push notifications via Expo/Web Push APIs.
+              <br>On success: job is done, removed from Redis entirely.
+              <br>On failure: job moves to the "retry" sorted set with a future timestamp (exponential backoff).
+            </small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CRON FLOW -->
+    <section id="cron-flow">
+      <h2>Cron Flow (sidekiq-cron)</h2>
+      <p>
+        The <code>DailyMedicationSchedulerJob</code> runs at 4 AM UTC every day.
+        Here's how sidekiq-cron makes that happen:
+      </p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot purple"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>1. Sidekiq boots</strong>
+            <small>
+              The <code>config.on(:startup)</code> block runs, calling <code>Sidekiq::Cron::Job.create</code>.
+              <br>This stores the cron definition in Redis: <code>HSET cron_job:DailyMedicationScheduler ...</code>
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot yellow"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>2. sidekiq-cron poller runs</strong>
+            <small>
+              Every 30 seconds, sidekiq-cron checks all registered cron jobs.
+              <br>It compares the current time against the cron expression <code>0 4 * * *</code>.
+              <br>It also checks <code>last_enqueue_time</code> to prevent duplicate runs.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>3. Cron fires</strong>
+            <small>
+              When it's 4:00 AM UTC and the job hasn't run today:
+              <br>sidekiq-cron enqueues <code>DailyMedicationSchedulerJob</code> to the <code>scheduled</code> queue.
+              <br>Updates <code>last_enqueue_time</code> in Redis to prevent re-enqueue.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div></div>
+          <div class="flow-content">
+            <strong>4. Job runs and enqueues more jobs</strong>
+            <small>
+              <code>DailyMedicationSchedulerJob#perform</code> iterates recurring meds
+              and enqueues individual <code>MedicationNotificationJob</code>s &mdash;
+              each scheduled for the medication's time-of-day.
+              <br>This is a <strong>fan-out pattern</strong>: 1 cron job &rarr; N notification jobs.
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="diagram"><span class="hl">Cron Fan-Out Pattern</span>
+
+  <span class="pr">4:00 AM UTC</span>
+       |
+  <span class="yl">DailyMedicationSchedulerJob</span> (runs once)
+       |
+       +---> <span class="gr">MedicationNotificationJob</span> (med #12, runs at 8:00 AM)
+       |
+       +---> <span class="gr">MedicationNotificationJob</span> (med #25, runs at 9:30 AM)
+       |
+       +---> <span class="gr">MedicationNotificationJob</span> (med #41, runs at 2:00 PM)
+       |
+       +---> <span class="gr">MedicationNotificationJob</span> (med #67, runs at 8:00 PM)
+
+  Each notification job fires at the medication's specific time-of-day.</div>
+    </section>
+
+    <!-- RETRY FLOW -->
+    <section id="retry-flow">
+      <h2>Retry Flow (Error Handling)</h2>
+      <p>When a job fails (exception raised), Sidekiq automatically retries with exponential backoff:</p>
+
+      <div class="diagram"><span class="hl">Retry Timeline (25 retries over ~21 days)</span>
+
+  <span class="rd">Job fails</span>
+       |
+  Retry 1:  +25 seconds       (<span class="yl">~25s later</span>)
+  Retry 2:  +46 seconds       (<span class="yl">~1 min later</span>)
+  Retry 3:  +1.2 minutes      (<span class="yl">~2 min later</span>)
+  Retry 4:  +2.8 minutes      (<span class="yl">~5 min later</span>)
+  ...
+  Retry 10: +4.7 hours        (<span class="yl">~5 hours later</span>)
+  ...
+  Retry 20: +5.3 days         (<span class="yl">~10 days later</span>)
+  ...
+  Retry 25: ~21 days total    (<span class="rd">moved to Dead queue</span>)
+
+  Formula: <code>(retry_count ** 4) + 15 + (rand(10) * (retry_count + 1))</code> seconds</div>
+
+      <p>After 25 retries, the job moves to the "dead" set where it stays for 6 months. You can manually retry dead jobs from the Sidekiq Web UI at <code>/sidekiq</code>.</p>
+
+      <div class="callout">
+        <strong>For Care:</strong> Notification failures (e.g., Expo API is down) will automatically retry.
+        The job checks <code>occurrence_handled?</code> each time, so if the user already took the medication
+        by the time the retry runs, it skips sending the notification. This means retries are safe and idempotent.
+      </div>
+    </section>
+
+    <!-- ALL TOGETHER -->
+    <section id="all-together">
+      <h2>All Together: A Full Day</h2>
+      <p>Here's what happens in a typical day for a user with a daily medication at 9:00 AM:</p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot purple"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>4:00 AM &mdash; Cron fires</strong>
+            <small>
+              sidekiq-cron enqueues <code>DailyMedicationSchedulerJob</code>.
+              <br>Sidekiq worker picks it up immediately from the <code>scheduled</code> queue.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot yellow"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>4:00 AM &mdash; Scheduler queries PostgreSQL</strong>
+            <small>
+              Finds the user's medication: daily, 9:00 AM, not yet taken/skipped today.
+              <br>Calculates delay: 9:00 AM - 4:00 AM = 5 hours = 18,000 seconds.
+              <br>Enqueues: <code>MedicationNotificationJob.set(wait: 18000.seconds).perform_later(med_id, time, today)</code>
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>4:00 AM &ndash; 9:00 AM &mdash; Job sits in Redis</strong>
+            <small>
+              The notification job is in the "schedule" sorted set with timestamp for 9:00 AM.
+              <br>Sidekiq checks every 5 seconds but skips it because it's not due yet.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>9:00 AM &mdash; Notification job fires</strong>
+            <small>
+              Sidekiq moves the job from "schedule" to <code>queue:notifications</code>.
+              <br>Worker thread picks it up, checks PostgreSQL: medication not taken, not skipped.
+              <br>Sends Expo push notification + Web Push notification to the user.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div></div>
+          <div class="flow-content">
+            <strong>9:15 AM &mdash; User takes medication</strong>
+            <small>
+              User opens the app, marks medication as taken.
+              <br><code>POST /medications/:id/occurrences</code> creates an occurrence with <code>is_taken: true</code>.
+              <br>If the notification job somehow ran late, it would check <code>occurrence_handled?</code> and skip.
+            </small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FILES MAP -->
+    <section id="files-map">
+      <h2>Files Map</h2>
+      <p>Every file involved in the Redis/Rails/Sidekiq connection:</p>
+
+      <table>
+        <tr><th>File</th><th>Role</th><th>Process</th></tr>
+        <tr>
+          <td><code>Gemfile</code></td>
+          <td>Declares <code>sidekiq</code> and <code>sidekiq-cron</code> dependencies</td>
+          <td>Both</td>
+        </tr>
+        <tr>
+          <td><code>config/application.rb</code></td>
+          <td><code>queue_adapter = :sidekiq</code> &mdash; tells ActiveJob to use Sidekiq</td>
+          <td>Both</td>
+        </tr>
+        <tr>
+          <td><code>config/environments/test.rb</code></td>
+          <td><code>queue_adapter = :test</code> &mdash; overrides to test adapter for specs</td>
+          <td>Test only</td>
+        </tr>
+        <tr>
+          <td><code>config/sidekiq.yml</code></td>
+          <td>Defines concurrency and queue priorities</td>
+          <td>Worker</td>
+        </tr>
+        <tr>
+          <td><code>config/initializers/sidekiq.rb</code></td>
+          <td>Redis URL config for both client (web) and server (worker), cron registration</td>
+          <td>Both</td>
+        </tr>
+        <tr>
+          <td><code>config/routes.rb</code></td>
+          <td>Mounts Sidekiq Web UI at <code>/sidekiq</code> with HTTP Basic Auth</td>
+          <td>Web</td>
+        </tr>
+        <tr>
+          <td><code>Procfile</code></td>
+          <td>Declares <code>web</code> and <code>worker</code> processes for Render</td>
+          <td>Deployment</td>
+        </tr>
+        <tr>
+          <td><code>.env</code></td>
+          <td><code>REDIS_URL</code> environment variable</td>
+          <td>Both</td>
+        </tr>
+        <tr>
+          <td><code>app/jobs/application_job.rb</code></td>
+          <td>Base class for all jobs (inherits from ActiveJob::Base)</td>
+          <td>Worker</td>
+        </tr>
+        <tr>
+          <td><code>app/jobs/daily_medication_scheduler_job.rb</code></td>
+          <td>Cron job: finds recurring meds, enqueues notification jobs</td>
+          <td>Worker</td>
+        </tr>
+        <tr>
+          <td><code>app/jobs/medication_notification_job.rb</code></td>
+          <td>Sends push notifications for a specific medication</td>
+          <td>Worker</td>
+        </tr>
+        <tr>
+          <td><code>app/controllers/medications_controller.rb</code></td>
+          <td><code>schedule_notification</code> &mdash; enqueues jobs on create/update</td>
+          <td>Web</td>
+        </tr>
+      </table>
+
+      <div class="diagram"><span class="hl">File Dependency Chain</span>
+
+<span class="gr">Gemfile</span>
+  &darr; declares gems
+<span class="gr">config/application.rb</span>
+  &darr; sets adapter to :sidekiq
+<span class="gr">config/initializers/sidekiq.rb</span>
+  &darr; configures Redis URL for client + server
+  &darr; registers cron schedule
+<span class="gr">config/sidekiq.yml</span>
+  &darr; tells Sidekiq which queues to process
+<span class="gr">Procfile</span>
+  &darr; tells Render to start the worker process
+<span class="gr">app/jobs/*.rb</span>
+  &darr; your actual job code
+<span class="gr">app/controllers/*.rb</span>
+     calls .perform_later &rarr; writes to Redis</div>
+    </section>
+
+  </main>
+</body>
+</html>

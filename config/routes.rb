@@ -1,6 +1,13 @@
 require 'sidekiq/web'
 require 'sidekiq/cron/web'
 
+Sidekiq::Web.use ActionDispatch::Cookies
+Sidekiq::Web.use ActionDispatch::Session::CookieStore, key: '_care_sidekiq_session'
+Sidekiq::Web.use Rack::Auth::Basic, 'Sidekiq' do |username, password|
+  ActiveSupport::SecurityUtils.secure_compare(username, ENV.fetch('SIDEKIQ_USERNAME', 'admin')) &
+    ActiveSupport::SecurityUtils.secure_compare(password, ENV.fetch('SIDEKIQ_PASSWORD', 'password'))
+end
+
 Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
 

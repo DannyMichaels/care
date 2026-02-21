@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Care - Redis Documentation</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-dim: #8b949e;
+      --primary: #58a6ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --orange: #f0883e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 { font-size: 1.5rem; font-weight: 600; }
+    header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 4px; }
+
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 32px;
+      display: flex;
+      gap: 24px;
+      overflow-x: auto;
+      position: sticky;
+      top: 72px;
+      z-index: 9;
+    }
+
+    nav a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      padding: 4px 0;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    nav a:hover, nav a:focus {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    main { max-width: 900px; margin: 0 auto; padding: 32px; }
+    section { margin-bottom: 48px; }
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--primary);
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 20px 0 10px;
+      color: var(--text);
+    }
+
+    p { margin-bottom: 12px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--surface-2);
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    td { background: var(--surface); }
+
+    code {
+      background: var(--surface-2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: var(--orange);
+    }
+
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      margin: 12px 0;
+    }
+
+    pre code { background: none; padding: 0; color: var(--text); }
+
+    .diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin: 16px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre;
+      color: var(--text-dim);
+    }
+
+    .diagram .hl { color: var(--primary); }
+    .diagram .gr { color: var(--green); }
+    .diagram .yl { color: var(--yellow); }
+    .diagram .rd { color: var(--red); }
+    .diagram .pr { color: var(--purple); }
+
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 20px 0;
+    }
+
+    .flow-step {
+      display: flex;
+      gap: 16px;
+      position: relative;
+    }
+
+    .flow-line {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 32px;
+      flex-shrink: 0;
+    }
+
+    .flow-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--primary);
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    .flow-dot.green { background: var(--green); }
+    .flow-dot.yellow { background: var(--yellow); }
+    .flow-dot.red { background: var(--red); }
+    .flow-dot.purple { background: var(--purple); }
+    .flow-dot.orange { background: var(--orange); }
+
+    .flow-connector {
+      width: 2px;
+      flex: 1;
+      background: var(--border);
+      min-height: 16px;
+    }
+
+    .flow-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      flex: 1;
+    }
+
+    .flow-content strong { display: block; margin-bottom: 4px; }
+    .flow-content small { color: var(--text-dim); font-size: 0.85rem; }
+
+    .callout {
+      border-left: 3px solid var(--primary);
+      background: var(--surface);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 12px 0;
+    }
+
+    .callout.warn { border-left-color: var(--yellow); }
+    .callout.danger { border-left-color: var(--red); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    @media (max-width: 640px) {
+      .two-col { grid-template-columns: 1fr; }
+      main { padding: 16px; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .card h4 { margin-bottom: 8px; color: var(--primary); }
+
+    ul { margin: 8px 0 16px 24px; }
+    li { margin-bottom: 4px; }
+
+    a { color: var(--primary); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Redis</h1>
+    <p>Care App &mdash; Infrastructure Documentation</p>
+  </header>
+
+  <nav>
+    <a href="#what-is-redis">What is Redis</a>
+    <a href="#why-redis">Why Redis</a>
+    <a href="#data-structures">Data Structures</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#care-usage">Care Usage</a>
+    <a href="#hosting">Hosting</a>
+    <a href="#local-dev">Local Development</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+  </nav>
+
+  <main>
+
+    <!-- WHAT IS REDIS -->
+    <section id="what-is-redis">
+      <h2>What is Redis?</h2>
+      <p>
+        <strong>Redis</strong> (Remote Dictionary Server) is an open-source, in-memory data store.
+        Unlike PostgreSQL which writes data to disk, Redis keeps everything in RAM, making it
+        extremely fast &mdash; most operations complete in under 1 millisecond.
+      </p>
+      <p>
+        Think of it as a super-fast dictionary/hash map that lives outside your application.
+        Multiple processes (your web server, background workers, etc.) can all read and write
+        to the same Redis instance simultaneously.
+      </p>
+
+      <div class="two-col">
+        <div class="card">
+          <h4>PostgreSQL (primary database)</h4>
+          <ul>
+            <li>Stores data on disk</li>
+            <li>Optimized for complex queries</li>
+            <li>ACID-compliant transactions</li>
+            <li>Stores your users, medications, etc.</li>
+            <li>Data survives restarts</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Redis (in-memory store)</h4>
+          <ul>
+            <li>Stores data in RAM</li>
+            <li>Optimized for speed (sub-ms reads)</li>
+            <li>Simple key-value operations</li>
+            <li>Stores job queues, cache, sessions</li>
+            <li>Data can be ephemeral or persisted</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Analogy:</strong> PostgreSQL is like a filing cabinet &mdash; organized, reliable, but takes a moment to find things.
+        Redis is like a whiteboard &mdash; instant to read and write, everyone can see it, but it's not meant for permanent records.
+      </div>
+    </section>
+
+    <!-- WHY REDIS -->
+    <section id="why-redis">
+      <h2>Why Does Care Need Redis?</h2>
+      <p>Care uses Redis for two things:</p>
+
+      <div class="two-col">
+        <div class="card">
+          <h4>1. Sidekiq Job Queue</h4>
+          <p>
+            When your Rails app says "send this notification in 30 minutes", it writes a job
+            to Redis. The Sidekiq worker process reads from Redis and executes the job at the
+            right time. Redis acts as the middleman between your web server and worker.
+          </p>
+        </div>
+        <div class="card">
+          <h4>2. ActionCable (WebSockets)</h4>
+          <p>
+            ActionCable uses Redis as a pub/sub broker for real-time WebSocket messages.
+            When one server publishes a message, Redis broadcasts it to all connected clients
+            across all server instances.
+          </p>
+        </div>
+      </div>
+
+      <h3>Why not just use PostgreSQL for jobs?</h3>
+      <p>
+        You <em>could</em> store jobs in PostgreSQL (Rails even has <code>solid_queue</code> for this),
+        but Redis is significantly faster for the queue pattern: constant pushes and pops, thousands
+        of operations per second, with automatic expiry. PostgreSQL would add unnecessary load to
+        your primary database for a workload it's not optimized for.
+      </p>
+    </section>
+
+    <!-- DATA STRUCTURES -->
+    <section id="data-structures">
+      <h2>Key Data Structures</h2>
+      <p>Redis supports several data types. Here's what matters for Care:</p>
+
+      <table>
+        <tr><th>Type</th><th>What it is</th><th>Care usage</th></tr>
+        <tr>
+          <td><code>String</code></td>
+          <td>Simple key &rarr; value</td>
+          <td>Job payloads, serialized data</td>
+        </tr>
+        <tr>
+          <td><code>List</code></td>
+          <td>Ordered collection (like an array)</td>
+          <td>Sidekiq queues &mdash; jobs are pushed to the back, popped from the front (FIFO)</td>
+        </tr>
+        <tr>
+          <td><code>Sorted Set</code></td>
+          <td>Set with a score for ordering</td>
+          <td>Scheduled jobs &mdash; score is the Unix timestamp when the job should run</td>
+        </tr>
+        <tr>
+          <td><code>Hash</code></td>
+          <td>Key &rarr; field/value pairs (like a Ruby hash)</td>
+          <td>Job metadata, stats, process info</td>
+        </tr>
+        <tr>
+          <td><code>Pub/Sub Channels</code></td>
+          <td>Publish/subscribe messaging</td>
+          <td>ActionCable real-time broadcasts</td>
+        </tr>
+      </table>
+
+      <h3>How Sidekiq uses these</h3>
+      <div class="diagram"><span class="hl">Redis Data for Sidekiq</span>
+
+<span class="gr">Immediate jobs</span> &rarr; <span class="yl">LIST</span>  "queue:default", "queue:notifications"
+  Jobs are LPUSH'd (enqueued) and BRPOP'd (dequeued by worker)
+
+<span class="gr">Scheduled jobs</span> &rarr; <span class="yl">SORTED SET</span>  "schedule"
+  Score = Unix timestamp when job should run
+  Sidekiq polls this set, moves due jobs to the queue list
+
+<span class="gr">Retry jobs</span>    &rarr; <span class="yl">SORTED SET</span>  "retry"
+  Failed jobs with exponential backoff timestamps
+
+<span class="gr">Dead jobs</span>     &rarr; <span class="yl">SORTED SET</span>  "dead"
+  Jobs that exhausted all retries
+
+<span class="gr">Cron jobs</span>     &rarr; <span class="yl">HASH</span>  "cron_job:DailyMedicationScheduler"
+  Stores last run time, next run time, cron expression</div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="how-it-works">
+      <h2>How It Works</h2>
+
+      <h3>The request lifecycle</h3>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>1. Client makes a request</strong>
+            <small>e.g., <code>POST /medications</code> &mdash; user creates a medication</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot yellow"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>2. Rails saves to PostgreSQL</strong>
+            <small>The medication record is persisted in the database.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot purple"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>3. Rails enqueues a job to Redis</strong>
+            <small>
+              <code>MedicationNotificationJob.set(wait: 30.minutes).perform_later(med.id)</code>
+              <br>This writes a JSON payload to Redis's "schedule" sorted set with a future timestamp.
+              <br>The HTTP response returns immediately &mdash; the user doesn't wait for the notification.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>4. Sidekiq picks up the job</strong>
+            <small>
+              The Sidekiq worker process polls Redis every 5 seconds for due jobs.
+              When the scheduled time arrives, it moves the job from "schedule" to the queue list.
+              A worker thread picks it up and executes <code>MedicationNotificationJob#perform</code>.
+            </small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div></div>
+          <div class="flow-content">
+            <strong>5. Job runs and sends notifications</strong>
+            <small>The job reads the medication from PostgreSQL, then sends push notifications via Expo and Web Push APIs.</small>
+          </div>
+        </div>
+      </div>
+
+      <h3>What a job looks like in Redis</h3>
+      <pre><code>{
+  "class": "MedicationNotificationJob",
+  "wrapped": "MedicationNotificationJob",
+  "queue": "notifications",
+  "args": [
+    {
+      "job_class": "MedicationNotificationJob",
+      "job_id": "a1b2c3d4-e5f6-7890",
+      "arguments": [42, "2026-02-20T09:00:00Z", "2026-02-20"],
+      "queue_name": "notifications"
+    }
+  ],
+  "retry": 25,
+  "jid": "f7g8h9i0j1k2l3m4",
+  "at": 1740049200.0
+}</code></pre>
+      <p>
+        The <code>"at"</code> field is a Unix timestamp. Sidekiq won't execute this job until that time.
+        The <code>"arguments"</code> array contains <code>[medication_id, expected_time, occurrence_date]</code>.
+      </p>
+    </section>
+
+    <!-- CARE USAGE -->
+    <section id="care-usage">
+      <h2>Care's Redis Usage</h2>
+
+      <table>
+        <tr><th>Consumer</th><th>What it stores in Redis</th><th>Volume</th></tr>
+        <tr>
+          <td>Sidekiq (jobs)</td>
+          <td>Job payloads, scheduled jobs, retries, dead jobs, stats</td>
+          <td>Low &mdash; each job is ~1KB, a few hundred per day max</td>
+        </tr>
+        <tr>
+          <td>Sidekiq-Cron</td>
+          <td>Cron schedule definitions, last/next run timestamps</td>
+          <td>Tiny &mdash; 1 cron job, ~100 bytes</td>
+        </tr>
+        <tr>
+          <td>ActionCable</td>
+          <td>Pub/sub channel messages (ephemeral, not persisted)</td>
+          <td>Low &mdash; messages exist only in transit</td>
+        </tr>
+      </table>
+
+      <div class="callout">
+        <strong>Memory usage:</strong> Care's Redis usage is very light. The Upstash free tier (256MB)
+        or any small Redis instance is more than sufficient. Typical usage will be well under 10MB.
+      </div>
+
+      <h3>Redis URL</h3>
+      <p>Both the web server and Sidekiq worker connect to Redis via the <code>REDIS_URL</code> environment variable.</p>
+      <pre><code># Local development
+REDIS_URL=redis://localhost:6379/0
+
+# Production (Upstash example)
+REDIS_URL=rediss://default:xxxxx@us1-xxxxx.upstash.io:6379</code></pre>
+
+      <div class="callout warn">
+        <strong>Note the <code>rediss://</code></strong> (double s) for Upstash &mdash; this means TLS-encrypted connection.
+        Local Redis uses <code>redis://</code> (single s, unencrypted).
+      </div>
+    </section>
+
+    <!-- HOSTING -->
+    <section id="hosting">
+      <h2>Hosting Options</h2>
+
+      <table>
+        <tr><th>Provider</th><th>Free Tier</th><th>Notes</th></tr>
+        <tr>
+          <td><strong>Upstash</strong></td>
+          <td>10,000 commands/day, 256MB</td>
+          <td>Serverless Redis, pay-per-request after free tier. Great for low-traffic apps.</td>
+        </tr>
+        <tr>
+          <td><strong>Redis Cloud</strong></td>
+          <td>30MB, 1 database</td>
+          <td>Managed by Redis Ltd. Fixed instance, always-on.</td>
+        </tr>
+        <tr>
+          <td><strong>Railway</strong></td>
+          <td>$5 free credit/month</td>
+          <td>One-click Redis deploy. Simple but burns through credit with always-on instance.</td>
+        </tr>
+        <tr>
+          <td><strong>Render</strong></td>
+          <td>No free tier (removed)</td>
+          <td>Starts at $7/month. Internal networking with Render web services.</td>
+        </tr>
+        <tr>
+          <td><strong>Aiven</strong></td>
+          <td>Free tier available</td>
+          <td>You already use Aiven for PostgreSQL. They offer Redis too.</td>
+        </tr>
+      </table>
+
+      <div class="callout">
+        <strong>Recommendation:</strong> <a href="https://upstash.com">Upstash</a> is the best fit for Care.
+        Free tier handles the workload easily, serverless means you don't pay for idle time, and setup takes 2 minutes.
+      </div>
+
+      <h3>Upstash Setup</h3>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>1. Create account</strong>
+            <small>Sign up at <a href="https://upstash.com">upstash.com</a> (GitHub or Google login).</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot yellow"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>2. Create database</strong>
+            <small>Click "Create Database". Name it <code>care-redis</code>. Pick the region closest to your Render service (e.g., US-East-1).</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot green"></div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <strong>3. Copy the Redis URL</strong>
+            <small>Go to the "Details" tab. Copy the <code>rediss://</code> connection string.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot purple"></div></div>
+          <div class="flow-content">
+            <strong>4. Add to Render</strong>
+            <small>Set <code>REDIS_URL</code> environment variable on both your Web Service and Background Worker.</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOCAL DEV -->
+    <section id="local-dev">
+      <h2>Local Development</h2>
+
+      <h3>Installing Redis locally</h3>
+      <table>
+        <tr><th>OS</th><th>Command</th></tr>
+        <tr><td>macOS</td><td><code>brew install redis && brew services start redis</code></td></tr>
+        <tr><td>Ubuntu/WSL</td><td><code>sudo apt install redis-server && sudo service redis-server start</code></td></tr>
+        <tr><td>Windows</td><td>Use WSL (above) or <a href="https://github.com/microsoftarchive/redis/releases">Windows port</a></td></tr>
+        <tr><td>Docker</td><td><code>docker run -d -p 6379:6379 redis:alpine</code></td></tr>
+      </table>
+
+      <h3>Verify it's running</h3>
+      <pre><code>$ redis-cli ping
+PONG</code></pre>
+
+      <h3>Without local Redis</h3>
+      <p>
+        If you don't want to install Redis locally, you can use your Upstash instance for development too.
+        Just set <code>REDIS_URL</code> in your <code>.env</code> file to the Upstash URL.
+        Latency will be slightly higher (~50ms vs ~1ms) but perfectly fine for development.
+      </p>
+    </section>
+
+    <!-- TROUBLESHOOTING -->
+    <section id="troubleshooting">
+      <h2>Troubleshooting</h2>
+
+      <table>
+        <tr><th>Problem</th><th>Cause</th><th>Fix</th></tr>
+        <tr>
+          <td>Sidekiq won't start</td>
+          <td><code>REDIS_URL</code> not set or Redis unreachable</td>
+          <td>Check env var, verify Redis is running: <code>redis-cli ping</code></td>
+        </tr>
+        <tr>
+          <td>Jobs enqueued but never run</td>
+          <td>Sidekiq worker not running</td>
+          <td>Start worker: <code>bundle exec sidekiq -C config/sidekiq.yml</code></td>
+        </tr>
+        <tr>
+          <td><code>Redis::CannotConnectError</code></td>
+          <td>Redis server is down or URL is wrong</td>
+          <td>Check Redis is running and URL is correct (watch for <code>redis://</code> vs <code>rediss://</code>)</td>
+        </tr>
+        <tr>
+          <td>Jobs lost on deploy</td>
+          <td>Redis data was wiped</td>
+          <td>Ensure Redis persistence is enabled (Upstash does this by default)</td>
+        </tr>
+        <tr>
+          <td>Upstash "command limit exceeded"</td>
+          <td>Hit 10,000 daily command limit on free tier</td>
+          <td>Upgrade to pay-as-you-go ($0.2 per 100K commands) or reduce polling frequency</td>
+        </tr>
+      </table>
+    </section>
+
+  </main>
+</body>
+</html>

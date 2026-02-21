@@ -4,6 +4,12 @@
 
 [Live Website](https://care-app.netlify.app) | [Live API](https://care-api-k1b8.onrender.com) | [Privacy Policy](https://care-app.netlify.app/privacy) | [Terms of Service](https://care-app.netlify.app/terms)
 
+### Hosting
+- **Frontend:** [Netlify](https://care-app.netlify.app)
+- **API:** [Render](https://care-api-k1b8.onrender.com)
+- **Database:** [Aiven](https://aiven.io) (PostgreSQL)
+- **Redis:** [Upstash](https://upstash.com) (Sidekiq job queue)
+
 <br />
 
 - [Overview](#Overview)
@@ -417,5 +423,10 @@ if the user's input DOESN"T match one of the names in the foodRegex, it will ret
 - added backend blocking for insight content that might be inappropriate, uses OpenAI to review the content.
 - updated browser version UI to have a slightly more modern look but still in-large keep as is.
 - create/edit insights using markdown editor and markdown reader for detail page
-- added med scheduling
-- switched background jobs from async to Sidekiq (Redis-backed), added recurring medication notifications via daily cron ([docs](docs/sidekiq.html))
+- added med scheduling ([docs](docs/medication-scheduling.html))
+
+<strong>Feb 23rd, 2026</strong>
+- switched background jobs from `:async` to Sidekiq backed by Redis ([docs](docs/sidekiq.html))
+- added recurring medication notifications via daily cron job at 4 AM UTC ([docs](docs/redis-rails-sidekiq.html))
+- Redis hosted on [Upstash](https://upstash.com) (free tier) ([docs](docs/redis.html))
+- added Sidekiq Web UI at `/sidekiq` with admin-only HTTP Basic Auth

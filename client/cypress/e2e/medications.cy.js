@@ -131,41 +131,157 @@ describe('Medications', () => {
   });
 
   describe('Delete Dialog', () => {
-    it('shows delete confirmation for one-time med', () => {
+    const toggleOptionsAndClickDelete = () => {
+      expandMedsAccordion();
+      // Click the settings gear icon to show edit/delete buttons
+      cy.get('.MuiAccordionSummary-root').last().find('.MuiIconButton-root').first().click({ force: true });
+      // Click the delete icon button on the card
+      cy.get('.MuiIconButton-colorSecondary').first().click();
+    };
+
+    it('shows simple confirmation for one-time med', () => {
+      visitHome();
+      toggleOptionsAndClickDelete();
+
+      cy.contains('Are you sure you want to delete').should('be.visible');
+      cy.get('.MuiDialog-root').within(() => {
+        cy.contains('Cancel').should('be.visible');
+        cy.contains('Delete').should('be.visible');
+        cy.contains('Stop after today').should('not.exist');
+        cy.contains('Skip this day').should('not.exist');
+      });
+    });
+
+    it('closes dialog on Cancel for one-time med', () => {
+      visitHome();
+      toggleOptionsAndClickDelete();
+
+      cy.get('.MuiDialog-root').within(() => {
+        cy.contains('Cancel').click();
+      });
+
+      cy.get('.MuiDialog-root').should('not.exist');
+    });
+
+    it('calls delete API when confirming one-time med delete', () => {
       cy.intercept('DELETE', '**/medications/1', {
         statusCode: 204,
       }).as('deleteMed');
 
       visitHome();
-      expandMedsAccordion();
-      cy.contains('Aspirin').should('be.visible').click();
+      toggleOptionsAndClickDelete();
+
+      cy.get('.MuiDialog-root').within(() => {
+        cy.contains('Delete').click();
+      });
+
+      cy.wait('@deleteMed');
     });
 
-    it('shows 3 options for scheduled med delete', () => {
-      cy.intercept('GET', '**/medications/dashboard*', {
-        statusCode: 200,
-        body: [
-          {
-            id: 10,
-            name: 'Humira',
-            time: new Date().toISOString(),
-            reason: 'Autoimmune',
-            user_id: 1,
-            schedule_unit: 'day',
-            schedule_interval: 1,
-            occurrence: null,
-          },
-        ],
-      }).as('getDashboard');
+    describe('scheduled med', () => {
+      beforeEach(() => {
+        cy.intercept('GET', '**/medications/dashboard*', {
+          statusCode: 200,
+          body: [
+            {
+              id: 10,
+              name: 'Humira',
+              time: new Date().toISOString(),
+              reason: 'Autoimmune',
+              user_id: 1,
+              schedule_unit: 'day',
+              schedule_interval: 1,
+              occurrence: null,
+            },
+          ],
+        }).as('getDashboard');
+      });
 
-      cy.intercept('POST', '**/medications/10/occurrences', {
-        statusCode: 201,
-        body: { id: 1, medication_id: 10, occurrence_date: today, skipped: true },
-      }).as('skipOccurrence');
+      const openScheduledDeleteDialog = () => {
+        expandMedsAccordion();
+        cy.get('.MuiAccordionSummary-root').last().find('.MuiIconButton-root').first().click({ force: true });
+        cy.get('.MuiIconButton-colorSecondary').first().click();
+      };
 
-      visitHome();
-      expandMedsAccordion();
-      cy.contains('Humira').should('be.visible');
+      it('shows 3 options plus Cancel for scheduled med', () => {
+        visitHome();
+        openScheduledDeleteDialog();
+
+        cy.get('.MuiDialog-root').within(() => {
+          cy.contains('What would you like to do with').should('be.visible');
+          cy.contains('Skip this day').should('be.visible');
+          cy.contains('Stop after today').should('be.visible');
+          cy.contains('Delete medication').should('be.visible');
+          cy.contains('Cancel').should('be.visible');
+        });
+      });
+
+      it('shows hint text under Stop after today', () => {
+        visitHome();
+        openScheduledDeleteDialog();
+
+        cy.get('.MuiDialog-root').within(() => {
+          cy.contains('Still shows today, stops appearing tomorrow').should('be.visible');
+        });
+      });
+
+      it('calls skip occurrence API when Skip this day is clicked', () => {
+        cy.intercept('POST', '**/medications/10/occurrences', {
+          statusCode: 201,
+          body: { id: 1, medication_id: 10, occurrence_date: today, skipped: true },
+        }).as('skipOccurrence');
+
+        visitHome();
+        openScheduledDeleteDialog();
+
+        cy.get('.MuiDialog-root').within(() => {
+          cy.contains('Skip this day').click();
+        });
+
+        cy.wait('@skipOccurrence');
+      });
+
+      it('calls update API when Stop after today is clicked', () => {
+        cy.intercept('PUT', '**/medications/10', {
+          statusCode: 200,
+          body: { id: 10, name: 'Humira', schedule_end_date: today },
+        }).as('stopMed');
+
+        visitHome();
+        openScheduledDeleteDialog();
+
+        cy.get('.MuiDialog-root').within(() => {
+          cy.contains('Stop after today').click();
+        });
+
+        cy.wait('@stopMed');
+      });
+
+      it('calls delete API when Delete medication is clicked', () => {
+        cy.intercept('DELETE', '**/medications/10', {
+          statusCode: 204,
+        }).as('deleteMed');
+
+        visitHome();
+        openScheduledDeleteDialog();
+
+        cy.get('.MuiDialog-root').within(() => {
+          cy.contains('Delete medication').click();
+        });
+
+        cy.wait('@deleteMed');
+      });
+
+      it('closes dialog on Cancel', () => {
+        visitHome();
+        openScheduledDeleteDialog();
+
+        cy.get('.MuiDialog-root').within(() => {
+          cy.contains('Cancel').click();
+        });
+
+        cy.get('.MuiDialog-root').should('not.exist');
+      });
     });
   });
 

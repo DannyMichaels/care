@@ -2,19 +2,20 @@ import { useState } from 'react';
 import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { Button, Text, Chip, TextInput } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { putMed, destroyMed, createOccurrence, updateOccurrence, deleteOccurrence, deleteUntakenOccurrences, isScheduledMed, MED_ICONS, MED_COLORS, MED_ICON_DISPLAY_MAP, DEFAULT_ICON, DEFAULT_COLOR, getApiError } from '@care/shared';
+import { putMed, destroyMed, createOccurrence, updateOccurrence, deleteOccurrence, isScheduledMed, MED_ICONS, MED_COLORS, MED_ICON_DISPLAY_MAP, DEFAULT_ICON, DEFAULT_COLOR, getApiError } from '@care/shared';
 import { useDate } from '../../context/DateContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 import MedicationSuggestions from '../../components/MedicationSuggestions';
 import SchedulePicker from '../../components/SchedulePicker';
+import MedDeleteModal from '../../components/MedDeleteModal';
 
 export default function MedEditScreen({ route, navigation }) {
   const { id, item, occurrence } = route.params;
   const { selectedDate } = useDate();
   const [name, setName] = useState(item.name || '');
-  const [reason, setReason] = useState(item.reason || '');
-  const [medClass, setMedClass] = useState(item.medication_class || '');
+
+
   const [icon, setIcon] = useState(item.icon || DEFAULT_ICON);
   const [iconColor, setIconColor] = useState(item.icon_color || DEFAULT_COLOR);
   const [time, setTime] = useState(item.time ? new Date(item.time) : new Date());
@@ -27,20 +28,20 @@ export default function MedEditScreen({ route, navigation }) {
   const [scheduleUnit, setScheduleUnit] = useState(item.schedule_unit || null);
   const [scheduleInterval, setScheduleInterval] = useState(item.schedule_interval || null);
   const [scheduleEndDate, setScheduleEndDate] = useState(item.schedule_end_date || null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const scheduled = isScheduledMed(item);
 
   const handleSelectSuggestion = (med) => {
     setName(med.fields.name);
-    setMedClass(med.fields.medClass || '');
+
     setIcon(med.fields.icon || DEFAULT_ICON);
     setIconColor(med.fields.iconColor || DEFAULT_COLOR);
   };
 
   const buildMedData = () => ({
     name,
-    reason,
-    medication_class: medClass,
+
     time: time.toISOString(),
     icon,
     icon_color: iconColor,
@@ -191,56 +192,33 @@ export default function MedEditScreen({ route, navigation }) {
     );
   };
 
-  const handleDelete = () => {
-    if (scheduled) {
-      Alert.alert('Medication Options', `What would you like to do with ${name}?`, [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Skip this day',
-          onPress: async () => {
-            try {
-              await createOccurrence(id, { occurrence_date: selectedDate, skipped: true });
-              navigation.goBack();
-            } catch (err) {
-              Alert.alert('Error', getApiError(err));
-            }
-          },
-        },
-        {
-          text: 'Delete untaken occurrences',
-          onPress: async () => {
-            try {
-              await deleteUntakenOccurrences(id);
-              navigation.goBack();
-            } catch (err) {
-              Alert.alert('Error', getApiError(err));
-            }
-          },
-        },
-        {
-          text: 'Delete medication',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await destroyMed(id);
-              navigation.goBack();
-            } catch (err) {
-              Alert.alert('Error', getApiError(err));
-            }
-          },
-        },
-      ]);
-    } else {
-      Alert.alert('Delete Medication', `Are you sure you want to delete ${name}?`, [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try { await destroyMed(id); navigation.goBack(); } catch (err) { Alert.alert('Error', getApiError(err)); }
-          },
-        },
-      ]);
+  const handleSkipDay = async () => {
+    setShowDeleteModal(false);
+    try {
+      await createOccurrence(id, { occurrence_date: selectedDate, skipped: true });
+      navigation.goBack();
+    } catch (err) {
+      Alert.alert('Error', getApiError(err));
+    }
+  };
+
+  const handleStopMed = async () => {
+    setShowDeleteModal(false);
+    try {
+      await putMed(id, { schedule_end_date: selectedDate });
+      navigation.goBack();
+    } catch (err) {
+      Alert.alert('Error', getApiError(err));
+    }
+  };
+
+  const handleDeleteMed = async () => {
+    setShowDeleteModal(false);
+    try {
+      await destroyMed(id);
+      navigation.goBack();
+    } catch (err) {
+      Alert.alert('Error', getApiError(err));
     }
   };
 
@@ -289,8 +267,6 @@ export default function MedEditScreen({ route, navigation }) {
 
       <MedicationSuggestions name={name} onNameChange={setName} onSelect={handleSelectSuggestion} />
 
-      <TextInput label="Reason" value={reason} onChangeText={setReason} mode="outlined" style={styles.input} />
-      <TextInput label="Class" value={medClass} onChangeText={setMedClass} mode="outlined" style={styles.input} />
 
       <Text variant="labelLarge" style={styles.label}>Icon</Text>
       <View style={styles.iconRow}>
@@ -317,6 +293,7 @@ export default function MedEditScreen({ route, navigation }) {
             style={[
               styles.colorSwatch,
               { backgroundColor: c },
+              c === '#FFFFFF' && { borderColor: '#ccc', borderWidth: 1 },
               iconColor === c && styles.colorSwatchActive,
             ]}
           />
@@ -388,10 +365,20 @@ export default function MedEditScreen({ route, navigation }) {
           Skip
         </Button>
       )}
-      <Button mode="outlined" onPress={handleDelete} textColor="red" style={styles.button}>
+      <Button mode="outlined" onPress={() => setShowDeleteModal(true)} textColor="red" style={styles.button}>
         Delete
       </Button>
       <Button mode="text" onPress={() => navigation.goBack()}>Cancel</Button>
+
+      <MedDeleteModal
+        visible={showDeleteModal}
+        onDismiss={() => setShowDeleteModal(false)}
+        name={name}
+        scheduled={scheduled}
+        onSkipDay={handleSkipDay}
+        onStopMed={handleStopMed}
+        onDeleteMed={handleDeleteMed}
+      />
     </ScreenWrapper>
   );
 }

@@ -4,7 +4,7 @@ RSpec.describe Medication, type: :model do
   describe 'validations' do
     it { should validate_presence_of(:name) }
     it { should validate_presence_of(:time) }
-    it { should validate_presence_of(:reason) }
+
     it { should validate_inclusion_of(:schedule_unit).in_array(%w[day week month]).allow_nil }
 
     context 'schedule fields' do
@@ -175,6 +175,27 @@ RSpec.describe Medication, type: :model do
 
       it 'accepts string dates' do
         expect(med.occurs_on_date?('2026-01-01')).to be true
+      end
+    end
+
+    context 'with utc_offset_minutes' do
+      # Simulates a med created at 10 PM EST (03:00 UTC next day)
+      let(:med) do
+        create(:medication,
+          time: Time.parse('2026-01-02T03:00:00Z'),
+          schedule_unit: 'day',
+          schedule_interval: 1
+        )
+      end
+
+      it 'without offset, start_date is UTC date (Jan 2)' do
+        expect(med.occurs_on_date?(Date.parse('2026-01-01'))).to be false
+        expect(med.occurs_on_date?(Date.parse('2026-01-02'))).to be true
+      end
+
+      it 'with EST offset (300), start_date shifts to local date (Jan 1)' do
+        expect(med.occurs_on_date?(Date.parse('2026-01-01'), utc_offset_minutes: 300)).to be true
+        expect(med.occurs_on_date?(Date.parse('2026-01-02'), utc_offset_minutes: 300)).to be true
       end
     end
 

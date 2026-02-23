@@ -235,7 +235,6 @@ export default function MedEdit({
               fullWidth
               name="reason"
               type="text"
-              required
               label={
                 name && taken === false
                   ? `Why do you take ${formData.name}?`
@@ -306,7 +305,7 @@ export default function MedEdit({
                       borderRadius: '50%',
                       backgroundColor: c,
                       cursor: 'pointer',
-                      border: formData.icon_color === c ? '3px solid currentColor' : '3px solid transparent',
+                      border: formData.icon_color === c ? '3px solid currentColor' : c === '#FFFFFF' ? '1px solid #ccc' : '3px solid transparent',
                     }}
                   />
                 ))}

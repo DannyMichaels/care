@@ -11,7 +11,7 @@ import MedEdit from '../Dialogs/MedDialogs/MedEdit';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import MedDetail from '../Dialogs/MedDialogs/MedDetail';
 import Typography from '@material-ui/core/Typography';
-import { compareDateWithCurrentTime, isScheduledMed, getEffectiveTime, createOccurrence, deleteOccurrence, deleteUntakenOccurrences } from '@care/shared';
+import { compareDateWithCurrentTime, isScheduledMed, getEffectiveTime, createOccurrence, deleteOccurrence, putMed } from '@care/shared';
 import MedImage from './MedImage';
 import GlassCard from '../shared/GlassCard';
 import DeleteMedDialog from '../Dialogs/MedDialogs/DeleteMedDialog';
@@ -133,8 +133,8 @@ export default function MedCard({
     setOpenDeleteDialog(false);
   };
 
-  const onDeleteUntaken = async () => {
-    await deleteUntakenOccurrences(med.id);
+  const onStopMed = async () => {
+    await putMed(med.id, { schedule_end_date: selectedDate });
     onOccurrenceChange?.();
     setOpenDeleteDialog(false);
   };
@@ -267,7 +267,7 @@ export default function MedCard({
         med={med}
         scheduled={scheduled}
         onSkipDay={onSkipDay}
-        onDeleteUntaken={onDeleteUntaken}
+        onStopMed={onStopMed}
         onDeleteMed={onDeleteMed}
       />
 

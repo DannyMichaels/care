@@ -4,7 +4,7 @@ class Medication < ApplicationRecord
 
   validates :name, presence: true
   validates :time, presence: true
-  validates :reason, presence: true
+
   validates :schedule_unit, inclusion: { in: %w[day week month], allow_nil: true }
   validates :schedule_interval, presence: true, if: -> { schedule_unit.present? }
   validates :schedule_unit, presence: true, if: -> { schedule_interval.present? }
@@ -16,11 +16,11 @@ class Medication < ApplicationRecord
     schedule_unit.present?
   end
 
-  def occurs_on_date?(date)
+  def occurs_on_date?(date, utc_offset_minutes: 0)
     date = Date.parse(date.to_s) unless date.is_a?(Date)
     return false unless recurring? && time.present?
 
-    start_date = time.to_date
+    start_date = (time - utc_offset_minutes.minutes).to_date
     return false if date < start_date
     return false if schedule_end_date.present? && date > schedule_end_date
 

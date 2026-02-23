@@ -51,7 +51,20 @@
       "WebSearch",
       "WebFetch(domain:rubygems.org)",
       "WebFetch(domain:support.google.com)",
-      "Bash(gem install:*)"
+      "Bash(gem install:*)",
+      "WebFetch(domain:www.medisafeapp.com)",
+      "WebFetch(domain:support.mangohealth.com)",
+      "WebFetch(domain:www.macrumors.com)",
+      "WebFetch(domain:help.carezone.com)",
+      "WebFetch(domain:www.medisafe.com)",
+      "WebFetch(domain:medisafeapp.com)",
+      "WebFetch(domain:discussions.apple.com)",
+      "WebFetch(domain:support.apple.com)",
+      "WebFetch(domain:mytherapy.uservoice.com)",
+      "WebFetch(domain:build.fhir.org)",
+      "WebFetch(domain:forums.ohdsi.org)",
+      "WebFetch(domain:manuals.plus)",
+      "WebFetch(domain:hl7.org)"
     ]
   }
 }

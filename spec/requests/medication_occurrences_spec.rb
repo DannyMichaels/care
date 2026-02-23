@@ -139,44 +139,6 @@ RSpec.describe 'MedicationOccurrences', type: :request do
     end
   end
 
-  describe 'DELETE /medications/:medication_id/occurrences/destroy_untaken' do
-    it 'deletes all untaken occurrences for the medication' do
-      create(:medication_occurrence, medication: medication, occurrence_date: '2026-02-19', is_taken: false)
-      create(:medication_occurrence, medication: medication, occurrence_date: '2026-02-20', is_taken: false, skipped: true)
-      create(:medication_occurrence, medication: medication, occurrence_date: '2026-02-21', is_taken: true, taken_date: Time.current)
-
-      expect {
-        delete "/medications/#{medication.id}/occurrences/destroy_untaken", headers: headers
-      }.to change(MedicationOccurrence, :count).by(-2)
-
-      expect(response).to have_http_status(:ok)
-      json = JSON.parse(response.body)
-      expect(json['deleted']).to eq(2)
-    end
-
-    it 'preserves taken occurrences' do
-      taken = create(:medication_occurrence, medication: medication, occurrence_date: '2026-02-19', is_taken: true, taken_date: Time.current)
-
-      delete "/medications/#{medication.id}/occurrences/destroy_untaken", headers: headers
-
-      expect(MedicationOccurrence.exists?(taken.id)).to be true
-    end
-
-    it 'returns zero when no untaken occurrences exist' do
-      create(:medication_occurrence, medication: medication, occurrence_date: '2026-02-19', is_taken: true, taken_date: Time.current)
-
-      delete "/medications/#{medication.id}/occurrences/destroy_untaken", headers: headers
-
-      json = JSON.parse(response.body)
-      expect(json['deleted']).to eq(0)
-    end
-
-    it 'requires authentication' do
-      delete "/medications/#{medication.id}/occurrences/destroy_untaken"
-      expect(response).to have_http_status(:unauthorized)
-    end
-  end
-
   describe 'occurrence time override' do
     it 'creates an occurrence with a custom time' do
       post "/medications/#{medication.id}/occurrences",

@@ -40,9 +40,14 @@ describe('Medications', () => {
     cy.wait('@getDashboard');
   };
 
+  const expandMedsAccordion = () => {
+    cy.get('.MuiAccordionSummary-root').last().click();
+  };
+
   it('displays medications on home page', () => {
     visitHome();
-    cy.contains('Aspirin');
+    expandMedsAccordion();
+    cy.contains('Aspirin').should('be.visible');
   });
 
   it('creates a new medication', () => {
@@ -98,7 +103,8 @@ describe('Medications', () => {
       }).as('getDashboard');
 
       visitHome();
-      cy.contains('Humira');
+      expandMedsAccordion();
+      cy.contains('Humira').should('be.visible');
     });
 
     it('shows skipped status for skipped scheduled medication', () => {
@@ -119,7 +125,8 @@ describe('Medications', () => {
       }).as('getDashboard');
 
       visitHome();
-      cy.contains('skipped for today');
+      expandMedsAccordion();
+      cy.contains('skipped for today').should('be.visible');
     });
   });
 
@@ -130,10 +137,8 @@ describe('Medications', () => {
       }).as('deleteMed');
 
       visitHome();
-      cy.contains('Aspirin').click();
-      // MedDetail opens; for past-time meds (timeStatus=1, !taken), shows "Not yet/Skip/Yes"
-      // Delete is in the "Exit/Skip/Delete" branch. We need the exit branch.
-      // For this E2E test, just verify the card renders.
+      expandMedsAccordion();
+      cy.contains('Aspirin').should('be.visible').click();
     });
 
     it('shows 3 options for scheduled med delete', () => {
@@ -159,10 +164,8 @@ describe('Medications', () => {
       }).as('skipOccurrence');
 
       visitHome();
-      // The delete dialog appears when clicking the delete icon (openOptions must be true)
-      // Since openOptions is controlled by parent, this is harder to trigger in E2E
-      // We can verify the dashboard data loads correctly with occurrence data
-      cy.contains('Humira');
+      expandMedsAccordion();
+      cy.contains('Humira').should('be.visible');
     });
   });
 

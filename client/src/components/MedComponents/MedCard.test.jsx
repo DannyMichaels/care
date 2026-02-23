@@ -7,7 +7,7 @@ import MedCard from './MedCard';
 
 const mockCreateOccurrence = jest.fn().mockResolvedValue({});
 const mockDeleteOccurrence = jest.fn().mockResolvedValue({});
-const mockDeleteUntakenOccurrences = jest.fn().mockResolvedValue({ deleted: 2 });
+const mockPutMed = jest.fn().mockResolvedValue({});
 
 jest.mock('@care/shared', () => ({
   compareDateWithCurrentTime: () => 1,
@@ -15,7 +15,7 @@ jest.mock('@care/shared', () => ({
   getEffectiveTime: (med) => med.time,
   createOccurrence: (...args) => mockCreateOccurrence(...args),
   deleteOccurrence: (...args) => mockDeleteOccurrence(...args),
-  deleteUntakenOccurrences: (...args) => mockDeleteUntakenOccurrences(...args),
+  putMed: (...args) => mockPutMed(...args),
 }));
 
 const theme = createMuiTheme({
@@ -170,13 +170,13 @@ describe('MedCard', () => {
       expect(screen.queryByText('Skip this day')).not.toBeInTheDocument();
     });
 
-    it('shows 3 options for scheduled med', () => {
+    it('shows occurrence options for scheduled med', () => {
       renderCard({ med: scheduledMed, meds: [scheduledMed], openOptions: true });
       clickDeleteIcon();
 
       expect(screen.getByText(/What would you like to do/)).toBeInTheDocument();
       expect(screen.getByText('Skip this day')).toBeInTheDocument();
-      expect(screen.getByText('Delete untaken occurrences')).toBeInTheDocument();
+      expect(screen.getByText('Stop after today')).toBeInTheDocument();
       expect(screen.getByText('Delete medication')).toBeInTheDocument();
       expect(screen.getByText('Cancel')).toBeInTheDocument();
     });
@@ -195,14 +195,45 @@ describe('MedCard', () => {
       });
     });
 
-    it('calls deleteUntakenOccurrences for scheduled med', async () => {
+    it('calls putMed with schedule_end_date when Stop after today is clicked', async () => {
       renderCard({ med: scheduledMed, meds: [scheduledMed], openOptions: true });
       clickDeleteIcon();
-      fireEvent.click(screen.getByText('Delete untaken occurrences'));
+      fireEvent.click(screen.getByText('Stop after today'));
 
       await waitFor(() => {
-        expect(mockDeleteUntakenOccurrences).toHaveBeenCalledWith(1);
+        expect(mockPutMed).toHaveBeenCalledWith(1, { schedule_end_date: '2026-02-19' });
       });
+    });
+
+    it('calls onOccurrenceChange after stop medication', async () => {
+      const onOccurrenceChange = jest.fn();
+      renderCard({ med: scheduledMed, meds: [scheduledMed], openOptions: true, onOccurrenceChange });
+      clickDeleteIcon();
+      fireEvent.click(screen.getByText('Stop after today'));
+
+      await waitFor(() => {
+        expect(onOccurrenceChange).toHaveBeenCalled();
+      });
+    });
+
+    it('closes dialog after stop medication', async () => {
+      renderCard({ med: scheduledMed, meds: [scheduledMed], openOptions: true });
+      clickDeleteIcon();
+
+      expect(screen.getByText('Stop after today')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByText('Stop after today'));
+
+      await waitFor(() => {
+        expect(screen.queryByText('Stop after today')).not.toBeInTheDocument();
+      });
+    });
+
+    it('does not show Stop after today for one-time med', () => {
+      renderCard({ med: baseMed, openOptions: true });
+      clickDeleteIcon();
+
+      expect(screen.queryByText('Stop after today')).not.toBeInTheDocument();
     });
 
     it('calls createOccurrence with skipped when Skip this day is clicked', async () => {

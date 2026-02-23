@@ -1,4 +1,4 @@
-export const MED_ICONS = ['tablet', 'pill', 'droplet'];
+export const MED_ICONS = ['tablet', 'pill', 'droplet', 'syringe'];
 
 export const MED_COLORS = [
   '#E53935', // red
@@ -11,9 +11,10 @@ export const MED_COLORS = [
   '#EC407A', // pink
   '#00897B', // teal
   '#6D4C41', // brown
+  '#FFFFFF', // white
 ];
 
-export const MED_ICON_DISPLAY_MAP = { tablet: 'circle', pill: 'pill', droplet: 'water' };
+export const MED_ICON_DISPLAY_MAP = { tablet: 'circle', pill: 'pill', droplet: 'water', syringe: 'needle' };
 
 export const DEFAULT_ICON = 'pill';
 export const DEFAULT_COLOR = '#7E57C2';

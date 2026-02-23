@@ -31,7 +31,7 @@ function App() {
   }
 
   return (
-    <Paper style={{ minHeight: "100vh" }}>
+    <Paper style={{ minHeight: "100vh", borderRadius: '0' }} id="app">
       <AppRouter />
     </Paper>
   );

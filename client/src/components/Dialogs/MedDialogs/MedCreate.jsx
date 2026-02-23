@@ -131,7 +131,6 @@ export default function MedCreate({ RXGuideMeds, userMeds = [], open, onSave, ha
             fullWidth
             name="reason"
             type="text"
-            required
             label={
               !formData.name
                 ? 'Why do you take your medication?'
@@ -194,7 +193,7 @@ export default function MedCreate({ RXGuideMeds, userMeds = [], open, onSave, ha
                     borderRadius: '50%',
                     backgroundColor: c,
                     cursor: 'pointer',
-                    border: formData.icon_color === c ? '3px solid currentColor' : '3px solid transparent',
+                    border: formData.icon_color === c ? '3px solid currentColor' : c === '#FFFFFF' ? '1px solid #ccc' : '3px solid transparent',
                   }}
                 />
               ))}

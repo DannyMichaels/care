@@ -22,7 +22,7 @@ export default function DeleteMedDialog({
   med,
   scheduled,
   onSkipDay,
-  onDeleteUntaken,
+  onStopMed,
   onDeleteMed,
 }) {
   const classes = useStyles();
@@ -70,11 +70,14 @@ export default function DeleteMedDialog({
         <Button
           variant="contained"
           fullWidth
-          color="secondary"
-          onClick={onDeleteUntaken}
+          style={{ backgroundColor: '#FF9800', color: '#fff' }}
+          onClick={onStopMed}
         >
-          Delete untaken occurrences
+          Stop after today
         </Button>
+        <Typography variant="caption" style={{ color: '#999', textAlign: 'center', marginTop: -4 }}>
+          Still shows today, stops appearing tomorrow. History preserved.
+        </Typography>
         <Button
           variant="contained"
           fullWidth

@@ -9,15 +9,12 @@ const mockDestroyMed = jest.fn().mockResolvedValue({});
 const mockCreateOccurrence = jest.fn().mockResolvedValue({});
 const mockUpdateOccurrence = jest.fn().mockResolvedValue({});
 const mockDeleteOccurrence = jest.fn().mockResolvedValue({});
-const mockDeleteUntakenOccurrences = jest.fn().mockResolvedValue({ deleted: 2 });
-
 jest.mock('@care/shared', () => ({
   putMed: (...args) => mockPutMed(...args),
   destroyMed: (...args) => mockDestroyMed(...args),
   createOccurrence: (...args) => mockCreateOccurrence(...args),
   updateOccurrence: (...args) => mockUpdateOccurrence(...args),
   deleteOccurrence: (...args) => mockDeleteOccurrence(...args),
-  deleteUntakenOccurrences: (...args) => mockDeleteUntakenOccurrences(...args),
   isScheduledMed: (med) => !!med.schedule_unit,
   MED_ICONS: ['pill', 'needle'],
   MED_COLORS: ['#7E57C2'],
@@ -35,6 +32,31 @@ jest.mock('../../context/DateContext', () => ({
 }));
 
 jest.mock('../../components/DatePickerModal', () => () => null);
+jest.mock('../../components/MedDeleteModal', () => {
+  const { Button, Text } = require('react-native-paper');
+  const { View } = require('react-native');
+  return ({ visible, onDismiss, name, scheduled, onSkipDay, onStopMed, onDeleteMed }) => {
+    if (!visible) return null;
+    if (!scheduled) {
+      return (
+        <View>
+          <Text>Are you sure you want to delete {name}?</Text>
+          <Button onPress={onDismiss}>Cancel</Button>
+          <Button onPress={onDeleteMed}>Delete</Button>
+        </View>
+      );
+    }
+    return (
+      <View>
+        <Text>What would you like to do with {name}?</Text>
+        <Button onPress={onSkipDay}>Skip this day</Button>
+        <Button onPress={onStopMed}>Stop after today</Button>
+        <Button onPress={onDeleteMed}>Delete medication</Button>
+        <Button onPress={onDismiss}>Cancel</Button>
+      </View>
+    );
+  };
+});
 jest.mock('../../components/MedicationSuggestions', () => {
   const { TextInput } = require('react-native-paper');
   return ({ name, onNameChange }) => (
@@ -258,11 +280,9 @@ describe('MedEditScreen', () => {
     });
   });
 
-  describe('delete dialog', () => {
-    it('shows delete options for scheduled med including delete untaken', () => {
-      jest.spyOn(Alert, 'alert');
-
-      const { getByText } = renderWithProvider(
+  describe('delete modal', () => {
+    it('shows delete options for scheduled med', () => {
+      const { getByText, getAllByText } = renderWithProvider(
         <MedEditScreen
           route={{ params: { id: 1, item: scheduledMed, occurrence: null } }}
           navigation={mockNavigation}
@@ -271,22 +291,15 @@ describe('MedEditScreen', () => {
 
       fireEvent.press(getByText('Delete'));
 
-      expect(Alert.alert).toHaveBeenCalledWith(
-        'Medication Options',
-        expect.any(String),
-        expect.arrayContaining([
-          expect.objectContaining({ text: 'Cancel' }),
-          expect.objectContaining({ text: 'Skip this day' }),
-          expect.objectContaining({ text: 'Delete untaken occurrences' }),
-          expect.objectContaining({ text: 'Delete medication' }),
-        ])
-      );
+      expect(getByText(/What would you like to do with/)).toBeTruthy();
+      expect(getByText('Skip this day')).toBeTruthy();
+      expect(getByText('Stop after today')).toBeTruthy();
+      expect(getByText('Delete medication')).toBeTruthy();
+      expect(getAllByText('Cancel').length).toBeGreaterThanOrEqual(1);
     });
 
     it('shows simple delete for one-time med', () => {
-      jest.spyOn(Alert, 'alert');
-
-      const { getByText } = renderWithProvider(
+      const { getByText, getAllByText } = renderWithProvider(
         <MedEditScreen
           route={{ params: { id: 1, item: baseMed, occurrence: null } }}
           navigation={mockNavigation}
@@ -295,18 +308,30 @@ describe('MedEditScreen', () => {
 
       fireEvent.press(getByText('Delete'));
 
-      expect(Alert.alert).toHaveBeenCalledWith(
-        'Delete Medication',
-        expect.any(String),
-        expect.arrayContaining([
-          expect.objectContaining({ text: 'Cancel' }),
-          expect.objectContaining({ text: 'Delete' }),
-        ])
-      );
+      expect(getByText(/Are you sure you want to delete/)).toBeTruthy();
+      expect(getAllByText('Cancel').length).toBeGreaterThanOrEqual(1);
     });
 
-    it('calls deleteUntakenOccurrences when that option is selected', async () => {
+    it('calls putMed with schedule_end_date when Stop after today is pressed', async () => {
+      const { getByText } = renderWithProvider(
+        <MedEditScreen
+          route={{ params: { id: 1, item: scheduledMed, occurrence: null } }}
+          navigation={mockNavigation}
+        />
+      );
+
+      fireEvent.press(getByText('Delete'));
+      fireEvent.press(getByText('Stop after today'));
+
+      await waitFor(() => {
+        expect(mockPutMed).toHaveBeenCalledWith(1, { schedule_end_date: '2026-02-19' });
+        expect(mockNavigation.goBack).toHaveBeenCalled();
+      });
+    });
+
+    it('shows error alert when Stop after today fails', async () => {
       jest.spyOn(Alert, 'alert');
+      mockPutMed.mockRejectedValueOnce(new Error('Network error'));
 
       const { getByText } = renderWithProvider(
         <MedEditScreen
@@ -316,14 +341,43 @@ describe('MedEditScreen', () => {
       );
 
       fireEvent.press(getByText('Delete'));
+      fireEvent.press(getByText('Stop after today'));
 
-      const alertCall = Alert.alert.mock.calls[0];
-      const options = alertCall[2];
-      const deleteUntakenOption = options.find((o) => o.text === 'Delete untaken occurrences');
-      await deleteUntakenOption.onPress();
+      await waitFor(() => {
+        expect(Alert.alert).toHaveBeenCalledWith('Error', 'Network error');
+        expect(mockNavigation.goBack).not.toHaveBeenCalled();
+      });
+    });
 
-      expect(mockDeleteUntakenOccurrences).toHaveBeenCalledWith(1);
-      expect(mockNavigation.goBack).toHaveBeenCalled();
+    it('calls destroyMed when Delete medication is pressed', async () => {
+      const { getByText } = renderWithProvider(
+        <MedEditScreen
+          route={{ params: { id: 1, item: scheduledMed, occurrence: null } }}
+          navigation={mockNavigation}
+        />
+      );
+
+      fireEvent.press(getByText('Delete'));
+      fireEvent.press(getByText('Delete medication'));
+
+      await waitFor(() => {
+        expect(mockDestroyMed).toHaveBeenCalledWith(1);
+        expect(mockNavigation.goBack).toHaveBeenCalled();
+      });
+    });
+
+    it('does not show Stop after today for one-time med', () => {
+      const { getByText, queryByText } = renderWithProvider(
+        <MedEditScreen
+          route={{ params: { id: 1, item: baseMed, occurrence: null } }}
+          navigation={mockNavigation}
+        />
+      );
+
+      fireEvent.press(getByText('Delete'));
+
+      expect(queryByText('Stop after today')).toBeNull();
+      expect(queryByText('Skip this day')).toBeNull();
     });
   });
 

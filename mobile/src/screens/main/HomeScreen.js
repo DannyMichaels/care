@@ -55,14 +55,14 @@ export default function HomeScreen({ navigation }) {
   const filteredMeds = useMemo(() => {
     const oneTimeMeds = meds.filter((med) => !isScheduledMed(med));
     const scheduledMeds = meds.filter((med) => isScheduledMed(med) && doesOccurOnDate(med, selectedDate));
-    const filteredOneTime = filterByDate(oneTimeMeds, selectedDate, false, 'time');
+    const filteredOneTime = filterByDate(oneTimeMeds, selectedDate, 'time');
     return [...filteredOneTime, ...scheduledMeds];
   }, [meds, selectedDate]);
 
-  const filteredMoods = useMemo(() => filterByDate(moods, selectedDate, false, 'time'), [moods, selectedDate]);
-  const filteredFoods = useMemo(() => filterByDate(foods, selectedDate, false, 'time'), [foods, selectedDate]);
-  const filteredSymptoms = useMemo(() => filterByDate(symptoms, selectedDate, false, 'time'), [symptoms, selectedDate]);
-  const filteredAffirmations = useMemo(() => filterByDate(affirmations, selectedDate, false, 'affirmation_date'), [affirmations, selectedDate]);
+  const filteredMoods = useMemo(() => filterByDate(moods, selectedDate, 'time'), [moods, selectedDate]);
+  const filteredFoods = useMemo(() => filterByDate(foods, selectedDate, 'time'), [foods, selectedDate]);
+  const filteredSymptoms = useMemo(() => filterByDate(symptoms, selectedDate, 'time'), [symptoms, selectedDate]);
+  const filteredAffirmations = useMemo(() => filterByDate(affirmations, selectedDate, 'affirmation_date'), [affirmations, selectedDate]);
 
   const isMedTaken = (med) => {
     if (isScheduledMed(med)) {

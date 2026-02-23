@@ -1,6 +1,6 @@
 class MedicationOccurrencesController < ApplicationController
   before_action :authorize_request
-  before_action :set_medication, only: [:index, :create, :update, :destroy, :destroy_untaken]
+  before_action :set_medication, only: [:index, :create, :update, :destroy]
   before_action :set_occurrence, only: [:update, :destroy]
 
   # GET /medications/:medication_id/occurrences?from=&to=
@@ -43,12 +43,6 @@ class MedicationOccurrencesController < ApplicationController
   def destroy
     @occurrence.destroy
     head :no_content
-  end
-
-  # DELETE /medications/:medication_id/occurrences/destroy_untaken
-  def destroy_untaken
-    count = @medication.medication_occurrences.where(is_taken: false).delete_all
-    render json: { deleted: count }
   end
 
   private

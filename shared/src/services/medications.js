@@ -15,7 +15,8 @@ export const getAllMeds = async () => {
 };
 
 export const getDashboardMeds = async (date) => {
-  const resp = await api.get('/medications/dashboard', { params: { date } });
+  const utc_offset = new Date().getTimezoneOffset();
+  const resp = await api.get('/medications/dashboard', { params: { date, utc_offset } });
   return resp.data;
 };
 
@@ -64,7 +65,3 @@ export const deleteOccurrence = async (medId, occId) => {
   return resp;
 };
 
-export const deleteUntakenOccurrences = async (medId) => {
-  const resp = await api.delete(`/medications/${medId}/occurrences/destroy_untaken`);
-  return resp.data;
-};

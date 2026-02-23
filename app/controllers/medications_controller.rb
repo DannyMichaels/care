@@ -21,6 +21,7 @@ class MedicationsController < ApplicationController
   def dashboard
     medications = @current_user.medications
     date = params[:date]
+    utc_offset = params[:utc_offset].to_i
 
     if date.present?
       parsed_date = Date.parse(date)
@@ -31,9 +32,9 @@ class MedicationsController < ApplicationController
 
       filtered = medications.select do |med|
         if med.recurring?
-          med.occurs_on_date?(parsed_date)
+          med.occurs_on_date?(parsed_date, utc_offset_minutes: utc_offset)
         else
-          med.time.present? && med.time.to_date == parsed_date
+          med.time.present? && (med.time - utc_offset.minutes).to_date == parsed_date
         end
       end
     else

@@ -11,10 +11,19 @@ function PillIcon(props) {
   );
 }
 
+function SyringeIcon(props) {
+  return (
+    <SvgIcon {...props} viewBox="0 0 24 24">
+      <path d="M11.15 15.18l-1.06-1.06 1.06-1.06-1.06-1.06 1.06-1.06-1.06-1.06 1.77-1.77 6.36 6.36-1.77 1.77-1.06-1.06-1.06 1.06-1.06-1.06-1.06 1.06zM22.61 7.05L17 1.44l-1.41 1.41 1.41 1.41-2.12 2.12-1.41-1.41-1.42 1.42 1.42 1.41-7.78 7.78-2.12-.71L2.44 14l4.24 4.24 1.06-1.06-.71-2.12 7.78-7.78 1.41 1.42 1.42-1.42-1.41-1.41 2.12-2.12 1.41 1.41z" />
+    </SvgIcon>
+  );
+}
+
 const iconMap = {
   tablet: FiberManualRecord,
   pill: PillIcon,
   droplet: Opacity,
+  syringe: SyringeIcon,
 };
 
 export default function MedIconDisplay({ icon = 'pill', color = '#7E57C2', size = 40 }) {

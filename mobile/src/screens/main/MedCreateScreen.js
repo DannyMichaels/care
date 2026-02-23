@@ -12,8 +12,8 @@ import SchedulePicker from '../../components/SchedulePicker';
 export default function MedCreateScreen({ navigation }) {
   const { getSelectedDateWithTime } = useDate();
   const [name, setName] = useState('');
-  const [reason, setReason] = useState('');
-  const [medClass, setMedClass] = useState('');
+
+
   const [icon, setIcon] = useState(DEFAULT_ICON);
   const [iconColor, setIconColor] = useState(DEFAULT_COLOR);
   const [time, setTime] = useState(new Date());
@@ -25,7 +25,7 @@ export default function MedCreateScreen({ navigation }) {
 
   const handleSelectSuggestion = (med) => {
     setName(med.fields.name);
-    setMedClass(med.fields.medClass || '');
+
     setIcon(med.fields.icon || DEFAULT_ICON);
     setIconColor(med.fields.iconColor || DEFAULT_COLOR);
   };
@@ -37,8 +37,7 @@ export default function MedCreateScreen({ navigation }) {
 
       await postMed({
         name,
-        reason,
-        medication_class: medClass,
+
         time: medTime,
         icon,
         icon_color: iconColor,
@@ -60,8 +59,6 @@ export default function MedCreateScreen({ navigation }) {
 
       <MedicationSuggestions name={name} onNameChange={setName} onSelect={handleSelectSuggestion} />
 
-      <TextInput label="Reason" value={reason} onChangeText={setReason} mode="outlined" style={styles.input} />
-      <TextInput label="Class" value={medClass} onChangeText={setMedClass} mode="outlined" style={styles.input} />
 
       <Text variant="labelLarge" style={styles.label}>Icon</Text>
       <View style={styles.iconRow}>
@@ -88,6 +85,7 @@ export default function MedCreateScreen({ navigation }) {
             style={[
               styles.colorSwatch,
               { backgroundColor: c },
+              c === '#FFFFFF' && { borderColor: '#ccc', borderWidth: 1 },
               iconColor === c && styles.colorSwatchActive,
             ]}
           />

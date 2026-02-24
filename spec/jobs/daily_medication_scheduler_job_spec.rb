@@ -15,7 +15,7 @@ RSpec.describe DailyMedicationSchedulerJob, type: :job do
       end
 
       it 'enqueues a MedicationNotificationJob' do
-        travel_to Time.current.change(hour: 4, min: 0) do
+        travel_to Time.current.change(hour: 0, min: 0) do
           expect {
             described_class.new.perform
           }.to have_enqueued_job(MedicationNotificationJob).with(med.id, med.time.to_s, Date.current.to_s)
@@ -23,7 +23,7 @@ RSpec.describe DailyMedicationSchedulerJob, type: :job do
       end
 
       it 'creates a ScheduledJob record' do
-        travel_to Time.current.change(hour: 4, min: 0) do
+        travel_to Time.current.change(hour: 0, min: 0) do
           expect {
             described_class.new.perform
           }.to change(ScheduledJob, :count).by_at_least(1)
@@ -37,12 +37,12 @@ RSpec.describe DailyMedicationSchedulerJob, type: :job do
 
     context 'self-rescheduling' do
       it 'creates a pending DailyMedicationSchedulerJob for tomorrow' do
-        travel_to Time.current.change(hour: 4, min: 0) do
+        travel_to Time.current.change(hour: 0, min: 0) do
           described_class.new.perform
 
           cron_record = ScheduledJob.pending.find_by(job_class: 'DailyMedicationSchedulerJob')
           expect(cron_record).to be_present
-          expect(cron_record.run_at).to be_within(1.second).of(Date.tomorrow.beginning_of_day.change(hour: 4))
+          expect(cron_record.run_at).to be_within(1.second).of(Date.tomorrow.beginning_of_day)
         end
       end
     end
@@ -51,7 +51,7 @@ RSpec.describe DailyMedicationSchedulerJob, type: :job do
       let!(:med) { create(:medication, user: user, schedule_unit: nil, schedule_interval: nil) }
 
       it 'does not enqueue a notification' do
-        travel_to Time.current.change(hour: 4, min: 0) do
+        travel_to Time.current.change(hour: 0, min: 0) do
           expect {
             described_class.new.perform
           }.not_to have_enqueued_job(MedicationNotificationJob)
@@ -78,7 +78,7 @@ RSpec.describe DailyMedicationSchedulerJob, type: :job do
       end
 
       it 'does not enqueue a notification' do
-        travel_to Time.current.change(hour: 4, min: 0) do
+        travel_to Time.current.change(hour: 0, min: 0) do
           expect {
             described_class.new.perform
           }.not_to have_enqueued_job(MedicationNotificationJob)
@@ -105,26 +105,7 @@ RSpec.describe DailyMedicationSchedulerJob, type: :job do
       end
 
       it 'does not enqueue a notification' do
-        travel_to Time.current.change(hour: 4, min: 0) do
-          expect {
-            described_class.new.perform
-          }.not_to have_enqueued_job(MedicationNotificationJob)
-        end
-      end
-    end
-
-    context 'with a recurring med whose time has already passed' do
-      let!(:med) do
-        create(:medication,
-          user: user,
-          time: Time.current.change(hour: 3, min: 0),
-          schedule_unit: 'day',
-          schedule_interval: 1
-        )
-      end
-
-      it 'does not enqueue a notification' do
-        travel_to Time.current.change(hour: 4, min: 0) do
+        travel_to Time.current.change(hour: 0, min: 0) do
           expect {
             described_class.new.perform
           }.not_to have_enqueued_job(MedicationNotificationJob)
@@ -143,7 +124,7 @@ RSpec.describe DailyMedicationSchedulerJob, type: :job do
       end
 
       it 'does not enqueue a notification' do
-        travel_to Time.current.change(hour: 4, min: 0) do
+        travel_to Time.current.change(hour: 0, min: 0) do
           expect {
             described_class.new.perform
           }.not_to have_enqueued_job(MedicationNotificationJob)

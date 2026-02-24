@@ -19,7 +19,7 @@ Rails.application.config.after_initialize do
   # Ensure a DailyMedicationSchedulerJob is always queued
   ScheduledJob.enqueue_cron(
     'DailyMedicationSchedulerJob',
-    run_at: Date.tomorrow.beginning_of_day.change(hour: 4)
+    run_at: Date.tomorrow.beginning_of_day
   )
 
   # Clean up completed jobs older than 7 days

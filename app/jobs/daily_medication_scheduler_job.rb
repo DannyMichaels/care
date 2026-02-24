@@ -20,10 +20,10 @@ class DailyMedicationSchedulerJob < ApplicationJob
       end
     end
 
-    # Self-reschedule for tomorrow at 4 AM
+    # Self-reschedule for tomorrow at midnight
     ScheduledJob.enqueue_cron(
       'DailyMedicationSchedulerJob',
-      run_at: Date.tomorrow.beginning_of_day.change(hour: 4)
+      run_at: Date.tomorrow.beginning_of_day
     )
 
     Rails.logger.info("[DailyScheduler] Processed recurring medications for #{today}")

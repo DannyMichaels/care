@@ -145,18 +145,24 @@ class MedicationsController < ApplicationController
         return if medication.occurrence_handled?(today)
 
         scheduled_time = Time.current.change(hour: medication.time.hour, min: medication.time.min, sec: medication.time.sec)
-        delay = scheduled_time - Time.current
-        return unless delay.positive?
+        return unless scheduled_time > Time.current
 
-        MedicationNotificationJob.set(wait: delay.seconds).perform_later(medication.id, medication.time.to_s, today.to_s)
+        ScheduledJob.enqueue(
+          'MedicationNotificationJob',
+          [medication.id, medication.time.to_s, today.to_s],
+          run_at: scheduled_time
+        )
       else
         return if medication.is_taken
 
         med_time = Time.parse(medication.time.to_s)
-        delay = med_time - Time.current
-        return unless delay.positive?
+        return unless med_time > Time.current
 
-        MedicationNotificationJob.set(wait: delay.seconds).perform_later(medication.id, medication.time.to_s)
+        ScheduledJob.enqueue(
+          'MedicationNotificationJob',
+          [medication.id, medication.time.to_s],
+          run_at: med_time
+        )
       end
     rescue ArgumentError
       # Skip scheduling if time can't be parsed

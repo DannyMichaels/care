@@ -8,7 +8,7 @@
 - **Frontend:** [Netlify](https://care-app.netlify.app)
 - **API:** [Render](https://care-api-k1b8.onrender.com)
 - **Database:** [Aiven](https://aiven.io) (PostgreSQL)
-- **Redis:** [Upstash](https://upstash.com) (Sidekiq job queue)
+- **~~Redis:~~** ~~[Upstash](https://upstash.com) (Sidekiq job queue)~~ — removed, replaced with DB-backed job persistence
 
 <br />
 
@@ -36,7 +36,7 @@
 
 **Care**
 
-Care is a full-stack health tracking platform built with React and Rails. Users can log medications with recurring schedules and push notification reminders, track moods, symptoms, and food intake over time, and share insights with the community. Features include email verification, scheduled medication notifications powered by Sidekiq and Redis, web and mobile push notifications, content moderation, and a React Native mobile app.
+Care is a full-stack health tracking platform built with React and Rails. Users can log medications with recurring schedules and push notification reminders, track moods, symptoms, and food intake over time, and share insights with the community. Features include email verification, scheduled medication notifications with DB-backed job persistence, web and mobile push notifications, content moderation, and a React Native mobile app.
 
 <br>
 
@@ -74,8 +74,8 @@ Care is a full-stack health tracking platform built with React and Rails. Users 
 |     Rack-CORS     | _back-end support for Cross-Origin Resource Sharing (CORS) for Rack compatible web applications._ |
 |        JWT        | _back-end authentication dependency_                                                              |
 |    PostgreSQL     | _object-relational database system_                                                               |
-|     Sidekiq      | _background job processing backed by Redis_                                                       |
-|   Sidekiq-Cron   | _recurring job scheduler for Sidekiq_                                                             |
+|  ~~Sidekiq~~     | ~~_background job processing backed by Redis_~~ — replaced with `:async` adapter + `ScheduledJob` |
+|  ~~Sidekiq-Cron~~| ~~_recurring job scheduler for Sidekiq_~~ — replaced with self-rescheduling `ScheduledJob`         |
 
 <br>
 
@@ -425,7 +425,15 @@ if the user's input DOESN"T match one of the names in the foodRegex, it will ret
 - added med scheduling ([docs](docs/medication-scheduling.html))
 
 <strong>Feb 23rd, 2026</strong>
-- switched background jobs from `:async` to Sidekiq backed by Redis ([docs](docs/sidekiq.html))
-- added recurring medication notifications via daily cron job at 4 AM UTC ([docs](docs/redis-rails-sidekiq.html))
-- Redis hosted on [Upstash](https://upstash.com) (free tier) ([docs](docs/redis.html))
-- added Sidekiq Web UI at `/sidekiq` with admin-only HTTP Basic Auth
+- ~~switched background jobs from `:async` to Sidekiq backed by Redis~~ (reverted Feb 24th)
+- added recurring medication notifications via daily cron job at 4 AM UTC
+- ~~Redis hosted on [Upstash](https://upstash.com) (free tier)~~ (removed Feb 24th)
+- ~~added Sidekiq Web UI at `/sidekiq` with admin-only HTTP Basic Auth~~ (removed Feb 24th)
+
+<strong>Feb 24th, 2026</strong>
+- replaced Sidekiq + Redis with DB-backed job persistence (`ScheduledJob` model + `:async` adapter)
+- Upstash Redis free tier hit 500K request limit — Sidekiq polls Redis ~100K+/day just idling
+- jobs now persist to PostgreSQL `scheduled_jobs` table and re-enqueue on server boot
+- `DailyMedicationSchedulerJob` self-reschedules for next day after each run
+- removed Sidekiq Web UI, Foreman no longer needed (single Puma process)
+- disabled RX Guide Airtable API call (free tier limit hit), `rx_guide` returns `[]`

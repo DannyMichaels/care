@@ -19,8 +19,8 @@ gem 'web-push', '1.0.0'
 gem 'resend'
 gem 'ruby-openai'
 gem 'connection_pool', '~> 2.4'
-gem 'sidekiq', '~> 7.3'
-gem 'sidekiq-cron', '~> 2.0'
+# gem 'sidekiq', '~> 7.3'
+# gem 'sidekiq-cron', '~> 2.0'
 
 # Please add the following to your Gemfile to avoid polling for changes
 # gem 'wdm', '>= 0.1.0' # this breaks render build tf?

@@ -53,7 +53,6 @@
     <orderEntry type="library" scope="PROVIDED" name="concurrent-ruby (v1.3.6, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="connection_pool (v2.5.5, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="crass (v1.0.6, ruby-3.4.8-p72) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="cronex (v0.15.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="csv (v3.3.5, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="TEST" name="database_cleaner-active_record (v2.2.2, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="database_cleaner-core (v2.0.1, ruby-3.4.8-p72) [gem]" level="application" />
@@ -64,7 +63,6 @@
     <orderEntry type="library" scope="PROVIDED" name="drb (v2.2.3, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="erb (v6.0.1, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="erubi (v1.13.1, ruby-3.4.8-p72) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="et-orbi (v1.4.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="event_stream_parser (v1.0.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="factory_bot (v6.5.6, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="TEST" name="factory_bot_rails (v6.5.1, ruby-3.4.8-p72) [gem]" level="application" />
@@ -73,7 +71,6 @@
     <orderEntry type="library" scope="PROVIDED" name="faraday-multipart (v1.2.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="faraday-net_http (v3.4.2, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ffi (v1.17.3, ruby-3.4.8-p72) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="fugit (v1.12.1, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="globalid (v1.3.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="hkdf (v0.3.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="httparty (v0.24.2, ruby-3.4.8-p72) [gem]" level="application" />
@@ -107,7 +104,6 @@
     <orderEntry type="library" scope="PROVIDED" name="psych (v5.3.1, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="public_suffix (v7.0.2, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="puma (v6.6.1, ruby-3.4.8-p72) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="raabro (v1.4.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="racc (v1.8.1, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rack (v3.2.5, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rack-attack (v6.8.0, ruby-3.4.8-p72) [gem]" level="application" />
@@ -123,7 +119,6 @@
     <orderEntry type="library" scope="PROVIDED" name="rb-fsevent (v0.11.2, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rb-inotify (v0.11.1, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rdoc (v6.14.0, ruby-3.4.8-p72) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="redis-client (v0.26.4, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="reline (v0.6.3, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="resend (v1.0.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rspec-core (v3.13.6, ruby-3.4.8-p72) [gem]" level="application" />
@@ -134,15 +129,12 @@
     <orderEntry type="library" scope="PROVIDED" name="ruby-openai (v8.3.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="securerandom (v0.4.1, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="TEST" name="shoulda-matchers (v6.5.0, ruby-3.4.8-p72) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="sidekiq (v7.3.9, ruby-3.4.8-p72) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="sidekiq-cron (v2.3.1, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="stringio (v3.2.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="thor (v1.5.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="timeout (v0.6.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="tsort (v0.2.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="tzinfo (v2.0.6, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="tzinfo-data (v1.2025.3, ruby-3.4.8-p72) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="unicode (v0.4.4.5, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="uri (v1.1.1, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="web-push (v1.0.0, ruby-3.4.8-p72) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="websocket-driver (v0.8.0, ruby-3.4.8-p72) [gem]" level="application" />

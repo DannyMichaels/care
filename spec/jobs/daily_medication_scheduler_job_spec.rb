@@ -21,6 +21,30 @@ RSpec.describe DailyMedicationSchedulerJob, type: :job do
           }.to have_enqueued_job(MedicationNotificationJob).with(med.id, med.time.to_s, Date.current.to_s)
         end
       end
+
+      it 'creates a ScheduledJob record' do
+        travel_to Time.current.change(hour: 4, min: 0) do
+          expect {
+            described_class.new.perform
+          }.to change(ScheduledJob, :count).by_at_least(1)
+
+          record = ScheduledJob.where(job_class: 'MedicationNotificationJob').last
+          expect(record).to be_present
+          expect(record.arguments).to include(med.id)
+        end
+      end
+    end
+
+    context 'self-rescheduling' do
+      it 'creates a pending DailyMedicationSchedulerJob for tomorrow' do
+        travel_to Time.current.change(hour: 4, min: 0) do
+          described_class.new.perform
+
+          cron_record = ScheduledJob.pending.find_by(job_class: 'DailyMedicationSchedulerJob')
+          expect(cron_record).to be_present
+          expect(cron_record.run_at).to be_within(1.second).of(Date.tomorrow.beginning_of_day.change(hour: 4))
+        end
+      end
     end
 
     context 'with a one-time medication' do

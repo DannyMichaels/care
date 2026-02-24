@@ -720,17 +720,24 @@ Response:
     <section id="notifications">
       <h2>Recurring Medication Notifications</h2>
       <p>
-        Recurring medications receive daily push notifications via Sidekiq background jobs.
-        See the <a href="sidekiq.html" style="color: var(--primary);">Sidekiq documentation</a> for full details.
+        Recurring medications receive daily push notifications via background jobs.
+        Jobs use the <code>:async</code> ActiveJob adapter (in-process) and are persisted to the
+        <code>scheduled_jobs</code> PostgreSQL table so they survive server restarts.
       </p>
+
+      <div class="callout">
+        <strong>Feb 24, 2026:</strong> Replaced Sidekiq + Redis with DB-backed job persistence (<code>ScheduledJob</code> model).
+        Upstash Redis free tier hit 500K request limit &mdash; Sidekiq polls Redis ~100K+/day just idling.
+        Jobs now persist to PostgreSQL and re-enqueue on server boot.
+      </div>
 
       <h3>How it works</h3>
       <div class="flow">
         <div class="flow-step">
           <div class="flow-line"><div class="flow-dot purple"></div><div class="flow-connector"></div></div>
           <div class="flow-content">
-            <strong>1. Daily cron at 4 AM UTC</strong>
-            <small><code>DailyMedicationSchedulerJob</code> runs via sidekiq-cron.</small>
+            <strong>1. Daily scheduler at 4 AM UTC</strong>
+            <small><code>DailyMedicationSchedulerJob</code> runs via self-rescheduling <code>ScheduledJob</code> record. After each run, it creates a new <code>ScheduledJob</code> for tomorrow at 4 AM.</small>
           </div>
         </div>
         <div class="flow-step">
@@ -741,10 +748,17 @@ Response:
           </div>
         </div>
         <div class="flow-step">
-          <div class="flow-line"><div class="flow-dot green"></div></div>
+          <div class="flow-line"><div class="flow-dot green"></div><div class="flow-connector"></div></div>
           <div class="flow-content">
             <strong>3. Schedule notifications</strong>
-            <small>Enqueues <code>MedicationNotificationJob</code> with a delay until the medication's time-of-day. Sends Expo + Web Push.</small>
+            <small><code>ScheduledJob.enqueue('MedicationNotificationJob', args, run_at: scheduled_time)</code> &mdash; persists to DB + enqueues with <code>:async</code> adapter. Sends Expo + Web Push at the medication's time-of-day.</small>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot yellow"></div></div>
+          <div class="flow-content">
+            <strong>4. Server restart resilience</strong>
+            <small>On boot, <code>config/initializers/job_scheduler.rb</code> loads all pending <code>ScheduledJob</code> records and re-enqueues them with the <code>:async</code> adapter. Overdue jobs (&lt; 1 hour old) run immediately; stale jobs are marked complete.</small>
           </div>
         </div>
       </div>

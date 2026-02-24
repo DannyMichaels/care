@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_21_163356) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_24_015413) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -150,6 +150,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_21_163356) do
     t.index ["insight_id"], name: "index_reports_on_insight_id"
     t.index ["user_id", "insight_id"], name: "index_reports_on_user_id_and_insight_id", unique: true
     t.index ["user_id"], name: "index_reports_on_user_id"
+  end
+
+  create_table "scheduled_jobs", force: :cascade do |t|
+    t.string "job_class", null: false
+    t.jsonb "arguments", default: []
+    t.datetime "run_at", null: false
+    t.boolean "completed", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["completed", "run_at"], name: "index_scheduled_jobs_on_completed_and_run_at"
   end
 
   create_table "symptoms", force: :cascade do |t|

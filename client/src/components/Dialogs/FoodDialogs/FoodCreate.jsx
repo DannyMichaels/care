@@ -73,7 +73,7 @@ export default function FoodCreate({ open, onSave, handleClose }) {
             id="outlined-multiline-static"
             InputProps={{
               startAdornment: (
-                <Box role="img" aria-label={formData.name} mt={2}>
+                <Box role="img" aria-label={formData.name} display="flex" alignItems="center">
                   {foodIcon(formData.name)}
                 </Box>
               ),

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { TextInput, Button, Text, HelperText, Checkbox } from 'react-native-paper';
+import { TextInput, Button, Text, HelperText, Checkbox, useTheme } from 'react-native-paper';
 import { registerUser, getApiError } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 
 export default function RegisterScreen({ navigation }) {
+  const { colors } = useTheme();
   const [, dispatch] = useCurrentUser();
   const [formData, setFormData] = useState({
     name: '',
@@ -133,9 +134,10 @@ export default function RegisterScreen({ navigation }) {
       {error ? <HelperText type="error">{error}</HelperText> : null}
 
       <View style={styles.termsRow}>
-        <Checkbox
+        <Checkbox.Android
           status={agreedToTerms ? 'checked' : 'unchecked'}
           onPress={() => setAgreedToTerms(!agreedToTerms)}
+          uncheckedColor={colors.onSurface}
         />
         <View style={styles.termsText}>
           <Text variant="bodySmall">

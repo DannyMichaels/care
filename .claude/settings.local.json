@@ -64,7 +64,8 @@
       "WebFetch(domain:build.fhir.org)",
       "WebFetch(domain:forums.ohdsi.org)",
       "WebFetch(domain:manuals.plus)",
-      "WebFetch(domain:hl7.org)"
+      "WebFetch(domain:hl7.org)",
+      "Bash(netstat:*)"
     ]
   }
 }

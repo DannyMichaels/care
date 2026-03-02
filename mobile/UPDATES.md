@@ -2,6 +2,12 @@
 
 Small, shippable improvements to demonstrate active development during the Google Play testing period. Strike through items as they ship.
 
+## Tester Feedback (Priority)
+- [ ] Onboarding walkthrough for new users (interactive tutorial with skip option)
+- [ ] Google Sign-In integration
+- [ ] Styled Play Store screenshots with feature annotations
+- [ ] In-app feedback / bug report form
+
 ## UX Polish
 - [ ] Add pull-to-refresh on Insights screen
 - [ ] Add haptic feedback on mood/symptom/food logging

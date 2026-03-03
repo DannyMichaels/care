@@ -1,11 +1,11 @@
 class User < ApplicationRecord
-  has_secure_password
+  has_secure_password validations: false
 
   validates :name, presence: true, uniqueness: false
   validates :email, presence: true, uniqueness: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :password, length: { minimum: 8 }, allow_nil: true
-  validates :gender, presence: true, uniqueness: false
+  validates :password, length: { minimum: 8 }, if: -> { google_uid.blank? && !password_digest.present? }
+  validates :gender, presence: true, unless: -> { google_uid.present? }
   before_save :downcase_email
 
   has_many :moods, dependent: :destroy

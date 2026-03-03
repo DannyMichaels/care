@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_24_015413) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_03_052558) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -183,6 +183,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_24_015413) do
     t.boolean "email_verified", default: false
     t.boolean "is_admin", default: false, null: false
     t.boolean "show_age", default: false, null: false
+    t.string "google_uid"
+    t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
   end
 
   create_table "web_push_subscriptions", force: :cascade do |t|

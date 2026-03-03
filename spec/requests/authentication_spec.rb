@@ -118,4 +118,88 @@ RSpec.describe 'Authentication', type: :request do
       end
     end
   end
+
+  describe 'POST /auth/google' do
+    let(:google_token_data) do
+      {
+        'sub' => 'google-uid-123',
+        'email' => 'googleuser@gmail.com',
+        'name' => 'Google User'
+      }
+    end
+
+    before do
+      allow(HTTParty).to receive(:get)
+        .with(/oauth2\.googleapis\.com\/tokeninfo/)
+        .and_return(double(success?: true, parsed_response: google_token_data))
+    end
+
+    context 'with valid token for new user' do
+      it 'creates a user and returns token' do
+        expect {
+          post '/auth/google', params: { id_token: 'valid-google-token' }
+        }.to change(User, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['token']).to be_present
+        expect(json['user']['email']).to eq('googleuser@gmail.com')
+        expect(json['user']['google_uid']).to eq('google-uid-123')
+        expect(json['user']).not_to have_key('password_digest')
+      end
+    end
+
+    context 'with valid token for existing email user' do
+      let!(:existing_user) { create(:user, email: 'googleuser@gmail.com') }
+
+      it 'links the Google account and returns token' do
+        expect {
+          post '/auth/google', params: { id_token: 'valid-google-token' }
+        }.not_to change(User, :count)
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['token']).to be_present
+        expect(json['user']['email']).to eq('googleuser@gmail.com')
+        expect(existing_user.reload.google_uid).to eq('google-uid-123')
+      end
+    end
+
+    context 'with valid token for existing Google user' do
+      let!(:google_user) { create(:user, email: 'googleuser@gmail.com', google_uid: 'google-uid-123') }
+
+      it 'returns token without modifying user' do
+        expect {
+          post '/auth/google', params: { id_token: 'valid-google-token' }
+        }.not_to change(User, :count)
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['token']).to be_present
+        expect(json['user']['google_uid']).to eq('google-uid-123')
+      end
+    end
+
+    context 'with invalid Google token' do
+      before do
+        allow(HTTParty).to receive(:get)
+          .with(/oauth2\.googleapis\.com\/tokeninfo/)
+          .and_return(double(success?: false))
+      end
+
+      it 'returns unauthorized' do
+        post '/auth/google', params: { id_token: 'invalid-token' }
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'without id_token' do
+      it 'returns unprocessable entity' do
+        post '/auth/google', params: {}
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
 end

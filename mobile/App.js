@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme, createNavigationContainerRef } from '@react-navigation/native';
 import { PaperProvider, MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -21,6 +20,14 @@ setBaseUrl(__DEV__
   ? 'https://8363-72-69-40-53.ngrok-free.app'
   : 'https://care-api-k1b8.onrender.com'
 );
+
+try {
+  const { GoogleSignin } = require('@react-native-google-signin/google-signin');
+  GoogleSignin.configure({
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || '',
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '',
+  });
+} catch {}
 
 const navigationRef = createNavigationContainerRef();
 

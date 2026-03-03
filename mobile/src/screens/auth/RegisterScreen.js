@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { TextInput, Button, Text, HelperText, Checkbox, useTheme } from 'react-native-paper';
+import { TextInput, Button, Text, HelperText, Checkbox, Divider, useTheme } from 'react-native-paper';
 import { registerUser, getApiError } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
+import useGoogleAuth, { isGoogleAuthAvailable } from '../../hooks/useGoogleAuth';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 
@@ -23,6 +24,7 @@ export default function RegisterScreen({ navigation }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const google = useGoogleAuth(dispatch);
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -131,7 +133,9 @@ export default function RegisterScreen({ navigation }) {
         onDismiss={() => setShowDatePicker(false)}
       />
 
-      {error ? <HelperText type="error">{error}</HelperText> : null}
+      {error || google.error ? (
+        <HelperText type="error">{error || google.error}</HelperText>
+      ) : null}
 
       <View style={styles.termsRow}>
         <Checkbox.Android
@@ -169,6 +173,23 @@ export default function RegisterScreen({ navigation }) {
         style={styles.button}
       >
         Sign Up
+      </Button>
+
+      <View style={styles.dividerRow}>
+        <Divider style={styles.dividerLine} />
+        <Text variant="bodySmall" style={styles.dividerText}>or</Text>
+        <Divider style={styles.dividerLine} />
+      </View>
+
+      <Button
+        mode="outlined"
+        icon="google"
+        onPress={google.signIn}
+        loading={google.loading}
+        disabled={!isGoogleAuthAvailable || google.loading || loading}
+        style={styles.googleButton}
+      >
+        Sign up with Google
       </Button>
 
       <Button
@@ -211,6 +232,10 @@ const styles = StyleSheet.create({
   termsText: { flexDirection: 'row', flexWrap: 'wrap', flex: 1 },
   termsLink: { textDecorationLine: 'underline' },
   button: { marginTop: 8, paddingVertical: 4 },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 16 },
+  dividerLine: { flex: 1 },
+  dividerText: { marginHorizontal: 12, opacity: 0.5 },
+  googleButton: { paddingVertical: 4 },
   link: { marginTop: 8 },
   legalRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 16 },
   legalLabel: { fontSize: 12 },

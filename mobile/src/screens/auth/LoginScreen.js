@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
-import { TextInput, Button, Text, HelperText } from 'react-native-paper';
+import { TextInput, Button, Text, HelperText, Divider } from 'react-native-paper';
 import { loginUser, getApiError } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
+import useGoogleAuth, { isGoogleAuthAvailable } from '../../hooks/useGoogleAuth';
 import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function LoginScreen({ navigation }) {
@@ -12,6 +13,7 @@ export default function LoginScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const google = useGoogleAuth(dispatch);
 
   const handleLogin = async () => {
     setError('');
@@ -60,7 +62,9 @@ export default function LoginScreen({ navigation }) {
         }
       />
 
-      {error ? <HelperText type="error">{error}</HelperText> : null}
+      {error || google.error ? (
+        <HelperText type="error">{error || google.error}</HelperText>
+      ) : null}
 
       <Button
         mode="contained"
@@ -70,6 +74,23 @@ export default function LoginScreen({ navigation }) {
         style={styles.button}
       >
         Sign In
+      </Button>
+
+      <View style={styles.dividerRow}>
+        <Divider style={styles.dividerLine} />
+        <Text variant="bodySmall" style={styles.dividerText}>or</Text>
+        <Divider style={styles.dividerLine} />
+      </View>
+
+      <Button
+        mode="outlined"
+        icon="google"
+        onPress={google.signIn}
+        loading={google.loading}
+        disabled={!isGoogleAuthAvailable || google.loading || loading}
+        style={styles.googleButton}
+      >
+        Sign in with Google
       </Button>
 
       <Button
@@ -118,6 +139,10 @@ const styles = StyleSheet.create({
   subtitle: { textAlign: 'center', marginBottom: 24, opacity: 0.7 },
   input: { marginBottom: 12 },
   button: { marginTop: 8, paddingVertical: 4 },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 16 },
+  dividerLine: { flex: 1 },
+  dividerText: { marginHorizontal: 12, opacity: 0.5 },
+  googleButton: { paddingVertical: 4 },
   link: { marginTop: 8 },
   legalRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 16 },
   legalLabel: { fontSize: 12 },

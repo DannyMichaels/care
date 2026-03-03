@@ -40,6 +40,18 @@ export const verifyUser = async () => {
   return null;
 };
 
+export const googleSignIn = async (idToken) => {
+  try {
+    const resp = await api.post('/auth/google', { id_token: idToken });
+    const storage = getStorage();
+    await storage.setItem('authToken', resp?.data?.token);
+    api.defaults.headers.common.authorization = `Bearer ${resp?.data?.token}`;
+    return resp?.data?.user;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const removeToken = async () => {
   const storage = getStorage();
   await storage.removeItem('authToken');

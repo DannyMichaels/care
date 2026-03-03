@@ -17,7 +17,14 @@
       "bundleIdentifier": "com.cyberviper.care",
       "buildNumber": "3",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.266294533736-ike8cv0ud3tkv8345met9di79l9ctge3"
+            ]
+          }
+        ]
       }
     },
     "android": {
@@ -40,7 +47,8 @@
     "plugins": [
       "expo-secure-store",
       "@react-native-community/datetimepicker",
-      "expo-notifications"
+      "expo-notifications",
+      "@react-native-google-signin/google-signin"
     ],
     "extra": {
       "eas": {

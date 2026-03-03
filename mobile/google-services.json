@@ -12,7 +12,16 @@
           "package_name": "com.cyberviper.care"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "266294533736-fdp8jtaj9cn5p4s9b0ts05aftbmhg9b0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cyberviper.care",
+            "certificate_hash": "c7f522b5e10bfac391ecec177557ee53f60f5ed7"
+          }
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBY1IlNrDMs5mtDKVL_ShWnqRDFkRS50Gg"

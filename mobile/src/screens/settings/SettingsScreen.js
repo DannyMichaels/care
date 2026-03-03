@@ -8,6 +8,7 @@ import * as Device from 'expo-device';
 import { removeToken, getAge, toTitleCase, destroyUser, putUser } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import { useTheme } from '../../context/ThemeContext';
+import useGoogleAuth from '../../hooks/useGoogleAuth';
 import { registerForPushNotifications } from '../../services/notifications';
 import ScreenWrapper from '../../components/ScreenWrapper';
 
@@ -18,6 +19,7 @@ export default function SettingsScreen() {
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushDenied, setPushDenied] = useState(false);
   const [isDevice, setIsDevice] = useState(false);
+  const google = useGoogleAuth(dispatch);
 
   const checkPushStatus = useCallback(async () => {
     if (!Device.isDevice) return;
@@ -61,6 +63,7 @@ export default function SettingsScreen() {
   };
 
   const handleLogout = async () => {
+    await google.signOut();
     await removeToken();
     dispatch({ type: 'REMOVE_USER' });
   };

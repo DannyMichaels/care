@@ -437,3 +437,7 @@ if the user's input DOESN"T match one of the names in the foodRegex, it will ret
 - `DailyMedicationSchedulerJob` self-reschedules for next day after each run
 - removed Sidekiq Web UI, Foreman no longer needed (single Puma process)
 - disabled RX Guide Airtable API call (free tier limit hit), `rx_guide` returns `[]`
+
+<strong>March 2nd, 2026</strong>
+- added in-app feedback / bug report form
+- added Google Sign-In integration (Android) — alternative to email+password auth

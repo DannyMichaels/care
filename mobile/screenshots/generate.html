@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  .screenshot {
+    width: 1080px;
+    height: 1920px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .screenshot.active {
+    display: flex;
+  }
+
+  /* Top text area */
+  .top-text {
+    width: 100%;
+    padding: 80px 60px 40px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .top-text h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: 72px;
+    font-weight: 800;
+    color: #FDD835;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+
+  .top-text p {
+    font-family: 'Inter', sans-serif;
+    font-size: 36px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.4;
+  }
+
+  /* Phone screenshot area */
+  .phone-area {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    padding: 20px 60px 0;
+  }
+
+  .phone-frame {
+    position: relative;
+    width: 100%;
+    max-width: 860px;
+    height: 100%;
+    border-radius: 40px 40px 0 0;
+    overflow: hidden;
+    box-shadow: 0 -4px 60px rgba(0,0,0,0.5), 0 0 0 3px rgba(255,255,255,0.08);
+  }
+
+  .phone-frame img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Callout bubble */
+  .callout {
+    position: absolute;
+    background: #FDD835;
+    color: #121212;
+    font-family: 'Inter', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    padding: 14px 22px;
+    border-radius: 14px;
+    z-index: 10;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  .callout::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+
+  .callout.arrow-left::after {
+    left: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-right: 14px solid #FDD835;
+  }
+
+  .callout.arrow-right::after {
+    right: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-left: 14px solid #FDD835;
+  }
+</style>
+</head>
+<body>
+
+<!-- 1. HOME -->
+<div class="screenshot active" id="slide-1">
+  <div class="top-text">
+    <h1>Your Wellness Hub</h1>
+    <p>Meds, food, symptoms & mood<br>all in one place</p>
+  </div>
+  <div class="phone-area">
+    <div class="phone-frame">
+      <img src="file:///C:/Users/itzda/Downloads/Android Screenshots/android-home.jpg">
+    </div>
+    <div class="callout arrow-left" style="right: 24px; top: 580px;">Track meds</div>
+    <div class="callout arrow-left" style="right: 24px; top: 1100px;">Log your diet</div>
+  </div>
+</div>
+
+<!-- 2. ADD MEDICATION -->
+<div class="screenshot" id="slide-2">
+  <div class="top-text">
+    <h1>Medication Manager</h1>
+    <p>Custom icons, colors & schedules<br>for every prescription</p>
+  </div>
+  <div class="phone-area">
+    <div class="phone-frame">
+      <img src="file:///C:/Users/itzda/Downloads/iphone screenshots/iphone-add-med.webp">
+    </div>
+    <div class="callout arrow-left" style="right: 24px; top: 830px;">Pick your schedule</div>
+  </div>
+</div>
+
+<!-- 3. INSIGHTS -->
+<div class="screenshot" id="slide-3">
+  <div class="top-text">
+    <h1>Community Insights</h1>
+    <p>Share tips and learn from others<br>on similar journeys</p>
+  </div>
+  <div class="phone-area">
+    <div class="phone-frame">
+      <img src="file:///C:/Users/itzda/Downloads/Android Screenshots/android-insights.png">
+    </div>
+  </div>
+</div>
+
+<!-- 4. SETTINGS -->
+<div class="screenshot" id="slide-4">
+  <div class="top-text">
+    <h1>Dark Mode & More</h1>
+    <p>Customize your experience</p>
+  </div>
+  <div class="phone-area">
+    <div class="phone-frame">
+      <img src="file:///C:/Users/itzda/Downloads/Android Screenshots/android-settings.png">
+    </div>
+    <div class="callout arrow-left" style="right: 24px; top: 260px;">Easy on the eyes</div>
+  </div>
+</div>
+
+<!-- 5. LOGIN -->
+<div class="screenshot" id="slide-5">
+  <div class="top-text">
+    <h1>Simple & Secure</h1>
+    <p>Sign up in seconds<br>Your data stays private — always</p>
+  </div>
+  <div class="phone-area">
+    <div class="phone-frame">
+      <img src="file:///C:/Users/itzda/Downloads/Android Screenshots/android-login.png">
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

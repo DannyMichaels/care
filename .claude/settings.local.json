@@ -65,7 +65,13 @@
       "WebFetch(domain:forums.ohdsi.org)",
       "WebFetch(domain:manuals.plus)",
       "WebFetch(domain:hl7.org)",
-      "Bash(netstat:*)"
+      "Bash(netstat:*)",
+      "WebFetch(domain:docs.maestro.dev)",
+      "WebFetch(domain:maestro.dev)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:blog.nashtechglobal.com)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_install"
     ]
   }
 }

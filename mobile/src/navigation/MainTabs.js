@@ -22,6 +22,7 @@ import CommunityScreen from '../screens/community/CommunityScreen';
 import UserDetailScreen from '../screens/community/UserDetailScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 import BlockedUsersScreen from '../screens/settings/BlockedUsersScreen';
+import FeedbackScreen from '../screens/settings/FeedbackScreen';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createNativeStackNavigator();
@@ -72,6 +73,7 @@ function SettingsStackScreen() {
     <SettingsStack.Navigator screenOptions={{ headerShown: false }}>
       <SettingsStack.Screen name="SettingsMain" component={SettingsScreen} />
       <SettingsStack.Screen name="BlockedUsers" component={BlockedUsersScreen} />
+      <SettingsStack.Screen name="Feedback" component={FeedbackScreen} />
     </SettingsStack.Navigator>
   );
 }

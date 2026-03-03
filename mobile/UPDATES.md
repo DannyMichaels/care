@@ -5,7 +5,7 @@ Small, shippable improvements to demonstrate active development during the Googl
 ## Tester Feedback (Priority)
 - [ ] Onboarding walkthrough for new users (interactive tutorial with skip option)
 - [ ] Google Sign-In integration
-- [ ] Styled Play Store screenshots with feature annotations
+- [X] Styled Play Store screenshots with feature annotations
 - [ ] In-app feedback / bug report form
 
 ## UX Polish

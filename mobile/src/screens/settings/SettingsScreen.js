@@ -146,6 +146,12 @@ export default function SettingsScreen() {
       <Divider />
 
       <List.Item
+        title="Send Feedback"
+        left={(props) => <List.Icon {...props} icon="message-text-outline" />}
+        onPress={() => navigation.navigate('Feedback')}
+      />
+
+      <List.Item
         title="Blocked Users"
         left={(props) => <List.Icon {...props} icon="account-cancel-outline" />}
         onPress={() => navigation.navigate('BlockedUsers')}

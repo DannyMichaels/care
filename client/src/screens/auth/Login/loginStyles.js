@@ -69,6 +69,22 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: 340,
     marginBottom: 16,
   },
+  dividerRow: {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 340,
+    margin: '16px 0',
+  },
+  dividerLine: {
+    flex: 1,
+  },
+  dividerText: {
+    margin: '0 12px',
+    opacity: 0.5,
+    fontSize: '14px',
+    fontFamily: ['Montserrat', 'sans-serif'].join(','),
+  },
   visibility: {
     color: theme.palette.text.primary,
   },

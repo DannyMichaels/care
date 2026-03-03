@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 
 // Context
 import { useStateValue } from '../../../context/CurrentUserContext';
 
 // Services and Utilities
-import { loginUser } from '@care/shared';
+import { loginUser, googleSignIn } from '@care/shared';
 
 // Components
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import Divider from '@material-ui/core/Divider';
 import LinearProgressLoading from '../../../components/Loading/LinearProgressLoading.jsx';
 
 // Icons
@@ -52,6 +54,19 @@ export default function Login() {
         currentUser: userData,
       });
 
+      setIsLoading(false);
+      history.push('/');
+    } catch (error) {
+      setIsLoading(false);
+      setError(error.response);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setIsLoading(true);
+      const userData = await googleSignIn(credentialResponse.credential);
+      dispatch({ type: 'SET_USER', currentUser: userData });
       setIsLoading(false);
       history.push('/');
     } catch (error) {
@@ -146,7 +161,17 @@ export default function Login() {
             Login
           </Button>
         </form>
-        <Typography className={classes.register}>
+        <div className={classes.dividerRow}>
+          <Divider className={classes.dividerLine} />
+          <Typography className={classes.dividerText}>or</Typography>
+          <Divider className={classes.dividerLine} />
+        </div>
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => setError({ data: { message: 'Google Sign-In failed' } })}
+          width="340"
+        />
+        <Typography className={classes.register} style={{ marginTop: '20px' }}>
           Don't have an account? &nbsp;
           <Link className={classes.registerLink} to="/register">
             Register

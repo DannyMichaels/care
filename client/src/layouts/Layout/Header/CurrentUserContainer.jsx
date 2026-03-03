@@ -5,6 +5,7 @@ import { useHistory, useLocation, Link } from 'react-router-dom';
 import { useStateValue } from '../../../context/CurrentUserContext';
 import { useStyles } from './headerStyles';
 import { removeToken } from '@care/shared';
+import { googleLogout } from '@react-oauth/google';
 import LogoutIcon from '@material-ui/icons/ExitToApp';
 
 function CurrentUserContainer({ isMenuShowing }) {
@@ -15,6 +16,7 @@ function CurrentUserContainer({ isMenuShowing }) {
   const history = useHistory();
 
   const handleLogout = () => {
+    googleLogout();
     dispatch({ type: 'REMOVE_USER' });
     localStorage.removeItem('authToken');
     removeToken();

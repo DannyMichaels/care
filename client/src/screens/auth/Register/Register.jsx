@@ -1,5 +1,6 @@
 import { useState, useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 
 // Context
 import { useStateValue } from '../../../context/CurrentUserContext';
@@ -8,13 +9,14 @@ import {
 } from '../../../context/AllUsersContext';
 
 // Services and Utils
-import { toTitleCase, registerUser, checkPasswordLength } from '@care/shared';
+import { toTitleCase, registerUser, checkPasswordLength, googleSignIn } from '@care/shared';
 import moment from 'moment';
 
 // Components
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -72,6 +74,20 @@ export default function Register() {
       // Verification code is sent automatically by the backend on registration
       setIsLoading(false);
       history.push(`/verify-email?email=${encodeURIComponent(registerData.email)}`);
+    } catch (error) {
+      setIsLoading(false);
+      setError(error.response);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setIsLoading(true);
+      const userData = await googleSignIn(credentialResponse.credential);
+      dispatch({ type: 'SET_USER', currentUser: userData });
+      dispatchAllUsers({ type: 'USER_CREATED', payload: userData });
+      setIsLoading(false);
+      history.push('/');
     } catch (error) {
       setIsLoading(false);
       setError(error.response);
@@ -395,7 +411,18 @@ export default function Register() {
               Register
             </Button>
           </form>
-          <Typography className={classes.login}>
+          <div className={classes.dividerRow}>
+            <Divider className={classes.dividerLine} />
+            <Typography className={classes.dividerText}>or</Typography>
+            <Divider className={classes.dividerLine} />
+          </div>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError({ data: { message: 'Google Sign-In failed' } })}
+            text="signup_with"
+            width="340"
+          />
+          <Typography className={classes.login} style={{ marginTop: '20px' }}>
             Already have an account? &nbsp;
             <Link className={classes.loginLink} to="/login">
               Login
@@ -437,7 +464,7 @@ export default function Register() {
               rel="noreferrer"
               href="http://www.github.com/dannymichaels/care"
             >
-              Daniel Michael &copy; 2020
+              Daniel Michael &copy; {new Date().getFullYear()}
             </a>
           </Typography>
         </div>

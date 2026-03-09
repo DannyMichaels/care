@@ -4,6 +4,7 @@ import { TextInput, Button, Text, HelperText, Divider } from 'react-native-paper
 import { loginUser, getApiError } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import useGoogleAuth, { isGoogleAuthAvailable } from '../../hooks/useGoogleAuth';
+import useAppleAuth, { isAppleAuthAvailable } from '../../hooks/useAppleAuth';
 import ScreenWrapper from '../../components/ScreenWrapper';
 
 export default function LoginScreen({ navigation }) {
@@ -14,6 +15,7 @@ export default function LoginScreen({ navigation }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const google = useGoogleAuth(dispatch);
+  const apple = useAppleAuth(dispatch);
 
   const handleLogin = async () => {
     setError('');
@@ -62,8 +64,8 @@ export default function LoginScreen({ navigation }) {
         }
       />
 
-      {error || google.error ? (
-        <HelperText type="error">{error || google.error}</HelperText>
+      {error || google.error || apple.error ? (
+        <HelperText type="error">{error || google.error || apple.error}</HelperText>
       ) : null}
 
       <Button
@@ -92,6 +94,19 @@ export default function LoginScreen({ navigation }) {
       >
         Sign in with Google
       </Button>
+
+      {isAppleAuthAvailable && (
+        <Button
+          mode="outlined"
+          icon="apple"
+          onPress={apple.signIn}
+          loading={apple.loading}
+          disabled={apple.loading || loading}
+          style={styles.appleButton}
+        >
+          Sign in with Apple
+        </Button>
+      )}
 
       <Button
         mode="text"
@@ -143,6 +158,7 @@ const styles = StyleSheet.create({
   dividerLine: { flex: 1 },
   dividerText: { marginHorizontal: 12, opacity: 0.5 },
   googleButton: { paddingVertical: 4 },
+  appleButton: { paddingVertical: 4, marginTop: 8 },
   link: { marginTop: 8 },
   legalRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 16 },
   legalLabel: { fontSize: 12 },

@@ -9,6 +9,7 @@ import { removeToken, getAge, toTitleCase, destroyUser, putUser } from '@care/sh
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import { useTheme } from '../../context/ThemeContext';
 import useGoogleAuth from '../../hooks/useGoogleAuth';
+import useAppleAuth from '../../hooks/useAppleAuth';
 import { registerForPushNotifications } from '../../services/notifications';
 import ScreenWrapper from '../../components/ScreenWrapper';
 
@@ -20,6 +21,7 @@ export default function SettingsScreen() {
   const [pushDenied, setPushDenied] = useState(false);
   const [isDevice, setIsDevice] = useState(false);
   const google = useGoogleAuth(dispatch);
+  const apple = useAppleAuth(dispatch);
 
   const checkPushStatus = useCallback(async () => {
     if (!Device.isDevice) return;
@@ -64,6 +66,7 @@ export default function SettingsScreen() {
 
   const handleLogout = async () => {
     await google.signOut();
+    await apple.signOut();
     await removeToken();
     dispatch({ type: 'REMOVE_USER' });
   };

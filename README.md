@@ -441,3 +441,6 @@ if the user's input DOESN"T match one of the names in the foodRegex, it will ret
 <strong>March 2nd, 2026</strong>
 - added in-app feedback / bug report form
 - added Google Sign-In integration — alternative to email+password auth
+
+<strong>March 9th, 2026</strong>
+  - added sign in with apple on mobile app for IOS devices

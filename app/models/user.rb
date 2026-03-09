@@ -4,8 +4,8 @@ class User < ApplicationRecord
   validates :name, presence: true, uniqueness: false
   validates :email, presence: true, uniqueness: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :password, length: { minimum: 8 }, if: -> { google_uid.blank? && !password_digest.present? }
-  validates :gender, presence: true, unless: -> { google_uid.present? }
+  validates :password, length: { minimum: 8 }, if: -> { google_uid.blank? && apple_uid.blank? && !password_digest.present? }
+  validates :gender, presence: true, unless: -> { google_uid.present? || apple_uid.present? }
   before_save :downcase_email
 
   has_many :moods, dependent: :destroy

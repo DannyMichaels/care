@@ -119,6 +119,76 @@ RSpec.describe 'Authentication', type: :request do
     end
   end
 
+  describe 'POST /auth/apple' do
+    let(:apple_uid) { 'apple-uid-123' }
+    let(:apple_email) { 'appleuser@icloud.com' }
+    let(:apple_payload) { { 'sub' => apple_uid, 'email' => apple_email }.to_json }
+    let(:identity_token) { "header.#{Base64.encode64(apple_payload).tr("\n", '')}.signature" }
+
+    context 'with valid token for new user' do
+      it 'creates a user and returns token' do
+        expect {
+          post '/auth/apple', params: { identity_token: identity_token, full_name: 'Apple User' }
+        }.to change(User, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['token']).to be_present
+        expect(json['user']['email']).to eq(apple_email)
+        expect(json['user']['apple_uid']).to eq(apple_uid)
+        expect(json['user']['name']).to eq('Apple User')
+        expect(json['user']).not_to have_key('password_digest')
+      end
+    end
+
+    context 'with valid token for existing email user' do
+      let!(:existing_user) { create(:user, email: apple_email) }
+
+      it 'links the Apple account and returns token' do
+        expect {
+          post '/auth/apple', params: { identity_token: identity_token }
+        }.not_to change(User, :count)
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['token']).to be_present
+        expect(json['user']['email']).to eq(apple_email)
+        expect(existing_user.reload.apple_uid).to eq(apple_uid)
+      end
+    end
+
+    context 'with valid token for existing Apple user' do
+      let!(:apple_user) { create(:user, email: apple_email, apple_uid: apple_uid) }
+
+      it 'returns token without modifying user' do
+        expect {
+          post '/auth/apple', params: { identity_token: identity_token }
+        }.not_to change(User, :count)
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['token']).to be_present
+        expect(json['user']['apple_uid']).to eq(apple_uid)
+      end
+    end
+
+    context 'with invalid token' do
+      it 'returns unauthorized' do
+        post '/auth/apple', params: { identity_token: 'not-a-jwt' }
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'without identity_token' do
+      it 'returns unprocessable entity' do
+        post '/auth/apple', params: {}
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
+
   describe 'POST /auth/google' do
     let(:google_token_data) do
       {

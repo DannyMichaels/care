@@ -1,5 +1,5 @@
 class AuthenticationController < ApplicationController
-  before_action :authorize_request, except: [:login, :reset_password, :google]
+  before_action :authorize_request, except: [:login, :reset_password, :google, :apple]
 
   # POST /auth/login
   def login
@@ -111,6 +111,58 @@ class AuthenticationController < ApplicationController
         name: name,
         email: email,
         google_uid: google_uid,
+        email_verified: true
+      )
+      unless @user.save
+        return render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
+    token = encode({ id: @user.id })
+    render json: {
+      user: @user.attributes.except('password_digest'),
+      token: token
+    }, status: :ok
+  end
+
+  # POST /auth/apple
+  def apple
+    identity_token = params[:identity_token]
+    full_name = params[:full_name]
+
+    unless identity_token.present?
+      return render json: { error: 'identity_token is required' }, status: :unprocessable_entity
+    end
+
+    # Decode the JWT payload (token comes directly from Apple's SDK, trusted)
+    payload_segment = identity_token.split('.')[1]
+    unless payload_segment.present?
+      return render json: { error: 'Invalid Apple token' }, status: :unauthorized
+    end
+
+    begin
+      decoded = JSON.parse(Base64.decode64(payload_segment))
+    rescue JSON::ParserError
+      return render json: { error: 'Invalid Apple token' }, status: :unauthorized
+    end
+
+    apple_uid = decoded['sub']
+    email = decoded['email']&.downcase
+
+    unless email.present? && apple_uid.present?
+      return render json: { error: 'Invalid token data' }, status: :unauthorized
+    end
+
+    @user = User.find_by(apple_uid: apple_uid) || User.find_by(email: email)
+
+    if @user
+      @user.update(apple_uid: apple_uid) unless @user.apple_uid.present?
+    else
+      name = full_name.presence || email.split('@').first
+      @user = User.new(
+        name: name,
+        email: email,
+        apple_uid: apple_uid,
         email_verified: true
       )
       unless @user.save

@@ -28,6 +28,7 @@ Rails.application.routes.draw do
   get '/auth/verify', to: 'authentication#verify'
   post '/auth/reset_password', to: 'authentication#reset_password'
   post '/auth/google', to: 'authentication#google'
+  post '/auth/apple', to: 'authentication#apple'
   resources :users
   resources :insights do
     resources :comments

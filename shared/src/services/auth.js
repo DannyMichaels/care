@@ -52,6 +52,18 @@ export const googleSignIn = async (idToken) => {
   }
 };
 
+export const appleSignIn = async (identityToken, fullName) => {
+  try {
+    const resp = await api.post('/auth/apple', { identity_token: identityToken, full_name: fullName });
+    const storage = getStorage();
+    await storage.setItem('authToken', resp?.data?.token);
+    api.defaults.headers.common.authorization = `Bearer ${resp?.data?.token}`;
+    return resp?.data?.user;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const removeToken = async () => {
   const storage = getStorage();
   await storage.removeItem('authToken');

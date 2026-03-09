@@ -4,6 +4,7 @@ import { TextInput, Button, Text, HelperText, Checkbox, Divider, useTheme } from
 import { registerUser, getApiError } from '@care/shared';
 import { useCurrentUser } from '../../context/CurrentUserContext';
 import useGoogleAuth, { isGoogleAuthAvailable } from '../../hooks/useGoogleAuth';
+import useAppleAuth, { isAppleAuthAvailable } from '../../hooks/useAppleAuth';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DatePickerModal from '../../components/DatePickerModal';
 
@@ -25,6 +26,7 @@ export default function RegisterScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const google = useGoogleAuth(dispatch);
+  const apple = useAppleAuth(dispatch);
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -133,8 +135,8 @@ export default function RegisterScreen({ navigation }) {
         onDismiss={() => setShowDatePicker(false)}
       />
 
-      {error || google.error ? (
-        <HelperText type="error">{error || google.error}</HelperText>
+      {error || google.error || apple.error ? (
+        <HelperText type="error">{error || google.error || apple.error}</HelperText>
       ) : null}
 
       <View style={styles.termsRow}>
@@ -192,6 +194,19 @@ export default function RegisterScreen({ navigation }) {
         Sign up with Google
       </Button>
 
+      {isAppleAuthAvailable && (
+        <Button
+          mode="outlined"
+          icon="apple"
+          onPress={apple.signIn}
+          loading={apple.loading}
+          disabled={apple.loading || loading}
+          style={styles.appleButton}
+        >
+          Sign up with Apple
+        </Button>
+      )}
+
       <Button
         mode="text"
         onPress={() => navigation.navigate('Login')}
@@ -236,6 +251,7 @@ const styles = StyleSheet.create({
   dividerLine: { flex: 1 },
   dividerText: { marginHorizontal: 12, opacity: 0.5 },
   googleButton: { paddingVertical: 4 },
+  appleButton: { paddingVertical: 4, marginTop: 8 },
   link: { marginTop: 8 },
   legalRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 16 },
   legalLabel: { fontSize: 12 },

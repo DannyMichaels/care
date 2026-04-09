@@ -7,20 +7,19 @@ Rails.application.config.after_initialize do
 
     if delay.positive?
       job.job_class.constantize.set(wait: delay.seconds).perform_later(*job.arguments)
-    elsif delay > -1.hour
-      # Overdue by less than 1 hour — run now
-      job.job_class.constantize.perform_later(*job.arguments)
     else
-      # Too old, mark stale
-      job.complete!
+      # Overdue — run now regardless of how old
+      job.job_class.constantize.perform_later(*job.arguments)
     end
   end
 
   # Ensure a DailyMedicationSchedulerJob is always queued
-  ScheduledJob.enqueue_cron(
-    'DailyMedicationSchedulerJob',
-    run_at: Date.tomorrow.beginning_of_day
-  )
+  unless ScheduledJob.pending.where(job_class: 'DailyMedicationSchedulerJob').exists?
+    ScheduledJob.enqueue_cron(
+      'DailyMedicationSchedulerJob',
+      run_at: Date.tomorrow.beginning_of_day
+    )
+  end
 
   # Clean up completed jobs older than 7 days
   ScheduledJob.where(completed: true).where('created_at < ?', 7.days.ago).delete_all

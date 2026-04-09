@@ -17,7 +17,7 @@ setStorage({
 });
 
 setBaseUrl(__DEV__
-  ? 'https://8363-72-69-40-53.ngrok-free.app'
+  ? 'https://246c-72-69-40-53.ngrok-free.app'
   : 'https://care-api-k1b8.onrender.com'
 );
 

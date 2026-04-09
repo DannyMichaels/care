@@ -11,6 +11,8 @@
 Rails.application.routes.draw do
   # mount Sidekiq::Web => '/sidekiq'
 
+  get '/health', to: proc { [200, {}, ['ok']] }
+
   resources :likes, :only => [:show, :index, :destroy, :create]
   resources :medications do
     collection do
